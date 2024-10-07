@@ -1,0 +1,171 @@
+---
+title: "Homework #1"
+author: "Kevin Wong"
+date: "2024-10-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1a
+Opening the data in the RMD file
+```{r}
+data <- read.table("babies.txt", header = TRUE)
+head(data, 5)
+```
+
+Summarizing the variables of the data
+```{r}
+summary(data)
+
+bwt_description <- summary(data$bwt)
+print(bwt_description)
+
+gestation_description <- summary(data$gestation)
+print(gestation_description)
+
+parity_description <- summary(data$parity)
+print(parity_description)
+
+age_description <- summary(data$age)
+print(age_description)
+
+height_description <- summary(data$height)
+print(height_description)
+
+weight_description <- summary(data$weight)
+print(weight_description)
+
+smoke_description <- summary(data$smoke)
+print(smoke_description)
+```
+
+Finding the types of variables in the data
+```{r}
+str(data)
+```
+
+Creating histograms of the data
+```{r}
+hist(data$bwt, main = "Birthweight of Babies", xlab = "Weight (in Ounces)")
+hist(data$gestation, main = "Length of Gestation", xlab = "Days")
+hist(data$parity, main = "First Pregnancy", xlab = "0 (first pregnancy), or 1 (not first pregnancy)")
+hist(data$age, main = "Mother's Age", xlab = "Years")
+hist(data$height, main = "Height of Mother", xlab = "Inches")
+hist(data$weight, main = "Weight of Mother", xlab = "Pounds")
+hist(data$smoke, main = "Does the mother smoke?", xlab = "0 (no), or 1 (yes)")
+```
+
+## 1b
+Identify NA values in the dataset
+```{r}
+sapply(data, function(x) sum(is.na(x)))
+```
+
+Looking through the histograms of our data, it seems like there are outliers in the 'gestation', 'age', 'height', 'weight', and 'smoke' columns. This is because they are so drastically out of the way from the rest of the distribution that it's most likely faked or a big outlier.
+
+Here are the conditions:
+    $gestation > 500
+    $age > 50
+    $height > 80
+    $weight > 500
+    $smoke > 1 (since "smoke" is a binary variable)
+
+```{r}
+cleaned_df <- data[data$gestation < 500 & data$age < 50 & data$height < 80 & data$weight < 500 & data$smoke <= 1, ]
+head(cleaned_df, 5)
+```
+
+```{r}
+dim(cleaned_df)
+```
+
+## 1c
+
+The dataset does not qualify as a simple random sample. Assuming that we are interested in the general population, a simple random sample would mean that all births that occurred during the sample's time frame had an equal chance of being selected. Since only pregnancies that occurred under the Kaiser Health Plan in Oakland, CA were included in the data, this clearly is not the case. Additionally, only boy births were recorded with no cases of twins in the data. All recorded births resulted in babies that lived at least 28 days. All of these factors show that not all types of pregnancies are proportionally represented in the sample (particularly girl births). There is no apparent sampling method.
+
+## 2a
+
+```{r}
+smokers <- cleaned_df[cleaned_df$smoke == 1, ]
+non_smokers <- cleaned_df[cleaned_df$smoke == 0, ]
+```
+
+Let's find the minimum and maximum values of the characteristics of birthweight of these two dataframes
+```{r}
+smoker_min_bwt = min(smokers$bwt)
+print(paste("smoker_min_bwt: ", smoker_min_bwt))
+
+smoker_max_bwt = max(smokers$bwt)
+print(paste("smoke_max_bwt: ", smoker_max_bwt))
+
+nonsmoker_max_bwt = min(non_smokers$bwt)
+print(paste("nonsmoker_max_bwt: ", nonsmoker_max_bwt))
+
+nonsmoker_max_bwt = max(non_smokers$bwt)
+print(paste("nonsmoker_max_bwt: ", nonsmoker_max_bwt))
+```
+
+## 2b
+
+Let's now find the mean birth weight of babies born to these mothers
+```{r}
+smoker_mean_bwt = mean(smokers$bwt)
+print(paste("smoker_mean_bwt: ", smoker_mean_bwt))
+
+nonsmoker_mean_bwt = mean(non_smokers$bwt)
+print(paste("nonsmoker_mean_bwt: ", nonsmoker_mean_bwt))
+```
+
+## 2c
+
+Let's now find the median birth weight of babies born to these mothers
+```{r}
+smoker_median_bwt = median(smokers$bwt)
+print(paste("smoker_median_bwt: ", smoker_median_bwt))
+
+nonsmoker_median_bwt = median(non_smokers$bwt)
+print(paste("nonsmoker_median_bwt: ", nonsmoker_median_bwt))
+```
+
+## 2d
+
+What can be inferred about the skewness when comparing the mean and median values?
+
+Looking at the smoker-moms' children, since the median of their children's birthweight is larger than their mean, this implies that the data is most likely skewed left. For the non-smoker moms, since their mean is almost the exact same as the median (only a 0.08 pound difference), this implies that the distribution is roughly symmetric.
+
+## 2e
+
+Let's look through the quartiles of the the birthweights.
+
+```{r}
+smoker_quartiles <- quantile(smokers$bwt)
+nonsmoker_quartiles <- quantile(non_smokers$bwt)
+
+smoker_q1_bwt <- smoker_quartiles[2]
+print(smoker_q1_bwt)
+smoker_q2_bwt <- smoker_quartiles[3]
+print(smoker_q2_bwt)
+smoker_q3_bwt <- smoker_quartiles[4]
+print(smoker_q3_bwt)
+
+nonsmoker_q1_bwt <- nonsmoker_quartiles[2]
+print(nonsmoker_q1_bwt)
+nonsmoker_q2_bwt <- nonsmoker_quartiles[3]
+print(nonsmoker_q2_bwt)
+nonsmoker_q3_bwt <- nonsmoker_quartiles[4]
+print(nonsmoker_q3_bwt)
+```
+
+## 2f
+
+Let's look through the standard deviations of the two groups.
+
+```{r}
+smoker_std_bwt = sd(smokers$bwt)
+print(smoker_std_bwt)
+nonsmoker_std_bwt = sd(non_smokers$bwt)
+print(nonsmoker_std_bwt)
+```
