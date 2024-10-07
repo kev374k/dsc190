@@ -1,0 +1,89 @@
+# DSC190 - HW 1
+
+```{r}
+df <- read.table("babies.txt", header=TRUE)
+```
+
+```{r}
+str(df)
+```
+
+```{r}
+bwt_description <- summary(df$bwt)
+print(bwt_description)
+```
+
+```{r}
+hist(df$bwt, main = "Birthweight", xlab = "Birthweight (oz)", col = "lightblue")
+```
+
+```{r}
+gestation_description <- summary(df$gestation)
+print(gestation_description)
+```
+
+```{r}
+hist(df$gestation, main = "Gestation", xlab = "Gestation (days)", col = "red")
+```
+
+```{r}
+parity_description <- summary(df$parity)
+print(parity_description)
+```
+
+```{r}
+hist(df$parity, main = "Parity", xlab = "Parity (0 = First Pregnancy)", col = "lightgreen")
+```
+
+```{r}
+age_description <- summary(df$age)
+print(age_description)
+```
+
+```{r}
+hist(df$age, main = "Mother's Age", xlab = "Age (years)", col = "lightgrey")
+```
+
+```{r}
+height_description <- summary(df$height)
+print(height_description)
+```
+
+```{r}
+hist(df$height, main = "Mother's Height", xlab = "Height (inches)", col = "lightpink")
+```
+
+```{r}
+weight_description <- summary(df$weight)
+print(weight_description)
+```
+
+```{r}
+hist(df$weight, main = "Mother's Weight", xlab = "Weight (lbs)", col = "lightgreen")
+```
+
+```{r}
+smoke_description <- summary(df$smoke)
+print(smoke_description)
+```
+
+```{r}
+hist(df$smoke, main = "Smoking Status", xlab = "Smoker (0 = No)", col = "lightblue")
+```
+
+```{r}
+any(is.na(df))
+```
+
+```{r}
+cleaned_df <- df[df$gestation < 500 & df$age < 50 & df$height < 80 & df$weight < 500 & df$smoke <= 1, ]
+head(cleaned_df, 5)
+```
+
+```{r}
+dim(cleaned_df)
+```
+
+### c.
+
+The dataset does not qualify as a simple random sample. Assuming that we are interested in the general population, a simple random sample would mean that all births that occurred during the sample's time frame had an equal chance of being selected. Since only pregnancies that occurred under the Kaiser Health Plan in Oakland, CA were included in the data, this clearly is not the case. Additionally, only boy births were recorded with no cases of twins in the data. All recorded births resulted in babies that lived at least 28 days. All of these factors show that not all types of pregnancies are proportionally represented in the sample (particularly girl births). There is no apparent sampling method.
