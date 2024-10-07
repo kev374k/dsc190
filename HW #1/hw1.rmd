@@ -169,3 +169,44 @@ print(smoker_std_bwt)
 nonsmoker_std_bwt = sd(non_smokers$bwt)
 print(nonsmoker_std_bwt)
 ```
+
+## 4a
+
+What percentage of babies weigh under 100 ounces to women who used to smoke?
+
+```{r}
+low_bwt_smoker <- nrow(smokers[smokers$bwt < 100, ] ) / nrow(smokers)
+print(low_bwt_smoker)
+```
+
+## 4b
+
+```{r}
+low_bwt_nonsmoker <- nrow(non_smokers[non_smokers$bwt < 100, ] ) / nrow(non_smokers)
+print(low_bwt_nonsmoker)
+```
+
+## 4c
+
+```{r}
+hist(non_smokers$bwt)
+hist(smokers$bwt)
+```
+
+```{r}
+print(nrow(smokers[smokers$bwt < 80, ]) / nrow(smokers))
+print(nrow(non_smokers[non_smokers$bwt < 80, ] ) / nrow(non_smokers))
+
+print(nrow(smokers[smokers$bwt < 120, ] ) / nrow(smokers))
+print(nrow(non_smokers[non_smokers$bwt < 120, ] ) / nrow(non_smokers))
+```
+
+Just through analysis of the histograms of the weights of babies between the two groups, it looks like if we classify low-birth-weight babies even lower (i.e. 80 ounces), smokers still have a higher percentage of low-weight babies, but the margin between them decreases. On the other hand, if we increase the weight of a low-weight baby (i.e. 120 ounces), then the gap between the two distributions widens.
+
+## 4d 
+Looking through the histograms we created above, by changing the threshold of low-birth-weight babies to a lower threshold (i.e. 80 or 90 pounds), there will be less babies classified as low birth weight. This leads to a lowering in percentage in both groups, and this evens out the percentage of low-birth-weight babies between the two groups, though smokers still have a slightly higher percentage. On the other hand, if the low-birth-weight threshold is increased, the percentage of low birth weight babies increases, though significantly higher for moms that used to be smokers. While at 100 ounces, the difference between the two distributions percentages was at ~14%, at a higher threshold, the difference blossoms to around 21%, showing more significant differences between smoking moms and non-smoking moms, specifically through the birth weight of their children.
+
+## 5
+Numerical comparisons give exact values for statistics, allowing for very precise measurements of the data that we have. It also has a clear interpretation of numbers that can easily be used for comparison. On the other hand, it's more difficult to determine the distribution of data, since we could mostly only go through things like the quartiles, mean, median, and standard deviation. Although most of the time, it is a normal distribution, if it's two peaked, or heavily skewed in one direction or the other, it's not as obvious and doesn't have as much context
+In terms of graphical comparisons, they provide a much better visual insight as to what can occur in the data. For instance, by graphing out all the variables at the beginning, we were able to determine which rows had outliers and got rid of them. We could also observe trends in the data easier, like if it was normally distributed or not. The problem with visual interpretations of the data is that if there are outliers, it can be misleading. For instance, when we saw the outlier for the "smoke" histogram, we weren't able to see the distribution regarding whether a mother smoked or not because both 0 and 1 (the values of whether a mother smoked or not) were placed in one bin. This can be misleading and lead to worse interpreations if you look at the graphs incorrectly.
+Finally, for the incidence comparisons, they allow for a better indepth look at specific questions, like the question regarding the low-birth-weight rate of babies between the two distributions of mothers. These are easier to communicate, because they directly answer a question simply. However, these lack detail, and can be misleading as there's no context to many questions. For instance, if we defined low-birth-weight differently among the two distributions, there would be massively different results, leading to different and potential misleading interpretations and conclusions. Finally, there is a lack of detail with the incidence comparisons, because they don't convey any characteristics of the data outside the number that was given.
