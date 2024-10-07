@@ -87,3 +87,30 @@ dim(cleaned_df)
 ### c.
 
 The dataset does not qualify as a simple random sample. Assuming that we are interested in the general population, a simple random sample would mean that all births that occurred during the sample's time frame had an equal chance of being selected. Since only pregnancies that occurred under the Kaiser Health Plan in Oakland, CA were included in the data, this clearly is not the case. Additionally, only boy births were recorded with no cases of twins in the data. All recorded births resulted in babies that lived at least 28 days. All of these factors show that not all types of pregnancies are proportionally represented in the sample (particularly girl births). There is no apparent sampling method.
+
+```{r}
+library(lattice)
+densityplot(~ bwt, group = smoke, data = cleaned_df, plot.points = FALSE,
+            auto.key = list(
+              columns = 2, 
+              title = "Smokes?", 
+              space = "right",
+              text = c("No","Yes")),
+            main = "Density Plot of Birthweight by Smoking Status",
+            xlab = "Birthweight (oz)",
+            col = c("blue", "red"))
+```
+
+```{r}
+boxplot(bwt ~ smoke, 
+        data = cleaned_df, 
+        main = "Boxplot of Birthweight by Smoking Status",
+        xlab = "Smoking Status (0 = Non-Smoker, 1 = Smoker)",
+        ylab = "Birthweight (oz)",
+        col = c("lightblue", "lightcoral"),
+        names = c("Non-Smoker", "Smoker"))
+```
+
+### b.
+
+According to the boxplots, the non-smoking group has a higher median birthweight than the smoking group. Additionally, the range and interquartile range of the birthweight distributions are much smaller for non-smokers, suggesting less variance among the babies of non-smoking mothers. Looking at the density plot, the distribution looks unimodal for non-smokers and almost bimodal for smokers.
