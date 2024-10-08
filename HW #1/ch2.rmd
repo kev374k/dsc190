@@ -1,0 +1,126 @@
+# DSC 190: Chapter 2
+
+#-------------------------------------------------------------------------------
+# Case study 1
+
+# Load data
+```{r}
+dat = read.table('babies.txt', header=T)
+head(dat)
+```
+
+# Histogram of mothers' heights
+```{r}
+hist(dat$height)
+hist(dat$height, breaks = 20)
+hist(dat$height, breaks = 50)
+hist(dat$height, breaks = 100)
+```
+
+# Remove missing data
+```{r}
+ind = which(dat$height > 90)
+dat[ind,]
+dat.valid = dat[-ind,]
+hist(dat.valid$height, breaks = 20)
+```
+#-------------------------------------------------------------------------------
+# The normal curve
+
+# Standard normal
+```{r}
+curve(dnorm(x), -4, 4)
+abline(h = 0)
+abline(v = -1, col='blue'); pnorm(-1)
+abline(v = 1, col='blue'); pnorm(1)
+pnorm(1) - pnorm(-1)
+abline(v = -2, col='red'); pnorm(-2)
+abline(v = 2, col='red'); pnorm(2)
+pnorm(2) - pnorm(-2)
+```
+
+# Other parameters
+```{r}
+mu = 5; sigma = 2
+n = 1000
+X = rnorm(n, mean = mu, sd = sigma)
+hist(X, breaks = 50, probability=T)
+curve(dnorm(x), -4, 4, col='red', lwd=2, add=T)
+curve(dnorm(x, mean = mu, sd = sigma), -1, 13, col='blue', lwd=2, add=T)
+Xbar = mean(X)
+Xbar
+S = sd(X)
+S
+Z = (X - Xbar)/S
+hist(Z, breaks = 50, probability=T)
+curve(dnorm(x), -4, 4, col='red', lwd=2, add=T)
+```
+
+# CHDS data
+```{r}
+Z = (dat.valid$height - mean(dat.valid$height)) / sd(dat.valid$height)
+F = ecdf(Z)
+F(3) - F(-3)
+F(2) - F(-2)
+F(1) - F(-1)
+```
+#-------------------------------------------------------------------------------
+# Skewness
+skew = function(X) {
+  Xbar = mean(X); S = sd(X)
+  Z = (X - Xbar)/S
+  mean(Z^3)
+}
+
+# Simulate
+mu = 5; sigma = 2
+n = nrow(dat)
+X = rnorm(n, mean = mu, sd = sigma)
+Z = (X - mean(X)) / sd(X)
+skew(X)
+skew(Z)
+
+# Kurtosis
+kurt = function(X) {
+  Xbar = mean(X); S = sd(X)
+  Z = (X - Xbar)/S
+  mean(Z^4)
+}
+
+# Simulate
+mu = 5; sigma = 2
+n = nrow(dat)
+X = rnorm(n, mean = mu, sd = sigma)
+Z = (X - mean(X)) / sd(X)
+kurt(X)
+kurt(Z)
+
+# Repeating the above simulation N=1000 times will give a distribution of possible skewness and kurtosis values.
+# Skewness and Kurtosis are examples. The same technique can be applied to any statistic.
+
+kurt(dat.valid$height)
+
+#-------------------------------------------------------------------------------
+# QQ plot
+X = rnorm(n, mean = mu, sd = sigma)
+Z = (X - mean(X)) / sd(X)
+qqnorm(Z)
+abline(0, 1, col='red', lwd=2)
+qqnorm(X)
+abline(0, 1, col='red', lwd=2)
+abline(mu, sigma, col='blue', lwd=2)
+
+# Example: uniform
+U = runif(1000, min = -1, max = 1)
+hist(U, breaks = 50, probability = T, xlim = c(-3,3))
+curve(dnorm(x), -4, 4, col='red', lwd=2, add=T)
+qqnorm(U)
+abline(0, 1, col='red', lwd=2)
+
+# Example: exponential
+W = rexp(1000, rate = 1)
+hist(W, breaks = 50, probability = T, xlim = c(-3,3))
+curve(dnorm(x), -4, 4, col='red', lwd=2, add=T)
+qqnorm(W)
+abline(0, 1, col='red', lwd=2)
+

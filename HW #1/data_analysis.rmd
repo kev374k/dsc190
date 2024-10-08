@@ -46,8 +46,42 @@ The remainder of the report will go through a basic analysis of the data, includ
 
 ### Methods
 
-```{r data-processing}
-# Your R code for data processing
+```{r}
+data <- read.table("babies.txt", header = TRUE)
+head(data, 5)
+
+summary(data)
+
+bwt_description <- summary(data$bwt)
+print(bwt_description)
+
+gestation_description <- summary(data$gestation)
+print(gestation_description)
+
+parity_description <- summary(data$parity)
+print(parity_description)
+
+age_description <- summary(data$age)
+print(age_description)
+
+height_description <- summary(data$height)
+print(height_description)
+
+weight_description <- summary(data$weight)
+print(weight_description)
+
+smoke_description <- summary(data$smoke)
+print(smoke_description)
+```
+
+```{r}
+hist(data$bwt, main = "Birthweight of Babies", xlab = "Weight (in Ounces)")
+hist(data$gestation, main = "Length of Gestation", xlab = "Days")
+hist(data$parity, main = "First Pregnancy", xlab = "0 (first pregnancy), or 1 (not first pregnancy)")
+hist(data$age, main = "Mother's Age", xlab = "Years")
+hist(data$height, main = "Height of Mother", xlab = "Inches")
+hist(data$weight, main = "Weight of Mother", xlab = "Pounds")
+hist(data$smoke, main = "Does the mother smoke?", xlab = "0 (no), or 1 (yes)")
 ```
 
 ### Analysis
