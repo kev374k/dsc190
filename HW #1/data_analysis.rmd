@@ -31,14 +31,14 @@ The data provided is a Child Health and Development Studies dataset, which consi
 
 ## Main Research Questions
 
-1. What are the numerical distributions of the birth weight for babies born to women who smoked versus those who didn't smoke. 
+1. What are the numerical distributions of the birth weight for babies born to women who smoked versus those who didn't smoke?
 2. Is there a significant difference in these two distributions? If so, what type of conclusion can be reached?
 3. What percentage of babies born between these two groups (non-smoking mothers and smoking mothers) are considered low-birth-weight babies? Is there a difference?
 4. How does the reliability of the three types of comparisons - numerical, graphical, and incidence - change based on our data, and which was the best?
 
 ## Outline
 
-Brief outline of the remainder of the report.
+The remainder of the report will go through a basic analysis of the data, including our cleaning methods, basic analysis on various variables in the study, and more. Additionally, we will analysis the questions posed above, along with the conclusions that we came up with in our data.
 
 # Basic Analysis
 
