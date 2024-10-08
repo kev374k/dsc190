@@ -120,7 +120,7 @@ print(paste("nonsmoker_mean_bwt: ", nonsmoker_mean_bwt))
 ```
 
 ## 2c
-
+2
 Let's now find the median birth weight of babies born to these mothers
 ```{r}
 smoker_median_bwt = median(smokers$bwt)
@@ -208,5 +208,4 @@ Looking through the histograms we created above, by changing the threshold of lo
 
 ## 5
 Numerical comparisons give exact values for statistics, allowing for very precise measurements of the data that we have. It also has a clear interpretation of numbers that can easily be used for comparison. On the other hand, it's more difficult to determine the distribution of data, since we could mostly only go through things like the quartiles, mean, median, and standard deviation. Although most of the time, it is a normal distribution, if it's two peaked, or heavily skewed in one direction or the other, it's not as obvious and doesn't have as much context
-In terms of graphical comparisons, they provide a much better visual insight as to what can occur in the data. For instance, by graphing out all the variables at the beginning, we were able to determine which rows had outliers and got rid of them. We could also observe trends in the data easier, like if it was normally distributed or not. The problem with visual interpretations of the data is that if there are outliers, it can be misleading. For instance, when we saw the outlier for the "smoke" histogram, we weren't able to see the distribution regarding whether a mother smoked or not because both 0 and 1 (the values of whether a mother smoked or not) were placed in one bin. This can be misleading and lead to worse interpreations if you look at the graphs incorrectly.
 Finally, for the incidence comparisons, they allow for a better indepth look at specific questions, like the question regarding the low-birth-weight rate of babies between the two distributions of mothers. These are easier to communicate, because they directly answer a question simply. However, these lack detail, and can be misleading as there's no context to many questions. For instance, if we defined low-birth-weight differently among the two distributions, there would be massively different results, leading to different and potential misleading interpretations and conclusions. Finally, there is a lack of detail with the incidence comparisons, because they don't convey any characteristics of the data outside the number that was given.

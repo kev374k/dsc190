@@ -1,0 +1,171 @@
+---
+title: "Impact of Maternal Smoking on Infant Birthweight"
+author: "Author 1 and Author 2"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Header
+
+## Author Contributions
+Brief description of the respective contribution of each team member.
+
+Author 1: Worked on questions #1, #3, and #5, and created the data analysis template for the homework
+
+Author 2:
+
+## Use of GPT
+ChatGPT was used as a substitute for documentation for R. Since we were unfamiliar with R, we asked ChatGPT how to use R in certain methods in order to find and filter out conditions in the dataset. We additionally used GPT to analyze reasoning and to confirm what we thought was correct about the dataset, as well as to identify extra questions that could be answered for our advanced analysis.
+
+# Introduction
+
+The data provided is a Child Health and Development Studies dataset, which consisted of all pregnancies that occurred from 1960-1967 among women with the **Kaiser Health Plan** in Oakland, CA. Some important things to note are that all 1236 babies in the dataset are boys, there are no twins, and all lived at least 28 days. It's important to keep in mind that this is not classified as a simple random sample of all pregnancies, because the conditions just posed cannot be proven to be a totally random sample of all babies born to mothers. However, we are still studying this data beause it still should be a decent representation of differences in weight between babies born to mothers who smoked during pregnancy and those who didn't, even if it is not totally representative of all babies. 
+
+## Main Research Questions
+
+1. What are the numerical distributions of the birth weight for babies born to women who smoked versus those who didn't smoke. 
+2. Is there a significant difference in these two distributions? If so, what type of conclusion can be reached?
+3. What percentage of babies born between these two groups (non-smoking mothers and smoking mothers) are considered low-birth-weight babies? Is there a difference?
+4. How does the reliability of the three types of comparisons - numerical, graphical, and incidence - change based on our data, and which was the best?
+
+## Outline
+
+Brief outline of the remainder of the report.
+
+# Basic Analysis
+
+## Data Processing and Summaries
+
+### Methods
+
+```{r data-processing}
+# Your R code for data processing
+```
+
+### Analysis
+
+```{r data-summary}
+# Your R code for data summary
+```
+
+### Conclusions
+
+Your conclusions about data processing and summaries.
+
+## Question 1
+
+### Methods
+
+```{r q1-methods}
+# Your R code for methods related to Question 1
+```
+
+### Analysis
+
+```{r q1-analysis}
+# Your R code for analysis related to Question 1
+```
+
+### Conclusions
+
+Your conclusions for Question 1.
+
+## Question 2
+
+### Methods
+
+```{r q2-methods}
+# Your R code for methods related to Question 2
+```
+
+### Analysis
+
+```{r q2-analysis}
+# Your R code for analysis related to Question 2
+```
+
+### Conclusions
+
+Your conclusions for Question 2.
+
+## Question 3
+
+### Methods
+
+```{r q3-methods}
+# Your R code for methods related to Question 3
+```
+
+### Analysis
+
+```{r q3-analysis}
+# Your R code for analysis related to Question 3
+```
+
+### Conclusions
+
+Your conclusions for Question 3.
+
+## Question 4
+
+### Methods
+
+```{r q4-methods}
+# Your R code for methods related to Question 4
+```
+
+### Analysis
+
+```{r q4-analysis}
+# Your R code for analysis related to Question 4
+```
+
+### Conclusions
+
+Your conclusions for Question 4.
+
+# Advanced Analysis
+
+## Additional Research Question
+
+### Methods
+
+```{r advanced-methods}
+# Your R code for methods related to the advanced question
+```
+
+### Analysis
+
+```{r advanced-analysis}
+# Your R code for analysis related to the advanced question
+```
+
+### Conclusions
+
+Your conclusions for the advanced analysis.
+
+# Conclusions and Discussion
+
+## Summary of Findings
+
+Reprise the questions and goals of the analysis stated in the introduction. Summarize the findings and compare them to the original goals.
+
+## Discussion
+
+Additional observations or details gleaned from the analysis section. Discuss relevance to the science and other studies, if applicable. Address data limitations. Raise new questions and suggest future work.
+
+# Appendix
+
+Include any additional technical details, tables, or figures that support your analysis but would disrupt the flow of the main text if included earlier.
+
+```{r appendix-code, eval=FALSE}
+# Additional R code or output can be included here
+```
