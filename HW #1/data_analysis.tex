@@ -119,7 +119,9 @@
 Brief description of the respective contribution of each team member.
 
 Author 1: Worked on questions \#1, \#3, and \#5, and created the data
-analysis template for the homework
+analysis template for the homework. Additionally, Author 1 worked on the
+advanced analysis question, creating the visualization for the problem
+and describing it.
 
 Author 2:
 
@@ -186,21 +188,7 @@ Summaries}\label{data-processing-and-summaries}
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{data }\OtherTok{\textless{}{-}} \FunctionTok{read.table}\NormalTok{(}\StringTok{"babies.txt"}\NormalTok{, }\AttributeTok{header =} \ConstantTok{TRUE}\NormalTok{)}
-\FunctionTok{head}\NormalTok{(data, }\DecValTok{5}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
 
-\begin{verbatim}
-##   bwt gestation parity age height weight smoke
-## 1 120       284      0  27     62    100     0
-## 2 113       282      0  33     64    135     0
-## 3 128       279      0  28     64    115     1
-## 4 123       999      0  36     69    190     0
-## 5 108       282      0  23     67    125     1
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \FunctionTok{summary}\NormalTok{(data)}
 \end{Highlighting}
 \end{Shaded}
@@ -225,7 +213,7 @@ Summaries}\label{data-processing-and-summaries}
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{bwt\_description }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{bwt)}
-\FunctionTok{print}\NormalTok{(bwt\_description)}
+\NormalTok{bwt\_description}
 \end{Highlighting}
 \end{Shaded}
 
@@ -237,7 +225,7 @@ Summaries}\label{data-processing-and-summaries}
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{gestation\_description }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{gestation)}
-\FunctionTok{print}\NormalTok{(gestation\_description)}
+\NormalTok{gestation\_description}
 \end{Highlighting}
 \end{Shaded}
 
@@ -249,7 +237,7 @@ Summaries}\label{data-processing-and-summaries}
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{parity\_description }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{parity)}
-\FunctionTok{print}\NormalTok{(parity\_description)}
+\NormalTok{parity\_description}
 \end{Highlighting}
 \end{Shaded}
 
@@ -261,7 +249,7 @@ Summaries}\label{data-processing-and-summaries}
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{age\_description }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{age)}
-\FunctionTok{print}\NormalTok{(age\_description)}
+\NormalTok{age\_description}
 \end{Highlighting}
 \end{Shaded}
 
@@ -273,7 +261,7 @@ Summaries}\label{data-processing-and-summaries}
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{height\_description }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{height)}
-\FunctionTok{print}\NormalTok{(height\_description)}
+\NormalTok{height\_description}
 \end{Highlighting}
 \end{Shaded}
 
@@ -285,7 +273,7 @@ Summaries}\label{data-processing-and-summaries}
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{weight\_description }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{weight)}
-\FunctionTok{print}\NormalTok{(weight\_description)}
+\NormalTok{weight\_description}
 \end{Highlighting}
 \end{Shaded}
 
@@ -297,13 +285,37 @@ Summaries}\label{data-processing-and-summaries}
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{smoke\_description }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(data}\SpecialCharTok{$}\NormalTok{smoke)}
-\FunctionTok{print}\NormalTok{(smoke\_description)}
+\NormalTok{smoke\_description}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##  0.0000  0.0000  0.0000  0.4644  1.0000  9.0000
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{data_analysis_files/figure-latex/unnamed-chunk-2-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{data_analysis_files/figure-latex/unnamed-chunk-2-2.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{data_analysis_files/figure-latex/unnamed-chunk-2-3.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{data_analysis_files/figure-latex/unnamed-chunk-2-4.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{data_analysis_files/figure-latex/unnamed-chunk-2-5.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{data_analysis_files/figure-latex/unnamed-chunk-2-6.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{data_analysis_files/figure-latex/unnamed-chunk-2-7.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cleaned\_df }\OtherTok{\textless{}{-}}\NormalTok{ data[data}\SpecialCharTok{$}\NormalTok{gestation }\SpecialCharTok{\textless{}} \DecValTok{500} \SpecialCharTok{\&}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{age }\SpecialCharTok{\textless{}} \DecValTok{50} \SpecialCharTok{\&}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{height }\SpecialCharTok{\textless{}} \DecValTok{80} \SpecialCharTok{\&}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{weight }\SpecialCharTok{\textless{}} \DecValTok{500} \SpecialCharTok{\&}\NormalTok{ data}\SpecialCharTok{$}\NormalTok{smoke }\SpecialCharTok{\textless{}=} \DecValTok{1}\NormalTok{, ]}
+\FunctionTok{head}\NormalTok{(cleaned\_df, }\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   bwt gestation parity age height weight smoke
+## 1 120       284      0  27     62    100     0
+## 2 113       282      0  33     64    135     0
+## 3 128       279      0  28     64    115     1
+## 5 108       282      0  23     67    125     1
+## 6 136       286      0  25     62     93     0
 \end{verbatim}
 
 \subsubsection{Analysis}\label{analysis}
@@ -318,7 +330,7 @@ Summaries}\label{data-processing-and-summaries}
 
 Your conclusions about data processing and summaries.
 
-\subsection{Question 1}\label{question-1}
+\subsection{Question 1 (rename)}\label{question-1-rename}
 
 \subsubsection{Methods}\label{methods-1}
 
@@ -340,7 +352,7 @@ Your conclusions about data processing and summaries.
 
 Your conclusions for Question 1.
 
-\subsection{Question 2}\label{question-2}
+\subsection{Question 2 (rename)}\label{question-2-rename}
 
 \subsubsection{Methods}\label{methods-2}
 
@@ -362,7 +374,7 @@ Your conclusions for Question 1.
 
 Your conclusions for Question 2.
 
-\subsection{Question 3}\label{question-3}
+\subsection{Question 3 (rename)}\label{question-3-rename}
 
 \subsubsection{Methods}\label{methods-3}
 
@@ -384,7 +396,7 @@ Your conclusions for Question 2.
 
 Your conclusions for Question 3.
 
-\subsection{Question 4}\label{question-4}
+\subsection{Question 4 (rename)}\label{question-4-rename}
 
 \subsubsection{Methods}\label{methods-4}
 
@@ -411,25 +423,62 @@ Your conclusions for Question 4.
 \subsection{Additional Research
 Question}\label{additional-research-question}
 
+How does smoking's impact on a baby's birth weight vary depending on how
+long the pregnancy last?
+
 \subsubsection{Methods}\label{methods-5}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Your R code for methods related to the advanced question}
-\end{Highlighting}
-\end{Shaded}
+\pandocbounded{\includegraphics[keepaspectratio]{data_analysis_files/figure-latex/advanced-analysis-1.pdf}}
+
+The method we used to analyze the relationship between one of the other
+variables in the dataset, ``gestation'', and the babies' weights and
+parents' smoking status was by using a scatterplot. For starters, we
+wanted to visually see if there was a relationship between the gestation
+period and the birth weight, so we used these as our x and y-axes,
+respectively. In order to identify the difference smoking mothers and
+non-smoking mothers, we realized that since it was a categorical
+variable, we could color the dots to indicate it's status. Additionally,
+we also created a regression line for each subset of mothers, so we
+could see if a mother's smoking status could visually be represented
+differently on the plot itself.
 
 \subsubsection{Analysis}\label{analysis-5}
 
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Your R code for analysis related to the advanced question}
-\end{Highlighting}
-\end{Shaded}
+As a general trend, both smokers and non-smokers show a positive
+correlation between gestation and birth-weight, indicating that the
+longer a gestation period is, the baby's birth weight typically
+increases.
+
+We also see that the two regression lines (for smoking moms and
+non-smoking moms) have different slopes. It's shown that the line
+associated with the smoking moms has a steeper slope than than the line
+associated with non-smoking mothers. This suggests that for smokers,
+birth weight increases more rapidly with longer gestation periods for
+smokers.
+
+We can also notice that over the same gestation periods, babies born to
+smokers tend to have lower birth weights than their respective
+counterparts, as observed by the fact that the red line is consistently
+lower than the blue line for most of the gestation period.
+
+Another thing that can be noticed is the variability of the gestation
+periods, specifically for non-smoking mothers. Looking through the data,
+gestation periods for mothers ranged from 150-350 days, while smoking
+mothers had a much smaller range, typically falling from a range of
+220-330 days.
+
+Finally, the last thing to notice from this graph is that there are
+significantly less mothers that smoke than those that did not.
 
 \subsubsection{Conclusions}\label{conclusions-5}
 
-Your conclusions for the advanced analysis.
+Through this graph, a few conclusions can be reached:
+
+\begin{verbatim}
+- Smoking is correlated with lower birth weight. The data shows a clear distinction between smokers and non-smokers in terms of their child's birth weight. Since the red line consistenly falls below that of the blue line for most gestation periods, it implies that on average, smoking is associated with lower birth weights.
+- Gestation length is positively correlated with birth weight. This means that the longer a gestation period is, the higher the birth weight of a baby usually is.
+- Non-smokers show a slower increase in birth weight compared to smokers. There can be many speculations about this, but looking at this graph, it seems that smokers typically have lower birth weights in the same gestation period as non-smokers, leading to their line needing to start at a lower area and climb back up to catch up to other babies that . This could also potentially mean that non-smokers typically have as much of a deviation of a child's birth weight as smokers do, since their slope is smaller, with many of their birth weights being concentrated, while children of smoking mother's have more variability in terms of their birth weight.
+\end{verbatim}
 
 \section{Conclusions and Discussion}\label{conclusions-and-discussion}
 

@@ -6,11 +6,10 @@
 # Load data
 ```{r}
 dat = read.table('babies.txt', header=T)
-head(dat)
 ```
 
 # Histogram of mothers' heights
-```{r}
+```{r, echo = FALSE}
 hist(dat$height)
 hist(dat$height, breaks = 20)
 hist(dat$height, breaks = 50)

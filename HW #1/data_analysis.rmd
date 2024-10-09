@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Author Contributions
 Brief description of the respective contribution of each team member.
 
-Author 1: Worked on questions #1, #3, and #5, and created the data analysis template for the homework
+Author 1: Worked on questions #1, #3, and #5, and created the data analysis template for the homework. Additionally, Author 1 worked on the advanced analysis question, creating the visualization for the problem and describing it.
 
 Author 2:
 
@@ -48,40 +48,44 @@ The remainder of the report will go through a basic analysis of the data, includ
 
 ```{r}
 data <- read.table("babies.txt", header = TRUE)
-head(data, 5)
 
 summary(data)
 
 bwt_description <- summary(data$bwt)
-print(bwt_description)
+bwt_description
 
 gestation_description <- summary(data$gestation)
-print(gestation_description)
+gestation_description
 
 parity_description <- summary(data$parity)
-print(parity_description)
+parity_description
 
 age_description <- summary(data$age)
-print(age_description)
+age_description
 
 height_description <- summary(data$height)
-print(height_description)
+height_description
 
 weight_description <- summary(data$weight)
-print(weight_description)
+weight_description
 
 smoke_description <- summary(data$smoke)
-print(smoke_description)
+smoke_description
+```
+
+```{r, echo = FALSE}
+hist(data$bwt, main = "Birthweight", xlab = "Birthweight (oz)", col = "lightblue")
+hist(data$gestation, main = "Gestation", xlab = "Gestation (days)", col = "red")
+hist(data$parity, main = "Parity", xlab = "Parity (0 = First Pregnancy)", col = "lightgreen")
+hist(data$age, main = "Mother's Age", xlab = "Age (years)", col = "lightgrey")
+hist(data$height, main = "Mother's Height", xlab = "Height (inches)", col = "lightpink")
+hist(data$weight, main = "Mother's Weight", xlab = "Weight (lbs)", col = "lightgreen")
+hist(data$smoke, main = "Smoking Status", xlab = "Smoker (0 = No)", col = "lightblue")
 ```
 
 ```{r}
-hist(data$bwt, main = "Birthweight of Babies", xlab = "Weight (in Ounces)")
-hist(data$gestation, main = "Length of Gestation", xlab = "Days")
-hist(data$parity, main = "First Pregnancy", xlab = "0 (first pregnancy), or 1 (not first pregnancy)")
-hist(data$age, main = "Mother's Age", xlab = "Years")
-hist(data$height, main = "Height of Mother", xlab = "Inches")
-hist(data$weight, main = "Weight of Mother", xlab = "Pounds")
-hist(data$smoke, main = "Does the mother smoke?", xlab = "0 (no), or 1 (yes)")
+cleaned_df <- data[data$gestation < 500 & data$age < 50 & data$height < 80 & data$weight < 500 & data$smoke <= 1, ]
+head(cleaned_df, 5)
 ```
 
 ### Analysis
@@ -94,7 +98,7 @@ hist(data$smoke, main = "Does the mother smoke?", xlab = "0 (no), or 1 (yes)")
 
 Your conclusions about data processing and summaries.
 
-## Question 1
+## Question 1 (rename)
 
 ### Methods
 
@@ -112,7 +116,7 @@ Your conclusions about data processing and summaries.
 
 Your conclusions for Question 1.
 
-## Question 2
+## Question 2 (rename)
 
 ### Methods
 
@@ -130,7 +134,7 @@ Your conclusions for Question 1.
 
 Your conclusions for Question 2.
 
-## Question 3
+## Question 3 (rename)
 
 ### Methods
 
@@ -148,7 +152,7 @@ Your conclusions for Question 2.
 
 Your conclusions for Question 3.
 
-## Question 4
+## Question 4 (rename)
 
 ### Methods
 
@@ -170,22 +174,50 @@ Your conclusions for Question 4.
 
 ## Additional Research Question
 
+How does smoking's impact on a baby's birth weight vary depending on how long the pregnancy last? 
+
 ### Methods
 
-```{r advanced-methods}
-# Your R code for methods related to the advanced question
+```{r advanced-analysis, echo = FALSE}
+plot(cleaned_df$gestation, cleaned_df$bwt, 
+     col = ifelse(cleaned_df$smoke == 1, "red", "blue"),
+     pch = 19, 
+     xlab = "Gestation (days)", 
+     ylab = "Birth Weight (oz)",
+     main = "Birth Weight vs. Gestation by Smoking Status",
+     cex = 0.5)
+
+smoke_1 <- subset(cleaned_df, smoke == 1)
+smoke_0 <- subset(cleaned_df, smoke == 0)
+
+abline(lm(bwt ~ gestation, data = smoke_1), col = "red", lwd = 2)
+abline(lm(bwt ~ gestation, data = smoke_0), col = "blue", lwd = 2)
+
+
+legend("topleft", legend = c("Smokers", "Non-smokers"), col = c("red", "blue"), pch = 19)
 ```
+
+The method we used to analyze the relationship between one of the other variables in the dataset, "gestation", and the babies' weights and parents' smoking status was by using a scatterplot. For starters, we wanted to visually see if there was a relationship between the gestation period and the birth weight, so we used these as our x and y-axes, respectively. In order to identify the difference smoking mothers and non-smoking mothers, we realized that since it was a categorical variable, we could color the dots to indicate it's status. Additionally, we also created a regression line for each subset of mothers, so we could see if a mother's smoking status could visually be represented differently on the plot itself. 
 
 ### Analysis
 
-```{r advanced-analysis}
-# Your R code for analysis related to the advanced question
-```
+As a general trend, both smokers and non-smokers show a positive correlation between gestation and birth-weight, indicating that the longer a gestation period is, the baby's birth weight typically increases. 
+
+We also see that the two regression lines (for smoking moms and non-smoking moms) have different slopes. It's shown that the line associated with the smoking moms has a steeper slope than than the line associated with non-smoking mothers. This suggests that for smokers, birth weight increases more rapidly with longer gestation periods for smokers. 
+
+We can also notice that over the same gestation periods, babies born to smokers tend to have lower birth weights than their respective counterparts, as observed by the fact that the red line is consistently lower than the blue line for most of the gestation period. 
+
+Another thing that can be noticed is the variability of the gestation periods, specifically for non-smoking mothers. Looking through the data, gestation periods for mothers ranged from 150-350 days, while smoking mothers had a much smaller range, typically falling from a range of 220-330 days. 
+
+Finally, the last thing to notice from this graph is that there are significantly less mothers that smoke than those that did not. 
 
 ### Conclusions
 
-Your conclusions for the advanced analysis.
+Through this graph, a few conclusions can be reached:
 
+    - Smoking is correlated with lower birth weight. The data shows a clear distinction between smokers and non-smokers in terms of their child's birth weight. Since the red line consistenly falls below that of the blue line for most gestation periods, it implies that on average, smoking is associated with lower birth weights.
+    - Gestation length is positively correlated with birth weight. This means that the longer a gestation period is, the higher the birth weight of a baby usually is.
+    - Non-smokers show a slower increase in birth weight compared to smokers. There can be many speculations about this, but looking at this graph, it seems that smokers typically have lower birth weights in the same gestation period as non-smokers, leading to their line needing to start at a lower area and climb back up to catch up to other babies that . This could also potentially mean that non-smokers typically have as much of a deviation of a child's birth weight as smokers do, since their slope is smaller, with many of their birth weights being concentrated, while children of smoking mother's have more variability in terms of their birth weight.
 # Conclusions and Discussion
 
 ## Summary of Findings
