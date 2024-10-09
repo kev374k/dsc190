@@ -46,10 +46,11 @@ The remainder of the report will go through a basic analysis of the data, includ
 
 ### Methods
 
+In order to analyze our data, we first have to understand it. To do that, we read the data and got a basic summary of each variable to see what we were working with. Through this, we noticed that the variables 'parity' and 'smoke' were both binary variables, representing a True/False statement.
+
+
 ```{r}
 data <- read.table("babies.txt", header = TRUE)
-
-summary(data)
 
 bwt_description <- summary(data$bwt)
 bwt_description
@@ -73,6 +74,13 @@ smoke_description <- summary(data$smoke)
 smoke_description
 ```
 
+We also looked through the type of each variable, to see if we were mostly working with numerical, categorical, or a mix between the two. As seen below, all of the variables are of type 'int', meaning most are numerical variables. However, as we pointed out above, since 'smoke' and 'parity' were binary variables, these are categorical.
+```{r, echo = FALSE}
+str(data)
+```
+
+We also plotted histograms of our data to observe what type of distributions we were working with. Through this, we were able to notice that some of the histograms that we graphed had what we interpreted as outliers, which were 'gestation', 'age', 'height', 'weight', and 'smoke'. Otherwise, for a variable like 'birthweight', we noticed it was roughly normal, while parity was bimodal (since it is a binary variable).
+
 ```{r, fig.width = 3, fig.height = 3, fig.ncol = 2, echo = FALSE}
 hist(data$bwt, main = "Birthweight", xlab = "Birthweight (oz)", col = "lightblue")
 hist(data$gestation, main = "Gestation", xlab = "Gestation (days)", col = "red")
@@ -82,6 +90,8 @@ hist(data$height, main = "Mother's Height", xlab = "Height (inches)", col = "lig
 hist(data$weight, main = "Mother's Weight", xlab = "Weight (lbs)", col = "lightgreen")
 hist(data$smoke, main = "Smoking Status", xlab = "Smoker (0 = No)", col = "lightblue")
 ```
+
+# TODO ANALYSIS ON OUTLIERS AND WHY WE CHOSE THIS
 
 ```{r}
 cleaned_df <- data[data$gestation < 500 & data$age < 50 & data$height < 80 & data$weight < 500 & data$smoke <= 1, ]
@@ -224,11 +234,17 @@ Through this graph, a few conclusions can be reached:
 
 ## Summary of Findings
 
-Reprise the questions and goals of the analysis stated in the introduction. Summarize the findings and compare them to the original goals.
+The data reveals distinct trends in the birth weights of babies in relation to their mothers' smoking habits. Both non-smoking and smoking mothers show roughly normal distributions for birth weights, but babies born to smoking mothers tend to weigh less on average compared to those born to non-smoking mothers. Additionally, the variability in birth weights among non-smoking mothers is greater, with their distribution closely resembling a Gaussian curve. Furthermore, smoking mothers have a significantly higher likelihood—over 14% more—of having a baby with a low birth weight (under 100 ounces) compared to non-smoking mothers, highlighting a notable disparity in infant health outcomes between the two groups. Finally, our numerical analysis reveals that at every quantile, babies born to non-smoking mothers weigh more than those born to smoking mothers.
+
+This analysis underscores the impact of smoking on birth weight, with clear evidence of increased risk for low-birth-weight babies among smoking mothers
 
 ## Discussion
 
-Additional observations or details gleaned from the analysis section. Discuss relevance to the science and other studies, if applicable. Address data limitations. Raise new questions and suggest future work.
+Although there are many warnings everywhere about the dangers of things like alcohol or smoking during pregnancy, many still doubt that doing these things would harm a child. However, our data and our analysis shows a clear trend that smoking can significantly harm a baby's health, specifically towards their birth weight, which may potentially lead towards other health problems in the future.
+
+At the same time however, our analysis is not conclusive. This data cannot be considered a simple random study of all mothers in the world who have had children, because this data is only from a limited period of time (1960 - 1967), only contains male children, and does not have any twins. This data is also from a very specific part of the world (Oakland, CA) that may not be representative of the entire population that we want to study. 
+
+Additionally, there may be other confounding factors, like socioeconomic status, access to healthcare, nutrition, and other variables that could potentially influence this study. One question that could be posed is regarding the future implications of smoking on a child. Although this dataset only contains the birthweight of a child, we'd like to see if there are any long term health implications on children whose mothers smoked. 
 
 # Appendix
 
