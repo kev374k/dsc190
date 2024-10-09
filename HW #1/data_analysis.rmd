@@ -38,7 +38,7 @@ The data provided is a Child Health and Development Studies dataset, which consi
 
 ## Outline
 
-The remainder of the report will go through a basic analysis of the data, including our cleaning methods, basic analysis on various variables in the study, and more. Additionally, we will analysis the questions posed above, along with the conclusions that we came up with in our data.
+The remainder of the report will go through a basic analysis of the data, including our cleaning methods, basic analysis on various variables in the study, and more. Additionally, we will analysis the questions posed above, along with the conclusions that we came up with in our data. We will also pose an advanced analysis question based on the relationship between the gestation period of a pregnancy and see how the relationship between a child's birthweight and their mother's smoking-status are intertwined.
 
 # Basic Analysis
 
@@ -73,7 +73,7 @@ smoke_description <- summary(data$smoke)
 smoke_description
 ```
 
-```{r, echo = FALSE}
+```{r, fig.width = 3, fig.height = 3, fig.ncol = 2, echo = FALSE}
 hist(data$bwt, main = "Birthweight", xlab = "Birthweight (oz)", col = "lightblue")
 hist(data$gestation, main = "Gestation", xlab = "Gestation (days)", col = "red")
 hist(data$parity, main = "Parity", xlab = "Parity (0 = First Pregnancy)", col = "lightgreen")
@@ -178,6 +178,8 @@ How does smoking's impact on a baby's birth weight vary depending on how long th
 
 ### Methods
 
+The method we used to analyze the relationship between one of the other variables in the dataset, "gestation", and the babies' weights and parents' smoking status was by using a scatterplot. For starters, we wanted to visually see if there was a relationship between the gestation period and the birth weight, so we used these as our x and y-axes, respectively. In order to identify the difference smoking mothers and non-smoking mothers, we realized that since it was a categorical variable, we could color the dots to indicate it's status. Additionally, we also created a regression line for each subset of mothers, so we could see if a mother's smoking status could visually be represented differently on the plot itself. 
+
 ```{r advanced-analysis, echo = FALSE}
 plot(cleaned_df$gestation, cleaned_df$bwt, 
      col = ifelse(cleaned_df$smoke == 1, "red", "blue"),
@@ -197,7 +199,6 @@ abline(lm(bwt ~ gestation, data = smoke_0), col = "blue", lwd = 2)
 legend("topleft", legend = c("Smokers", "Non-smokers"), col = c("red", "blue"), pch = 19)
 ```
 
-The method we used to analyze the relationship between one of the other variables in the dataset, "gestation", and the babies' weights and parents' smoking status was by using a scatterplot. For starters, we wanted to visually see if there was a relationship between the gestation period and the birth weight, so we used these as our x and y-axes, respectively. In order to identify the difference smoking mothers and non-smoking mothers, we realized that since it was a categorical variable, we could color the dots to indicate it's status. Additionally, we also created a regression line for each subset of mothers, so we could see if a mother's smoking status could visually be represented differently on the plot itself. 
 
 ### Analysis
 
@@ -215,9 +216,10 @@ Finally, the last thing to notice from this graph is that there are significantl
 
 Through this graph, a few conclusions can be reached:
 
-    - Smoking is correlated with lower birth weight. The data shows a clear distinction between smokers and non-smokers in terms of their child's birth weight. Since the red line consistenly falls below that of the blue line for most gestation periods, it implies that on average, smoking is associated with lower birth weights.
-    - Gestation length is positively correlated with birth weight. This means that the longer a gestation period is, the higher the birth weight of a baby usually is.
-    - Non-smokers show a slower increase in birth weight compared to smokers. There can be many speculations about this, but looking at this graph, it seems that smokers typically have lower birth weights in the same gestation period as non-smokers, leading to their line needing to start at a lower area and climb back up to catch up to other babies that . This could also potentially mean that non-smokers typically have as much of a deviation of a child's birth weight as smokers do, since their slope is smaller, with many of their birth weights being concentrated, while children of smoking mother's have more variability in terms of their birth weight.
+- Smoking is correlated with lower birth weight. The data shows a clear distinction between smokers and non-smokers in terms of their child's birth weight. Since the red line consistenly falls below that of the blue line for most gestation periods, it implies that on average, smoking is associated with lower birth weights.
+- Gestation length is positively correlated with birth weight. This means that the longer a gestation period is, the higher the birth weight of a baby usually is.
+- Non-smokers show a slower increase in birth weight compared to smokers. There can be many speculations about this, but looking at this graph, it seems that smokers typically have lower birth weights in the same gestation period as non-smokers, leading to their line needing to start at a lower area and climb back up to catch up to other babies that . This could also potentially mean that non-smokers typically have as much of a deviation of a child's birth weight as smokers do, since their slope is smaller, with many of their birth weights being concentrated, while children of smoking mother's have more variability in terms of their birth weight.
+
 # Conclusions and Discussion
 
 ## Summary of Findings
