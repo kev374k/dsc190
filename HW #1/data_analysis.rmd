@@ -352,7 +352,7 @@ How does smoking's impact on a baby's birth weight vary depending on how long th
 
 ### Methods
 
-The method we used to analyze the relationship between one of the other variables in the dataset, "gestation", and the babies' weights and parents' smoking status was by using a scatterplot. For starters, we wanted to visually see if there was a relationship between the gestation period and the birth weight, so we used these as our x and y-axes, respectively. In order to identify the difference smoking mothers and non-smoking mothers, we realized that since it was a categorical variable, we could color the dots to indicate it's status. Additionally, we also created a regression line for each subset of mothers, so we could see if a mother's smoking status could visually be represented differently on the plot itself.
+The method we used to analyze the relationship between one of the other variables in the dataset, "gestation", and the babies' weights and parents' smoking status was by using a scatterplot. For starters, we wanted to visually see if there was a relationship between the gestation period and the birth weight, so we used these as our x and y-axes, respectively. In order to identify the difference between smoking mothers and non-smoking mothers, we colored the dots to indicate its status. Additionally, we created a regression line for each group of mothers to visualize the relationship separately for smokers and non-smokers.
 
 ```{r advanced-analysis, echo = FALSE}
 plot(cleaned_df$gestation, cleaned_df$bwt, 
