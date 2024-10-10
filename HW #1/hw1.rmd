@@ -10,13 +10,16 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## 1a
+
 Opening the data in the RMD file
+
 ```{r, echo = FALSE}
 data <- read.table("babies.txt", header = TRUE)
 head(data, 5)
 ```
 
 Summarizing the variables of the data
+
 ```{r}
 summary(data)
 
@@ -43,11 +46,13 @@ print(smoke_description)
 ```
 
 Finding the types of variables in the data
+
 ```{r}
 str(data)
 ```
 
 Creating histograms of the data
+
 ```{r}
 hist(data$bwt, main = "Birthweight of Babies", xlab = "Weight (in Ounces)")
 hist(data$gestation, main = "Length of Gestation", xlab = "Days")
@@ -59,19 +64,16 @@ hist(data$smoke, main = "Does the mother smoke?", xlab = "0 (no), or 1 (yes)")
 ```
 
 ## 1b
+
 Identify NA values in the dataset
+
 ```{r}
 sapply(data, function(x) sum(is.na(x)))
 ```
 
 Looking through the histograms of our data, it seems like there are outliers in the 'gestation', 'age', 'height', 'weight', and 'smoke' columns. This is because they are so drastically out of the way from the rest of the distribution that it's most likely faked or a big outlier.
 
-Here are the conditions:
-    $gestation > 500
-    $age > 50
-    $height > 80
-    $weight > 500
-    $smoke > 1 (since "smoke" is a binary variable)
+Here are the conditions: \$gestation \> 500 \$age \> 50 \$height \> 80 \$weight \> 500 \$smoke \> 1 (since "smoke" is a binary variable)
 
 ```{r}
 cleaned_df <- data[data$gestation < 500 & data$age < 50 & data$height < 80 & data$weight < 500 & data$smoke <= 1, ]
@@ -94,6 +96,7 @@ non_smokers <- cleaned_df[cleaned_df$smoke == 0, ]
 ```
 
 Let's find the minimum and maximum values of the characteristics of birthweight of these two dataframes
+
 ```{r}
 smoker_min_bwt = min(smokers$bwt)
 print(paste("smoker_min_bwt: ", smoker_min_bwt))
@@ -111,6 +114,7 @@ print(paste("nonsmoker_max_bwt: ", nonsmoker_max_bwt))
 ## 2b
 
 Let's now find the mean birth weight of babies born to these mothers
+
 ```{r}
 smoker_mean_bwt = mean(smokers$bwt)
 print(paste("smoker_mean_bwt: ", smoker_mean_bwt))
@@ -120,8 +124,9 @@ print(paste("nonsmoker_mean_bwt: ", nonsmoker_mean_bwt))
 ```
 
 ## 2c
-2
-Let's now find the median birth weight of babies born to these mothers
+
+2 Let's now find the median birth weight of babies born to these mothers
+
 ```{r}
 smoker_median_bwt = median(smokers$bwt)
 print(paste("smoker_median_bwt: ", smoker_median_bwt))
@@ -189,8 +194,8 @@ print(low_bwt_nonsmoker)
 ## 4c
 
 ```{r}
-hist(non_smokers$bwt)
-hist(smokers$bwt)
+hist(non_smokers$bwt, breaks=20)
+hist(smokers$bwt, breaks=20)
 ```
 
 ```{r}
@@ -203,16 +208,17 @@ print(nrow(non_smokers[non_smokers$bwt < 120, ] ) / nrow(non_smokers))
 
 Just through analysis of the histograms of the weights of babies between the two groups, it looks like if we classify low-birth-weight babies even lower (i.e. 80 ounces), smokers still have a higher percentage of low-weight babies, but the margin between them decreases. On the other hand, if we increase the weight of a low-weight baby (i.e. 120 ounces), then the gap between the two distributions widens.
 
-## 4d 
-Looking through the histograms we created above, by changing the threshold of low-birth-weight babies to a lower threshold (i.e. 80 or 90 pounds), there will be less babies classified as low birth weight. This leads to a lowering in percentage in both groups, and this evens out the percentage of low-birth-weight babies between the two groups, though smokers still have a slightly higher percentage. On the other hand, if the low-birth-weight threshold is increased, the percentage of low birth weight babies increases, though significantly higher for moms that used to be smokers. While at 100 ounces, the difference between the two distributions percentages was at ~14%, at a higher threshold, the difference blossoms to around 21%, showing more significant differences between smoking moms and non-smoking moms, specifically through the birth weight of their children.
+## 4d
+
+Looking through the histograms we created above, by changing the threshold of low-birth-weight babies to a lower threshold (i.e. 80 or 90 pounds), there will be less babies classified as low birth weight. This leads to a lowering in percentage in both groups, and this evens out the percentage of low-birth-weight babies between the two groups, though smokers still have a slightly higher percentage. On the other hand, if the low-birth-weight threshold is increased, the percentage of low birth weight babies increases, though significantly higher for moms that used to be smokers. While at 100 ounces, the difference between the two distributions percentages was at \~14%, at a higher threshold, the difference blossoms to around 21%, showing more significant differences between smoking moms and non-smoking moms, specifically through the birth weight of their children.
 
 ## 5
-Numerical comparisons give exact values for statistics, allowing for very precise measurements of the data that we have. It also has a clear interpretation of numbers that can easily be used for comparison. On the other hand, it's more difficult to determine the distribution of data, since we could mostly only go through things like the quartiles, mean, median, and standard deviation. Although most of the time, it is a normal distribution, if it's two peaked, or heavily skewed in one direction or the other, it's not as obvious and doesn't have as much context
-Finally, for the incidence comparisons, they allow for a better indepth look at specific questions, like the question regarding the low-birth-weight rate of babies between the two distributions of mothers. These are easier to communicate, because they directly answer a question simply. However, these lack detail, and can be misleading as there's no context to many questions. For instance, if we defined low-birth-weight differently among the two distributions, there would be massively different results, leading to different and potential misleading interpretations and conclusions. Finally, there is a lack of detail with the incidence comparisons, because they don't convey any characteristics of the data outside the number that was given.
+
+Numerical comparisons give exact values for statistics, allowing for very precise measurements of the data that we have. It also has a clear interpretation of numbers that can easily be used for comparison. On the other hand, it's more difficult to determine the distribution of data, since we could mostly only go through things like the quartiles, mean, median, and standard deviation. Although most of the time, it is a normal distribution, if it's two peaked, or heavily skewed in one direction or the other, it's not as obvious and doesn't have as much context Finally, for the incidence comparisons, they allow for a better indepth look at specific questions, like the question regarding the low-birth-weight rate of babies between the two distributions of mothers. These are easier to communicate, because they directly answer a question simply. However, these lack detail, and can be misleading as there's no context to many questions. For instance, if we defined low-birth-weight differently among the two distributions, there would be massively different results, leading to different and potential misleading interpretations and conclusions. Finally, there is a lack of detail with the incidence comparisons, because they don't convey any characteristics of the data outside the number that was given.
 
 ## Advanced Analysis
 
-Does smoking on birth weight vary depending on the length of gestation? 
+Does smoking on birth weight vary depending on the length of gestation?
 
 ```{r}
 # Convert smoke into a factor
