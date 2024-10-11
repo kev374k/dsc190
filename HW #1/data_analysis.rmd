@@ -174,7 +174,6 @@ non_smokers <- cleaned_df[cleaned_df$smoke == 0, ]
 
 Let's find the minimum, maximum, mean, median, and standard deviation values of birthweight for these two groups.
 
-
 ```{r, echo = FALSE}
 stats <- data.frame(
   Statistic = c("Minimum", "Maximum", "Mean", "Median", "Standard Deviation"),
