@@ -4,6 +4,7 @@ data <- read.table("babies.txt", header = TRUE)
 # View the first 5 rows
 head(data, 5)
 
+# 1. Data Processing and Summaries
 # Print a description table to summarize each variable
 bwt_description <- summary(data$bwt)
 bwt_description
@@ -79,6 +80,7 @@ cat("Observed skew for weight: ", weight_obs_skew, "\n",
 cleaned_df <- data[data$gestation < 500 & data$age < 50 & data$height < 80 & data$weight < 500 & data$smoke <= 1, ]
 head(cleaned_df, 5)
 
+# 2. Numeric Summary of Birthweights Between Smokers and Non-Smokers
 # Get smoker and non-smoker df's
 smokers <- cleaned_df[cleaned_df$smoke == 1, ]
 non_smokers <- cleaned_df[cleaned_df$smoke == 0, ]
@@ -109,6 +111,7 @@ nonsmoker_q3_bwt <- nonsmoker_quartiles[4]
 print("Non-Smoker Mothers:")
 cat("Q1:", nonsmoker_quartiles[2], "Q2:", nonsmoker_quartiles[3], "Q3:", nonsmoker_quartiles[4], "\n")
 
+# 3. Graphically Summarize Birthweights Between Smokers and Non-Smokers
 # Produce boxplot for both distributions
 boxplot(bwt ~ smoke, 
         data = cleaned_df, 
@@ -130,6 +133,7 @@ densityplot(~ bwt, group = smoke, data = cleaned_df, plot.points = FALSE,
             xlab = "Birthweight (oz)",
             col = c("blue", "red"))
 
+# 4. Incidence Comparison of Low-Birth-Weight Between Smokers and Non-Smokers
 # Get percentage of birthweights under 100 oz for both groups
 low_bwt_smoker <- nrow(smokers[smokers$bwt < 100, ] ) / nrow(smokers) * 100
 cat('low_bwt_smoker:', low_bwt_smoker, "%")
@@ -155,6 +159,7 @@ cat("Babies under 120 ounces:\n",
     "Non-smokers: ", formatC(nrow(non_smokers[non_smokers$bwt < 58, ]) / nrow(non_smokers), format="f", digits=4),
     sep="")
 
+# Advanced Analysis: Correlation between birthweight and gestation period
 # Plot scatterplot and regression line to show relationship
 # between birthweight and gestation period
 plot(cleaned_df$gestation, cleaned_df$bwt, 
