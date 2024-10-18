@@ -73,7 +73,7 @@ smoke_description <- summary(data$smoke)
 smoke_description
 ```
 
-We also looked through the type of each variable, to see if we were mostly working with numerical, categorical, or a mix between the two. As seen below, all of the variables are of type 'int', meaning most are numerical variables. However, as we pointed out above, since 'smoke' and 'parity' were binary variables, these are categorical.
+We also looked through the type of each variable, to see if we were mostly working with numerical, categorical, or a mix between the two. As seen below, all of the variables are of type 'int', meaning most are numerical, discrete variables. However, as we pointed out above, since 'smoke' and 'parity' were binary variables, these are nominal.
 
 ```{r, echo = FALSE}
 str(data)
