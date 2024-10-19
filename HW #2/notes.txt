@@ -1,0 +1,27 @@
+Analysis Section:
+1) Confidence Interval
+2) EDA (comparison) - compare "Time" and "How Often" small writeup on our conclusions
+3) Confidence Interval & Point Estimate (middle of the CI); hypothesis testing -> create histogram based on the shape of the sample distribution
+4) Add some minor analysis (make histograms) and add our own analysis as well
+    * Take the number of ppl in the second survey / total amount of people in the first
+5) Graphical analysis 
+    * Join the two tables? 
+    * And then compare based on that
+    * Both tables have the same amount of rows
+    * Need to do data cleaning
+6) Graphical distribution of the grades that students expect
+    * Compare target distribution w/real distribution
+    * 2Samp T-Test
+
+Advanced Analysis:
+    * come up with something in future
+
+Division of Work:
+    * R file itself (Jeffrey)
+    * PDF file (Kevin)
+    * Advanced Analysis (Kevin)
+    * Data Cleaning (Kevin)
+        * Outlier Stuff/Hypothesis Testing (Jeffrey)
+    * #1, #2 (Kevin)
+    * #3, #4, #5 (Jeffrey)
+
