@@ -53,13 +53,42 @@ Notes:
     2) time, age, and work are continuous variables, may be similar to a normal distribution
     3) like, freq, and grade are categorical, ordinal variables
     4) where is a nominal variable 
+    5) 99 shouldn't be included in the data
 
 ```{r}
 for (col in names(cleaned_df)) {
-    hist(cleaned_df[[col]], main = paste("Histogram of ", col), xlab = col)
+    valid_data <- cleaned_df[[col]][cleaned_df[[col]] != 99]
+
+    if (length(valid_data) > 0) {
+        hist(valid_data, main = paste("Histogram of", col), xlab = col)
+    } else {
+        message(paste("No valid data for column", col))
+    }
 }
 ```
 
 Looking through the histograms, there are multiple values that are coded as 99 because students left some questions unaswered or improperly answered. This means that when we filter the data, we need to make sure that the data that we get don't include the non-responses
 
+# 1 
+In order to provide a solid estimation of the amount of people who played a video game in the week prior to the survey, let's filter the amount of people who had over 0 hours last week as well as get rid of the people who didn't respond to the prompt (99)
 
+```{r, echo = FALSE}
+n_played <- nrow(cleaned_df[cleaned_df$time > 0 | cleaned_df$time == 99, ])
+n_total <- nrow(cleaned_df)
+
+point_estimate_fraction <- n_played / n_total
+print(paste("Point Estimate of the fraction of students who played a video game in the week prior to the survey: ", round(point_estimate_fraction, 4)))
+```
+
+Now, let's use a 95% confidence interval to construct an interval estimate for this proportion
+
+```{r, echo = FALSE}
+confidence_level = 0.95
+z <- qnorm((1 + confidence_level) / 2)
+
+se <- sqrt(point_estimate_fraction * (1 - point_estimate_fraction) / n_total)
+
+lower_interval_estimate_fraction <- point_estimate_fraction - z * se
+upper_interval_estimate_fraction <- point_estimate_fraction + z * se
+print(paste("95% Confidence Interval: [", round(lower_interval_estimate_fraction, 4), ", ", round(upper_interval_estimate_fraction, 4), "]", sep = ""))
+```
