@@ -92,3 +92,7 @@ lower_interval_estimate_fraction <- point_estimate_fraction - z * se
 upper_interval_estimate_fraction <- point_estimate_fraction + z * se
 print(paste("95% Confidence Interval: [", round(lower_interval_estimate_fraction, 4), ", ", round(upper_interval_estimate_fraction, 4), "]", sep = ""))
 ```
+
+The distinction between the point estimate and the interval estimate is that they serve different purposes in statistical inference. For instance, a point estimate is a value that provides the best guess/estimate for a population parameter. On the other hand, an interval estimate is an estimate that provides a range of values where the true population parameter is expected to lie in, and specifically in this case, with a 95% confidence. Point Estimates are simple and provide a direct measurement, while intervals are more uncertain, but are more robust as data scales up. 
+
+#2 
