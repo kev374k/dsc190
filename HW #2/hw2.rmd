@@ -33,6 +33,11 @@ survey_p2 <- survey_p2[, !(names(survey_p2) %in% c("other", "other2"))]
 str(survey_p2)
 ```
 
+```{r}
+rows_with_all_zeros <- apply(survey_p2, 1, function(row) all(row == 0))
+survey_p2[rows_with_all_zeros, ]
+```
+
 In order to further clean the data, we are going to combine the tables together and merge them in order to create one large table. For this, we are going to go with the assumption that each row in both tables represents the same person, since each student was assigned a unique number.
 
 ```{r, echo = FALSE}
@@ -40,27 +45,30 @@ combined_table <- cbind(survey_p1, survey_p2)
 head(combined_table, 5)
 ```
 
+Below is a table showing all rows that contain at least one NA value. As we can see, NA values only exist in the variables from the part 2 survey.
+
+```{r, echo = FALSE}
+combined_table[apply(is.na(combined_table), 1, any), ]
+
+```
+
 Now, let's get rid of rows that contain NA values, just to get rid of inconsistent data.
+
 ```{r, echo = FALSE}
 cleaned_df <- na.omit(combined_table)
 dim(cleaned_df)
 ```
 
-Looking through this, we had 4 rows that contained NA values, so now we only have 87 rows left. 
+Looking through this, we had 4 rows that contained NA values, so now we only have 87 rows left.
 
-Notes:
-    1) busy, educ, sex, home, math, own, cdrom, email, action, adv, sim, sport, strategy, graphic, relax, coord, challenge, bored, time, frust, lonely, rules, cost, boring, friends, point are binary, so their distributions will be concentrated at 0 and 1
-    2) time, age, and work are continuous variables, may be similar to a normal distribution
-    3) like, freq, and grade are categorical, ordinal variables
-    4) where is a nominal variable 
-    5) 99 shouldn't be included in the data
+Notes: 1) busy, educ, sex, home, math, own, cdrom, email, action, adv, sim, sport, strategy, graphic, relax, coord, challenge, bored, time, frust, lonely, rules, cost, boring, friends, point are binary, so their distributions will be concentrated at 0 and 1 2) time, age, and work are continuous variables, may be similar to a normal distribution 3) like, freq, and grade are categorical, ordinal variables 4) where is a nominal variable 5) 99 shouldn't be included in the data
 
 ```{r}
 for (col in names(cleaned_df)) {
     valid_data <- cleaned_df[[col]][cleaned_df[[col]] != 99]
 
     if (length(valid_data) > 0) {
-        hist(valid_data, main = paste("Histogram of", col), xlab = col)
+        hist(valid_data, main = paste("Histogram of", col), xlab = col, breaks=30)
     } else {
         message(paste("No valid data for column", col))
     }
@@ -69,7 +77,8 @@ for (col in names(cleaned_df)) {
 
 Looking through the histograms, there are multiple values that are coded as 99 because students left some questions unaswered or improperly answered. This means that when we filter the data, we need to make sure that the data that we get don't include the non-responses
 
-# 1 
+# 1
+
 In order to provide a solid estimation of the amount of people who played a video game in the week prior to the survey, let's filter the amount of people who had over 0 hours last week as well as get rid of the people who didn't respond to the prompt (99)
 
 ```{r, echo = FALSE}
@@ -93,6 +102,77 @@ upper_interval_estimate_fraction <- point_estimate_fraction + z * se
 print(paste("95% Confidence Interval: [", round(lower_interval_estimate_fraction, 4), ", ", round(upper_interval_estimate_fraction, 4), "]", sep = ""))
 ```
 
-The distinction between the point estimate and the interval estimate is that they serve different purposes in statistical inference. For instance, a point estimate is a value that provides the best guess/estimate for a population parameter. On the other hand, an interval estimate is an estimate that provides a range of values where the true population parameter is expected to lie in, and specifically in this case, with a 95% confidence. Point Estimates are simple and provide a direct measurement, while intervals are more uncertain, but are more robust as data scales up. 
+The distinction between the point estimate and the interval estimate is that they serve different purposes in statistical inference. For instance, a point estimate is a value that provides the best guess/estimate for a population parameter. On the other hand, an interval estimate is an estimate that provides a range of values where the true population parameter is expected to lie in, and specifically in this case, with a 95% confidence. Point Estimates are simple and provide a direct measurement, while intervals are more uncertain, but are more robust as data scales up.
 
-#2 
+# 2
+
+# 3
+
+The point estimate for the average amount of time spent playing video games in the week prior to the survey is simply the sample mean. We will also calculate the standard error (SE) to represent the expected variability of our sample mean from the true population mean of time spent playing video games. This SE will also be used to construct our 95% confidence interval. The SE formula must use the **population correction factor** because we are sampling **without replacement** from a relatively small population of 314. $$SE = {σ \over \sqrt{n}} \times \sqrt{N-n \over N - 1}$$
+
+```{r}
+point_estimate_average <- mean(survey_p1$time, na.rm=TRUE)
+N <- 314
+n <- length(survey_p1$time)
+
+sample_sd <- sd(survey_p1$time, na.rm = TRUE)
+pop_correction_factor = sqrt((N - n) / (N - 1))
+standard_error <- (sample_sd / sqrt(n)) * pop_correction_factor
+
+print(paste("point_estimate_average:", point_estimate_average))
+print(paste("Standard Error:", standard_error))
+```
+
+Construct the 95% Confidence Interval.
+
+```{r}
+alpha <- 0.05
+z_value <- qnorm(1 - alpha / 2)
+
+lower_interval_estimate_average <- point_estimate_average - z_value * standard_error
+upper_interval_estimate_average <- point_estimate_average + z_value * standard_error
+
+print(paste("lower_interval_estimate_average:", lower_interval_estimate_average))
+print(paste("upper_interval_estimate_average:", upper_interval_estimate_average))
+```
+
+Next, we perform a bootstrap simulation to estimate the sampling distribution of average time spent playing games. If this estimated sampling distribution is approximately normal, then our confidence interval is appropriate, but if it's not normal, then the approach taken is not appropriate.
+
+```{r}
+library(boot)
+
+# Calculate the sample mean for each bootstrapped sample
+bootstrap_mean <- function(data, indices) {
+  return(mean(data[indices], na.rm = TRUE))
+}
+
+# Perform bootstrapping with 1000 iterations
+bootstrap_results <- boot(survey_p1$time, bootstrap_mean, R = 1000)
+bootstrap_means <- bootstrap_results$t
+```
+
+Now, I construct another 95% confidence interval using the percentiles of my bootstrapped sample means and compare it to the earlier confidence interval which was constructed using the point estimate and an assumption of a normal distribution. If they are significantly different, the interval estimate may not be appropriate for this situation.
+
+```{r}
+bootstrap_ci <- boot.ci(bootstrap_results, type = "perc")
+
+# Extract lower and upper bounds of the 95% Bootstrap CI
+lower_bound_bootstrap <- bootstrap_ci$percent[4]
+upper_bound_bootstrap <- bootstrap_ci$percent[5]
+
+hist(bootstrap_means, main = "Bootstrap Sample Means with 95% CIs", 
+     xlab = "Sample Mean Time Spent", 
+     col = "lightblue", 
+     border = "black", 
+     probability = TRUE)
+
+# Add vertical lines for the confidence intervals
+abline(v = lower_bound_bootstrap, col = "red", lwd = 2, lty = 2)  # Lower CI bound
+abline(v = upper_bound_bootstrap, col = "red", lwd = 2, lty = 2)  # Upper CI bound
+abline(v = lower_interval_estimate_average, col = "blue", lwd = 2, lty = 1)
+abline(v = upper_interval_estimate_average, col = "blue", lwd = 2, lty = 1)
+
+
+legend("topright", legend = c("Lower Bootstrap CI", "Upper Bootstrap CI", "Lower 95% CI", "Upper 95% CI"),
+       col = c("red", "red", "blue", "blue"), lty = c(2, 2, 1, 1), lwd = 2)
+```

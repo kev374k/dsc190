@@ -17,9 +17,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Author Contributions
 
-Author 1: 
+Author 1:
 
-Author 2: 
+Author 2:
 
 ## Use of GPT
 
@@ -27,10 +27,9 @@ ChatGPT was used as a substitute for documentation for R. Since we were unfamili
 
 # Introduction
 
-
 ## Main Research Questions
 
-1.
+1.  
 
 ## Outline
 
