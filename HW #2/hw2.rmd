@@ -1,0 +1,65 @@
+---
+title: "Homework #1"
+author: "Kevin Wong"
+date: "2024-10-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Data Cleaning
+
+```{r, echo = FALSE}
+survey_p1 <- read.table("videodata.txt", header = TRUE)
+survey_p2 <- read.table("videoMultiple.txt", header = TRUE)
+```
+
+```{r, echo = FALSE}
+head(survey_p1, 5)
+head(survey_p2, 5)
+```
+
+```{r, echo = FALSE}
+str(survey_p1)
+str(survey_p2)
+```
+
+Through this, we notice that the all of the columns in our first dataset are numbers/integers, which is correct. However, for our second dataset, our variables are mostly ints which make sense, but there are two extra columns, 'other' and 'other2' are present but are not in the second part of the survey. This means that there might be a discrepancy in the data, because it should be numeric, even though it isn't. Let's create a function to detect non-numeric columns, and show us them.
+
+```{r}
+survey_p2 <- survey_p2[, !(names(survey_p2) %in% c("other", "other2"))]
+str(survey_p2)
+```
+
+In order to further clean the data, we are going to combine the tables together and merge them in order to create one large table. For this, we are going to go with the assumption that each row in both tables represents the same person, since each student was assigned a unique number.
+
+```{r, echo = FALSE}
+combined_table <- cbind(survey_p1, survey_p2)
+head(combined_table, 5)
+```
+
+Now, let's get rid of rows that contain NA values, just to get rid of inconsistent data.
+```{r, echo = FALSE}
+cleaned_df <- na.omit(combined_table)
+dim(cleaned_df)
+```
+
+Looking through this, we had 4 rows that contained NA values, so now we only have 87 rows left. 
+
+Notes:
+    1) busy, educ, sex, home, math, own, cdrom, email, action, adv, sim, sport, strategy, graphic, relax, coord, challenge, bored, time, frust, lonely, rules, cost, boring, friends, point are binary, so their distributions will be concentrated at 0 and 1
+    2) time, age, and work are continuous variables, may be similar to a normal distribution
+    3) like, freq, and grade are categorical, ordinal variables
+    4) where is a nominal variable 
+
+```{r}
+for (col in names(cleaned_df)) {
+    hist(cleaned_df[[col]], main = paste("Histogram of ", col), xlab = col)
+}
+```
+
+Looking through the histograms, there are multiple values that are coded as 99 because students left some questions unaswered or improperly answered. This means that when we filter the data, we need to make sure that the data that we get don't include the non-responses
+
+
