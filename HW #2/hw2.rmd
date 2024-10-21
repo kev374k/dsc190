@@ -231,3 +231,53 @@ abline(v = upper_interval_estimate_average, col = "blue", lwd = 2, lty = 1)
 legend("topright", legend = c("Lower Bootstrap CI", "Upper Bootstrap CI", "Lower 95% CI", "Upper 95% CI"),
        col = c("red", "red", "blue", "blue"), lty = c(2, 2, 1, 1), lwd = 2)
 ```
+
+
+# Advanced Analysis
+
+Our advanced analysis focuses on the intersectionality between people that like video games and which types of video games they prefer. By doing this, we can see the most popular types of video games that these students prefer, along with the average amount of time they play video games a week, potentially showing us which games people spent the most time on.
+
+First, we filter the data. It's important to note that we ignore people who skipped this question, because the instructions state that those who disliked video games were instructed to do so. 
+
+```{r, echo = FALSE}
+video_games_data <- cleaned_df[!(cleaned_df$action == 0 & cleaned_df$adv == 0 & cleaned_df$sim == 0 & cleaned_df$sport == 0 & cleaned_df$strategy == 0), ]
+dim(video_games_data)
+```
+
+Now, let's capture the most popular video game types from this data.
+
+```{r, echo = FALSE}
+freq_table <- colSums(video_games_data[, c("action", "adv", "sim", "sport", "strategy")] == 1)
+barplot(freq_table, main = "Video Game Popularity by Genre", xlab = "Genre", ylab = "Frequency", col = "blue")
+```
+
+Now, let's compare the amount of time people spent playing these games.
+
+```{r, echo = FALSE}
+action_time <- sum(cleaned_df$time[cleaned_df$action == 1], na.rm = TRUE)
+adv_time <- sum(cleaned_df$time[cleaned_df$adv == 1], na.rm = TRUE)
+sim_time <- sum(cleaned_df$time[cleaned_df$sim == 1], na.rm = TRUE)
+sport_time <- sum(cleaned_df$time[cleaned_df$sport == 1], na.rm = TRUE)
+strategy_time <- sum(cleaned_df$time[cleaned_df$strategy == 1], na.rm = TRUE)
+
+summed_times <- c(
+    action_time,
+    adv_time,
+    sim_time,
+    sport_time,
+    strategy_time
+)
+names(summed_times) <- c("action", "adv", "sim", "sport", "strategy")
+
+barplot(summed_times,
+        main = "Total Time Spent on Each Game Category",
+        xlab = "Game Category",
+        ylab = "Total Time", 
+        col = "lightblue",
+        las = 2
+        )
+```
+
+Our two graphs, especially when put next to each other, show us another interesting detail. Although strategy was the most popular game genre chosen by people, with the action and sport genres falling slightly behind, when we look through the total time spent playing each game, action was the highest, with sport and then strategy falling behind. This means that there's a decent chance that the people who play strategy games don't typically play the game for a longer time, while those who played action and sports games play for longer durations. On another note, sim was the least popular genre of game in the survey, and that pattern still shows in the total time spent. People who mentioned they like simulation games spent very little time actually playing them, leading us to believe that those who play these simulation games either don't play them very often or play them for short periods of time compared to their peers who played action or sport games.
+
+Of course, this is not a conclusive study. Firstly, there's inherent bias because this survey was taken during an exam week, likely leading to students playing less than they normally would. Additionally, the way we filtered our data may be potentially flawed, as students were allowed to choose up to 3 of their favorite genres, not just one. This means that our graph of total time spent on each category is layered and can be duplicated, because if a student likes to play multiple genres of games, they are stacked on top of their respective genres, potentially leading to more visible and exaggerated graphs than what would normally be. However, even with that discrepancy, we still believe that these two graphs show us concrete differences in many of the genres and how students viewed the genres differently, both in terms of popularity as well as personal enjoyment.
