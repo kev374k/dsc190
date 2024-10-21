@@ -106,6 +106,61 @@ The distinction between the point estimate and the interval estimate is that the
 
 # 2
 
+First, in order to determine the amount of time someone spent playing video games, we should look at the 'time' column as well as the 'freq' column so we can compare the two values. In order to determine 
+
+```{r, echo = FALSE}
+actual_values = cleaned_df[cleaned_df$time != 99 & cleaned_df$freq != 99, ]
+avg_time <- tapply(actual_values$time, actual_values$freq, mean, na.rm = TRUE)
+median_time <- tapply(actual_values$time, actual_values$freq, median, na.rm = TRUE)
+count <- table(actual_values$freq)
+
+summary <- data.frame(
+    frequency = names(avg_time),
+    avg_time = as.vector(avg_time),
+    median_time = as.vector(median_time),
+    count = as.vector(count)
+)
+summary
+
+boxplot(time ~ freq,
+        data = actual_values,
+        xlab = "Frequency of Play (1 = Daily, 2 = Weekly, 3 = Monthly, 4 = Semesterly",
+        ylab = "Hours Played",
+        main = "Reported Frequency of Play and Hours Played During Exam Week"
+        )
+```
+
+This time let's filter for exam week. One assumption that we made regarding this is that students were more likely to study instead of game for the week, so for the next visualization, let's ignore students who reported 0 hours of gaming in the previous week.
+
+```{r, echo = FALSE}
+exam_adjusted_df <- actual_values[actual_values$time != 0, ]
+avg_time_adj <- tapply(exam_adjusted_df$time, exam_adjusted_df$freq, mean, na.rm = TRUE)
+median_time_adj <- tapply(exam_adjusted_df$time, exam_adjusted_df$freq, median, na.rm = TRUE)
+count_adj <- table(exam_adjusted_df$freq)
+
+exam_adj_summary <- data.frame(
+    frequency = names(avg_time_adj),
+    avg_time = as.vector(avg_time_adj),
+    median_time = as.vector(median_time_adj),
+    count = as.vector(count_adj)
+)
+
+exam_adj_summary
+
+boxplot(time ~ freq, 
+        data = exam_adjusted_df,
+        xlab = "Frequency of Play (1 = Daily, 2 = Weekly, 3 = Monthly, 4 = Semesterly",
+        ylab = "Hours Played",
+        main = "Reported Frequency of Play and Hours Played"
+        )
+```
+
+Looking through these two boxplots and their data summaries, there is an obvious difference, especially for students with a daily or weekly frequency of play. For instance, our adjusted comparison shows that those who played ('freq' = 1) daily during an exam week typically had a lower amount of hours played, with a 1.5 hour difference between our exam week data and our filtered data. Similarly, our boxplot also shows a difference in the interquartile range between the two datasets for those who played daily, as during a normal week, students were more likely to play more and had a wider variety of playtimes, which can be inferred from the two box plots. A similar comparison can be made from students who played weekly ('freq' = 2). There's a ~0.4 hour increase in normal weeks versus the exam week. Another interesting observation is that the adjusted data seems to have a smaller interquartile range compared to it's original exam week data, somewhat implying that those who play weekly usually play a more set amount of hours that usually doesn't diverge. Frequencies 3 and 4 don't have a large difference, just due to the nature of their descriptions. If someone only plays games monthly or semesterly, then they are less likely to have major differences during an exam week versus a normal week. Overall, the fact that there was an exam in the week prior to the survey tells us this:
+
+- On average, students played less hours than they normally would on a week without an exam
+- Those who reported that they play daily or weekly typically have the largest difference between their average hours played during an exam versus a normal week
+- Those who reported that they play monthly or semesterly have small or negligible differences between their average hours played due to the nature and scarcity of their data.
+
 # 3
 
 The point estimate for the average amount of time spent playing video games in the week prior to the survey is simply the sample mean. We will also calculate the standard error (SE) to represent the expected variability of our sample mean from the true population mean of time spent playing video games. This SE will also be used to construct our 95% confidence interval. The SE formula must use the **population correction factor** because we are sampling **without replacement** from a relatively small population of 314. $$SE = {σ \over \sqrt{n}} \times \sqrt{N-n \over N - 1}$$
