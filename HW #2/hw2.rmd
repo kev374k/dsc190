@@ -232,6 +232,69 @@ legend("topright", legend = c("Lower Bootstrap CI", "Upper Bootstrap CI", "Lower
        col = c("red", "red", "blue", "blue"), lty = c(2, 2, 1, 1), lwd = 2)
 ```
 
+# 4
+
+First, to get an idea of whether students generally like playing video games or not, we can examine a bar plot of the "like" variable.
+
+```{r, echo = FALSE}
+like_counts <- table(subset(survey_p1, like != 99)$like)
+
+# Plot the bar plot
+barplot(like_counts, 
+        main = "Counts of Responses to 'Like to Play' Video Games", 
+        xlab = "Response Category", 
+        ylab = "Count of Students", 
+        col = "lightblue", 
+        border = "black", 
+        names.arg = c("Never Played", "Very Much", "Somewhat", "Not Really", "Not At All"))
+```
+
+Additionally, we can calculate the proportion of students surveyed that at least somewhat like playing video games.
+
+```{r}
+total_students <- length(survey_p1$like[survey_p1$like != 99])
+students_like <- length(survey_p1$like[survey_p1$like == 2 | survey_p1$like == 3])
+
+proportion_like <- students_like / total_students
+print(paste("Proportion of students in sample who at least somewhat like video games:", proportion_like))
+```
+
+Now, to find the most influential reasons for why students like or dislike playing video games, we use a bar plot to visualize the frequency of each reason.
+
+```{r}
+reason_frequencies <- colSums(na.omit(survey_p2)[, !names(survey_p2) %in% c("action","adv","sim","sport","strategy")])
+
+bar_colors <- c("relax" = "lightblue", 
+                "coord" = "lightblue", 
+                "challenge" = "lightblue", 
+                "master" = "lightblue", 
+                "bored" = "lightblue", 
+                "graphic" = "lightblue",
+                "time" = "red",
+                "frust" = "red",
+                "lonely" = "red",
+                "rules" = "red",
+                "cost" = "red",
+                "boring" = "red",
+                "friends" = "red",
+                "point" = "red")
+
+barplot(reason_frequencies, 
+        main = "Frequencies of Reasons for Liking/Disliking Video Games",
+        ylab = "Frequency", 
+        col = bar_colors[names(reason_frequencies)], 
+        border = "black", 
+        las = 2)
+```
+
+The most important reason for why students like video games is for relaxation. The most important reasons why students don't like video games are that they're time-consuming, costly, and pointless.
+
+```{r}
+reasons_for_likeliness <- c("relax", "time", "cost", "point")
+print("Reasons for Like/Dislike Video Games:")
+print(reasons_for_likeliness)
+```
+
 # Advanced Analysis
 
 Our advanced analysis focuses on the intersectionality between people that like video games and which types of video games they prefer. By doing this, we can see the most popular types of video games that these students prefer, along with the average amount of time they play video games a week, potentially showing us which games people spent the most time on.
