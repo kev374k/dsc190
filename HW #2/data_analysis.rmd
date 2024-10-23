@@ -146,19 +146,70 @@ Based on our analysis, we can draw several significant conclusions:
 
 ### Methods
 
-```{r q2-methods}
-# Your R code for methods related to Question 2
+In order to compare the amount of time spent playing video games during the exam week versus a normal week, let's analyze what we need to do. First, we should find the amount of time the students spent playing video games, which we can do by creating a summary of the 'time' column in our cleaned dataframe.
+
+```{r, echo = FALSE}
+actual_values = cleaned_df[cleaned_df$time != 99 & cleaned_df$freq != 99, ]
+avg_time <- tapply(actual_values$time, actual_values$freq, mean, na.rm = TRUE)
+median_time <- tapply(actual_values$time, actual_values$freq, median, na.rm = TRUE)
+count <- table(actual_values$freq)
+
+summary <- data.frame(
+    frequency = names(avg_time),
+    avg_time = as.vector(avg_time),
+    median_time = as.vector(median_time),
+    count = as.vector(count)
+)
+summary
+```
+
+In order to filter for the fact that the week was an exam week, let's make the assumption that many students that were studying for the exam were not playing games that week. In order to account for this, we filtered out students who played 0 hours of video games in the exam week. The reason we made this assumption is that it would mostly affect those that normally play daily or weekly, as compared to monthly or semesterly. If our assumption is that those who play monthly and semesterly would probably not even play, or play very little during an exam week, their distributions should remain relatively similar.
+
+```{r, echo = FALSE}
+exam_adjusted_df <- actual_values[actual_values$time != 0, ]
+avg_time_adj <- tapply(exam_adjusted_df$time, exam_adjusted_df$freq, mean, na.rm = TRUE)
+median_time_adj <- tapply(exam_adjusted_df$time, exam_adjusted_df$freq, median, na.rm = TRUE)
+count_adj <- table(exam_adjusted_df$freq)
+
+exam_adj_summary <- data.frame(
+    frequency = names(avg_time_adj),
+    avg_time = as.vector(avg_time_adj),
+    median_time = as.vector(median_time_adj),
+    count = as.vector(count_adj)
+)
+
+exam_adj_summary
+```
+
+Now, let's use a boxplot to compare the two distributions, between students playing video games during exam week and those who didn't.
+
+```{r, echo = FALSE}
+boxplot(time ~ freq,
+        data = actual_values,
+        xlab = "Frequency of Play (1 = Daily, 2 = Weekly, 3 = Monthly, 4 = Semesterly",
+        ylab = "Hours Played",
+        main = "Reported Frequency of Play and Hours Played During Exam Week"
+        )
+
+boxplot(time ~ freq, 
+        data = exam_adjusted_df,
+        xlab = "Frequency of Play (1 = Daily, 2 = Weekly, 3 = Monthly, 4 = Semesterly",
+        ylab = "Hours Played",
+        main = "Reported Frequency of Play and Hours Played"
+        )
 ```
 
 ### Analysis
 
-```{r q2-analysis}
-# Your R code for analysis related to Question 2
-```
+Looking through these two boxplots and their data summaries, there is an obvious difference, especially for students with a daily or weekly frequency of play. For instance, our adjusted comparison shows that those who played ('freq' = 1) daily during an exam week typically had a lower amount of hours played, with a 1.5 hour difference between our exam week data and our filtered data. Similarly, our boxplot also shows a difference in the interquartile range between the two datasets for those who played daily, as during a normal week, students were more likely to play more and had a wider variety of playtimes, which can be inferred from the two box plots. A similar comparison can be made from students who played weekly ('freq' = 2). There's a ~0.4 hour increase in normal weeks versus the exam week. Another interesting observation is that the adjusted data seems to have a smaller interquartile range compared to it's original exam week data, somewhat implying that those who play weekly usually play a more set amount of hours that usually doesn't diverge. Frequencies 3 and 4 don't have a large difference, just due to the nature of their descriptions, since most students in these categories would probably play very little to none already. If someone only plays games monthly or semesterly, then they are less likely to have major differences during an exam week versus a normal week.
 
 ### Conclusions
 
-Your conclusions for Question 2.
+Overall, the fact that there was an exam in the week prior to the survey tells us this:
+
+* On average, students played less hours than they normally would on a week without an exam.
+* Those who reported that they play daily or weekly typically have the largest difference between their average hours played during an exam versus a normal week, with around a ~1.5 hour difference for those who play daily and a ~0.45 hour difference with those who play weekly.
+* Those who reported that they play monthly or semesterly have small or negligible differences between their average hours played due to the nature and scarcity of their data, along with the assumption that we made when filtering.
 
 ## Question 3
 
