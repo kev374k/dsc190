@@ -249,23 +249,54 @@ Your conclusions for Question 4.
 
 # Advanced Analysis
 
-## Additional Research Question
+Our advanced analysis focuses on the intersectionality between people that like video games and which types of video games they prefer. By doing this, we can see the most popular types of video games that these students prefer, along with the average amount of time they play video games a week, potentially showing us which games people spent the most time on.
 
 ### Methods
 
-```{r advanced-methods}
-# Your R code for methods related to the advanced question
+In order to do this, we filtered the data. It's important to note that we ignored people who skipped this question, because those aren't the people we want to analyze. We went with the assumption that those who put all 0s in each of the columns that corresponded to the game type, because presumably if someone didn't like games or haven't played it, they wouldn't know the genres and skip.
+
+```{r, echo = FALSE}
+video_games_data <- cleaned_df[!(cleaned_df$action == 0 & cleaned_df$adv == 0 & cleaned_df$sim == 0 & cleaned_df$sport == 0 & cleaned_df$strategy == 0), ]
+dim(video_games_data)
+```
+
+From this, we can see that we have 75 respondents that still enjoy games, which we can further filter out. WE can do this by capturing the most popular video game genres from this data, while also comparing the amount of time people spent playing those games.
+
+```{r, echo = FALSE}
+freq_table <- colSums(video_games_data[, c("action", "adv", "sim", "sport", "strategy")] == 1)
+action_time <- sum(cleaned_df$time[cleaned_df$action == 1], na.rm = TRUE)
+adv_time <- sum(cleaned_df$time[cleaned_df$adv == 1], na.rm = TRUE)
+sim_time <- sum(cleaned_df$time[cleaned_df$sim == 1], na.rm = TRUE)
+sport_time <- sum(cleaned_df$time[cleaned_df$sport == 1], na.rm = TRUE)
+strategy_time <- sum(cleaned_df$time[cleaned_df$strategy == 1], na.rm = TRUE)
+
+summed_times <- c(
+    action_time,
+    adv_time,
+    sim_time,
+    sport_time,
+    strategy_time
+)
+names(summed_times) <- c("action", "adv", "sim", "sport", "strategy")
+barplot(freq_table, main = "Video Game Popularity by Genre", xlab = "Genre", ylab = "Frequency", col = "blue")
+barplot(summed_times,
+        main = "Total Time Spent on Each Game Category",
+        xlab = "Game Category",
+        ylab = "Total Time", 
+        col = "lightblue",
+        las = 2
+        )
 ```
 
 ### Analysis
 
-```{r advanced-analysis}
-# Your R code for analysis related to the advanced question
-```
+Our two graphs, especially when put next to each other, show us another interesting detail. Although strategy was the most popular game genre chosen by people, with the action and sport genres falling slightly behind, when we look through the total time spent playing each game, action was the highest, with sport and then strategy falling behind. This means that there's a decent chance that the people who play strategy games don't typically play the game for a longer time, while those who played action and sports games play for longer durations. On another note, sim was the least popular genre of game in the survey, and that pattern still shows in the total time spent. People who mentioned they like simulation games spent very little time actually playing them, leading us to believe that those who play these simulation games either don't play them very often or play them for short periods of time compared to their peers who played action or sport games.
 
 ### Conclusions
 
-Your conclusions for the advanced analysis.
+Our conclusions for this advanced analysis show us that although a video game genre like 'strategy' could perhaps be the most accessible, it's not necessarily the most played time-wise. While 'action' and 'sport' genres were not as popular as 'strategy' games in terms of total picks, the students who played these games far exceeded the play-time of students who played 'strategy' games.
+
+It's also important to note that this isn't conclusive. Firstly, there's inherent bias because this survey was taken during an exam week, likely leading to students playing less than they normally would. Additionally, the way we filtered our data may be potentially flawed, as students were allowed to choose up to 3 of their favorite genres, not just one. This means that our graph of total time spent on each category is layered and can be duplicated, because if a student likes to play multiple genres of games, they are stacked on top of their respective genres, potentially leading to more visible and exaggerated graphs than what would normally be. However, even with that discrepancy, we still believe that these two graphs show us concrete differences in many of the genres and how students viewed the genres differently, both in terms of popularity as well as personal enjoyment.
 
 # Conclusions and Discussion
 
