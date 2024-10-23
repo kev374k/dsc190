@@ -75,16 +75,13 @@ In order to analyze our data, we wanted to make sure that our data was clean, an
 ```{r, echo = FALSE}
 survey_p1 <- read.table("videodata.txt", header = TRUE)
 survey_p2 <- read.table("videoMultiple.txt", header = TRUE)
-
-str(survey_p1)
-str(survey_p2)
 ```
 
 Through this, we noticed that while the first part of the survey all contained numeric types, which was to be expected, the second part of the survey contained two non-numeric columns, 'other' and 'other2', both of which were not supposed to be included in the second part of the survey. In order to clean the data up, we removed these two columns.
 
-```{r, echo = FALSE}
+```{r}
 survey_p2 <- survey_p2[, !(names(survey_p2) %in% c("other", "other2"))]
-str(survey_p2)
+all(sapply(survey_p2, is.numeric))
 ```
 
 Furthermore, in order to clean up the data and keep it consistent, we wanted to combine our data into one data frame. By doing this, we are using the assumption that each row in 'survey_p1' is the same person that was in the same row in 'survey_p2', meaning that they are the same person. Additionally, we also got rid of rows that contained NA values, just to make sure we got rid of inconsistent data, because that could mess up our survey. From this, we noticed that we have 87 rows of data left, which means that 4 of our rows had NA values.
@@ -108,7 +105,7 @@ n_played <- nrow(cleaned_df[cleaned_df$time > 0 | cleaned_df$time == 99, ])
 n_total <- nrow(cleaned_df)
 
 point_estimate_fraction <- n_played / n_total
-print(paste("Point Estimate of the fraction of students who played a video game in the week prior to the survey: ", round(point_estimate_fraction, 4)))
+print(paste("Point Estimate: ", round(point_estimate_fraction, 4)))
 ```
 
 Furthermore, in order to get a more concrete range for the true measurement of this estimate, let's take a 95% confidence interval and get an interval estimate for the true population proportion who played a video game during an exam week.
@@ -184,19 +181,36 @@ exam_adj_summary
 Now, let's use a boxplot to compare the two distributions, between students playing video games during exam week and those who didn't.
 
 ```{r, echo = FALSE}
+par(mfrow = c(1, 2), # 1 row, 2 columns
+    mar = c(4, 4, 3, 1)) # Adjust margins (bottom, left, top, right)
+
 boxplot(time ~ freq,
         data = actual_values,
-        xlab = "Frequency of Play (1 = Daily, 2 = Weekly, 3 = Monthly, 4 = Semesterly",
+        xlab = "",
         ylab = "Hours Played",
-        main = "Reported Frequency of Play and Hours Played During Exam Week"
-        )
+        main = "Hours During Exam Week",
+        col = "#7A2048",
+        cex.main = 0.9,    # Reduce title size
+        cex.lab = 0.8,     # Reduce label size
+        cex.axis = 0.8)    # Reduce axis text size
 
 boxplot(time ~ freq, 
         data = exam_adjusted_df,
-        xlab = "Frequency of Play (1 = Daily, 2 = Weekly, 3 = Monthly, 4 = Semesterly",
+        xlab = "",
         ylab = "Hours Played",
-        main = "Reported Frequency of Play and Hours Played"
-        )
+        main = "Overall Hours Played",
+        col = "#408EC6",
+        cex.main = 0.9,
+        cex.lab = 0.8,
+        cex.axis = 0.8)
+
+mtext("Frequency: 1=Daily, 2=Weekly, 3=Monthly, 4=Semesterly", 
+      side = 1, 
+      line = -1, 
+      outer = TRUE,
+      cex = 0.7)
+
+par(mfrow = c(1, 1))
 ```
 
 ### Analysis
@@ -278,14 +292,35 @@ summed_times <- c(
     strategy_time
 )
 names(summed_times) <- c("action", "adv", "sim", "sport", "strategy")
-barplot(freq_table, main = "Video Game Popularity by Genre", xlab = "Genre", ylab = "Frequency", col = "blue")
+
+# Set up the plotting layout for side by side graphs
+par(mfrow = c(1, 2), 
+   mar = c(6, 4, 3, 1))  # Increased bottom margin for rotated labels
+
+# First barplot
+barplot(freq_table, 
+       main = "Genre Popularity",    # Shortened title
+       xlab = "Genre",                    # Removed xlabel since labels are rotated
+       ylab = "Frequency", 
+       col = "#B85042",
+       las = 2,                      # Rotate x-axis labels
+       cex.main = 0.9,              # Reduce title size
+       cex.axis = 0.8,              # Reduce axis text size
+       cex.names = 0.8)             # Reduce bar labels size
+
+# Second barplot
 barplot(summed_times,
-        main = "Total Time Spent on Each Game Category",
-        xlab = "Game Category",
-        ylab = "Total Time", 
-        col = "lightblue",
-        las = 2
-        )
+       main = "Time by Category",    # Shortened title
+       xlab = "Genre",                    # Removed xlabel since labels are rotated
+       ylab = "Total Time", 
+       col = "#A7BEAE",
+       las = 2,
+       cex.main = 0.9,
+       cex.axis = 0.8,
+       cex.names = 0.8)
+
+# Reset par to default after plotting
+par(mfrow = c(1, 1))
 ```
 
 ### Analysis
@@ -307,11 +342,3 @@ Reprise the questions and goals of the analysis stated in the introduction. Summ
 ## Discussion
 
 Additional observations or details gleaned from the analysis section. Discuss relevance to the science and other studies, if applicable. Address data limitations. Raise new questions and suggest future work.
-
-# Appendix
-
-Include any additional technical details, tables, or figures that support your analysis but would disrupt the flow of the main text if included earlier.
-
-```{r appendix-code, eval=FALSE}
-# Additional R code or output can be included here
-```

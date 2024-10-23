@@ -1,0 +1,619 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Homework \#1},
+  pdfauthor={Kevin Wong},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Homework \#1}
+\author{Kevin Wong}
+\date{2024-10-07}
+
+\begin{document}
+\maketitle
+
+Data Cleaning
+
+\begin{verbatim}
+##   time like where freq busy educ sex age home math work own cdrom email grade
+## 1  2.0    3     3    2    0    1   0  19    1    0   10   1     0     1     4
+## 2  0.0    3     3    3    0    0   0  18    1    1    0   1     1     1     2
+## 3  0.0    3     1    3    0    0   1  19    1    0    0   1     0     1     3
+## 4  0.5    3     3    3    0    1   0  19    1    0    0   1     0     1     3
+## 5  0.0    3     3    4    0    1   0  19    1    1    0   0     0     1     3
+\end{verbatim}
+
+\begin{verbatim}
+##   action adv sim sport strategy relax coord challenge master bored other
+## 1      0   0   0     0        1     1     0         1      1     0      
+## 2      0   1   0     0        1     0     0         0      0     1      
+## 3      1   0   0     1        1     1     0         0      0     0      
+## 4      0   0   0     0        1     0     0         1      0     0      
+## 5      0   0   0     0        1     1     0         1      1     0      
+##   graphic time frust lonely rules cost boring friends point other2
+## 1       0    1     0      0     0    1      0       0     1       
+## 2       0    1     1      0     0    0      0       0     0       
+## 3       0    0     0      0     0    1      0       0     0       
+## 4       0    1     0      0     0    0      0       0     0       
+## 5       0    0     0      0     1    1      0       0     0
+\end{verbatim}
+
+\begin{verbatim}
+## 'data.frame':    91 obs. of  15 variables:
+##  $ time : num  2 0 0 0.5 0 0 0 0 2 0 ...
+##  $ like : int  3 3 3 3 3 3 4 3 3 3 ...
+##  $ where: int  3 3 1 3 3 2 3 3 2 3 ...
+##  $ freq : int  2 3 3 3 4 4 4 4 1 4 ...
+##  $ busy : int  0 0 0 0 0 0 0 0 1 0 ...
+##  $ educ : int  1 0 0 1 1 0 0 0 1 1 ...
+##  $ sex  : int  0 0 1 0 0 1 1 0 1 1 ...
+##  $ age  : int  19 18 19 19 19 19 20 19 19 19 ...
+##  $ home : int  1 1 1 1 1 0 1 1 0 1 ...
+##  $ math : int  0 1 0 0 1 0 1 0 0 1 ...
+##  $ work : int  10 0 0 0 0 12 10 13 0 0 ...
+##  $ own  : int  1 1 1 1 0 0 1 0 0 1 ...
+##  $ cdrom: int  0 1 0 0 0 0 0 0 0 0 ...
+##  $ email: int  1 1 1 1 1 0 1 1 0 1 ...
+##  $ grade: int  4 2 3 3 3 3 3 3 4 4 ...
+\end{verbatim}
+
+\begin{verbatim}
+## 'data.frame':    91 obs. of  21 variables:
+##  $ action   : int  0 0 1 0 0 1 1 0 1 1 ...
+##  $ adv      : int  0 1 0 0 0 0 0 0 0 1 ...
+##  $ sim      : int  0 0 0 0 0 0 0 0 0 1 ...
+##  $ sport    : int  0 0 1 0 0 1 1 1 1 0 ...
+##  $ strategy : int  1 1 1 1 1 1 0 1 0 1 ...
+##  $ relax    : int  1 0 1 0 1 1 1 1 0 1 ...
+##  $ coord    : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ challenge: int  1 0 0 1 1 0 0 0 0 0 ...
+##  $ master   : int  1 0 0 0 1 1 0 0 0 0 ...
+##  $ bored    : int  0 1 0 0 0 1 0 1 0 0 ...
+##  $ other    : chr  " " " " " " " " ...
+##  $ graphic  : int  0 0 0 0 0 0 0 1 1 0 ...
+##  $ time     : int  1 1 0 1 0 1 0 0 0 0 ...
+##  $ frust    : int  0 1 0 0 0 1 0 0 0 0 ...
+##  $ lonely   : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ rules    : int  0 0 0 0 1 0 1 0 0 1 ...
+##  $ cost     : int  1 0 1 0 1 1 0 0 1 0 ...
+##  $ boring   : int  0 0 0 0 0 0 0 0 1 0 ...
+##  $ friends  : int  0 0 0 0 0 0 0 0 0 0 ...
+##  $ point    : int  1 0 0 0 0 0 0 0 0 0 ...
+##  $ other2   : chr  " " " " " " " " ...
+\end{verbatim}
+
+Through this, we notice that the all of the columns in our first dataset
+are numbers/integers, which is correct. However, for our second dataset,
+our variables are mostly ints which make sense, but there are two extra
+columns, `other' and `other2' are present but are not in the second part
+of the survey. This means that there might be a discrepancy in the data,
+because it should be numeric, even though it isn't. Let's create a
+function to detect non-numeric columns, and show us them.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{survey\_p2 }\OtherTok{\textless{}{-}}\NormalTok{ survey\_p2[, }\SpecialCharTok{!}\NormalTok{(}\FunctionTok{names}\NormalTok{(survey\_p2) }\SpecialCharTok{\%in\%} \FunctionTok{c}\NormalTok{(}\StringTok{"other"}\NormalTok{, }\StringTok{"other2"}\NormalTok{))]}
+\FunctionTok{all}\NormalTok{(}\FunctionTok{sapply}\NormalTok{(survey\_p2, is.numeric))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] TRUE
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{rows\_with\_all\_zeros }\OtherTok{\textless{}{-}} \FunctionTok{apply}\NormalTok{(survey\_p2, }\DecValTok{1}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(row) }\FunctionTok{all}\NormalTok{(row }\SpecialCharTok{==} \DecValTok{0}\NormalTok{))}
+\NormalTok{survey\_p2[rows\_with\_all\_zeros, ]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      action adv sim sport strategy relax coord challenge master bored graphic
+## NA       NA  NA  NA    NA       NA    NA    NA        NA     NA    NA      NA
+## NA.1     NA  NA  NA    NA       NA    NA    NA        NA     NA    NA      NA
+## NA.2     NA  NA  NA    NA       NA    NA    NA        NA     NA    NA      NA
+## NA.3     NA  NA  NA    NA       NA    NA    NA        NA     NA    NA      NA
+##      time frust lonely rules cost boring friends point
+## NA     NA    NA     NA    NA   NA     NA      NA    NA
+## NA.1   NA    NA     NA    NA   NA     NA      NA    NA
+## NA.2   NA    NA     NA    NA   NA     NA      NA    NA
+## NA.3   NA    NA     NA    NA   NA     NA      NA    NA
+\end{verbatim}
+
+In order to further clean the data, we are going to combine the tables
+together and merge them in order to create one large table. For this, we
+are going to go with the assumption that each row in both tables
+represents the same person, since each student was assigned a unique
+number.
+
+\begin{verbatim}
+##   time like where freq busy educ sex age home math work own cdrom email grade
+## 1  2.0    3     3    2    0    1   0  19    1    0   10   1     0     1     4
+## 2  0.0    3     3    3    0    0   0  18    1    1    0   1     1     1     2
+## 3  0.0    3     1    3    0    0   1  19    1    0    0   1     0     1     3
+## 4  0.5    3     3    3    0    1   0  19    1    0    0   1     0     1     3
+## 5  0.0    3     3    4    0    1   0  19    1    1    0   0     0     1     3
+##   action adv sim sport strategy relax coord challenge master bored graphic time
+## 1      0   0   0     0        1     1     0         1      1     0       0    1
+## 2      0   1   0     0        1     0     0         0      0     1       0    1
+## 3      1   0   0     1        1     1     0         0      0     0       0    0
+## 4      0   0   0     0        1     0     0         1      0     0       0    1
+## 5      0   0   0     0        1     1     0         1      1     0       0    0
+##   frust lonely rules cost boring friends point
+## 1     0      0     0    1      0       0     1
+## 2     1      0     0    0      0       0     0
+## 3     0      0     0    1      0       0     0
+## 4     0      0     0    0      0       0     0
+## 5     0      0     1    1      0       0     0
+\end{verbatim}
+
+Below is a table showing all rows that contain at least one NA value. As
+we can see, NA values only exist in the variables from the part 2
+survey.
+
+\begin{verbatim}
+##    time like where freq busy educ sex age home math work own cdrom email grade
+## 53  0.5    3     2    2    0    0   1  19    1    0   16   1     0     1     3
+## 54  3.0    2     3    1    0    1   1  18    1    0    7   1     0     1     3
+## 55  0.0    3     1    3    0    0   1  19    0    0   15   0     0     1     3
+## 56  0.0    4     3    3    0    1   0  21    1    0    5   1     0     1     4
+##    action adv sim sport strategy relax coord challenge master bored graphic
+## 53     NA  NA  NA    NA       NA    NA    NA        NA     NA    NA      NA
+## 54     NA  NA  NA    NA       NA    NA    NA        NA     NA    NA      NA
+## 55     NA  NA  NA    NA       NA    NA    NA        NA     NA    NA      NA
+## 56     NA  NA  NA    NA       NA    NA    NA        NA     NA    NA      NA
+##    time frust lonely rules cost boring friends point
+## 53   NA    NA     NA    NA   NA     NA      NA    NA
+## 54   NA    NA     NA    NA   NA     NA      NA    NA
+## 55   NA    NA     NA    NA   NA     NA      NA    NA
+## 56   NA    NA     NA    NA   NA     NA      NA    NA
+\end{verbatim}
+
+Now, let's get rid of rows that contain NA values, just to get rid of
+inconsistent data.
+
+\begin{verbatim}
+## [1] 87 34
+\end{verbatim}
+
+Looking through this, we had 4 rows that contained NA values, so now we
+only have 87 rows left.
+
+Notes: 1) busy, educ, sex, home, math, own, cdrom, email, action, adv,
+sim, sport, strategy, graphic, relax, coord, challenge, bored, time,
+frust, lonely, rules, cost, boring, friends, point are binary, so their
+distributions will be concentrated at 0 and 1 2) time, age, and work are
+continuous variables, may be similar to a normal distribution 3) like,
+freq, and grade are categorical, ordinal variables 4) where is a nominal
+variable 5) 99 shouldn't be included in the data
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{for}\NormalTok{ (col }\ControlFlowTok{in} \FunctionTok{names}\NormalTok{(cleaned\_df)) \{}
+\NormalTok{    valid\_data }\OtherTok{\textless{}{-}}\NormalTok{ cleaned\_df[[col]][cleaned\_df[[col]] }\SpecialCharTok{!=} \DecValTok{99}\NormalTok{]}
+
+    \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{length}\NormalTok{(valid\_data) }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{) \{}
+        \FunctionTok{hist}\NormalTok{(valid\_data, }\AttributeTok{main =} \FunctionTok{paste}\NormalTok{(}\StringTok{"Histogram of"}\NormalTok{, col), }\AttributeTok{xlab =}\NormalTok{ col, }\AttributeTok{breaks=}\DecValTok{30}\NormalTok{)}
+\NormalTok{    \} }\ControlFlowTok{else}\NormalTok{ \{}
+        \FunctionTok{message}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"No valid data for column"}\NormalTok{, col))}
+\NormalTok{    \}}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-1.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-2.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-3.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-4.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-5.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-6.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-7.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-8.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-9.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-10.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-11.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-12.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-13.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-14.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-15.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-16.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-17.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-18.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-19.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-20.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-21.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-22.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-23.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-24.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-25.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-26.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-27.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-28.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-29.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-30.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-31.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-32.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-33.pdf}}
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-9-34.pdf}}
+
+Looking through the histograms, there are multiple values that are coded
+as 99 because students left some questions unaswered or improperly
+answered. This means that when we filter the data, we need to make sure
+that the data that we get don't include the non-responses
+
+\section{1}\label{section}
+
+In order to provide a solid estimation of the amount of people who
+played a video game in the week prior to the survey, let's filter the
+amount of people who had over 0 hours last week as well as get rid of
+the people who didn't respond to the prompt (99)
+
+\begin{verbatim}
+## [1] "Point Estimate of the fraction of students who played a video game in the week prior to the survey:  0.3678"
+\end{verbatim}
+
+Now, let's use a 95\% confidence interval to construct an interval
+estimate for this proportion
+
+\begin{verbatim}
+## [1] "95% Confidence Interval: [0.2665, 0.4691]"
+\end{verbatim}
+
+The distinction between the point estimate and the interval estimate is
+that they serve different purposes in statistical inference. For
+instance, a point estimate is a value that provides the best
+guess/estimate for a population parameter. On the other hand, an
+interval estimate is an estimate that provides a range of values where
+the true population parameter is expected to lie in, and specifically in
+this case, with a 95\% confidence. Point Estimates are simple and
+provide a direct measurement, while intervals are more uncertain, but
+are more robust as data scales up.
+
+\section{2}\label{section-1}
+
+First, in order to determine the amount of time someone spent playing
+video games, we should look at the `time' column as well as the `freq'
+column so we can compare the two values. In order to determine
+
+\begin{verbatim}
+##   frequency   avg_time median_time count
+## 1         1 4.62500000           2     8
+## 2         2 2.61481481           2    27
+## 3         3 0.06250000           0    16
+## 4         4 0.04347826           0    23
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-12-1.pdf}}
+
+This time let's filter for exam week. One assumption that we made
+regarding this is that students were more likely to study instead of
+game for the week, so for the next visualization, let's ignore students
+who reported 0 hours of gaming in the previous week.
+
+\begin{verbatim}
+##   frequency avg_time median_time count
+## 1         1 6.166667         3.0     6
+## 2         2 3.069565         2.0    23
+## 3         3 0.500000         0.5     2
+## 4         4 1.000000         1.0     1
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-13-1.pdf}}
+
+Looking through these two boxplots and their data summaries, there is an
+obvious difference, especially for students with a daily or weekly
+frequency of play. For instance, our adjusted comparison shows that
+those who played (`freq' = 1) daily during an exam week typically had a
+lower amount of hours played, with a 1.5 hour difference between our
+exam week data and our filtered data. Similarly, our boxplot also shows
+a difference in the interquartile range between the two datasets for
+those who played daily, as during a normal week, students were more
+likely to play more and had a wider variety of playtimes, which can be
+inferred from the two box plots. A similar comparison can be made from
+students who played weekly (`freq' = 2). There's a \textasciitilde0.4
+hour increase in normal weeks versus the exam week. Another interesting
+observation is that the adjusted data seems to have a smaller
+interquartile range compared to it's original exam week data, somewhat
+implying that those who play weekly usually play a more set amount of
+hours that usually doesn't diverge. Frequencies 3 and 4 don't have a
+large difference, just due to the nature of their descriptions. If
+someone only plays games monthly or semesterly, then they are less
+likely to have major differences during an exam week versus a normal
+week. Overall, the fact that there was an exam in the week prior to the
+survey tells us this:
+
+\begin{itemize}
+\tightlist
+\item
+  On average, students played less hours than they normally would on a
+  week without an exam
+\item
+  Those who reported that they play daily or weekly typically have the
+  largest difference between their average hours played during an exam
+  versus a normal week
+\item
+  Those who reported that they play monthly or semesterly have small or
+  negligible differences between their average hours played due to the
+  nature and scarcity of their data.
+\end{itemize}
+
+\section{3}\label{section-2}
+
+The point estimate for the average amount of time spent playing video
+games in the week prior to the survey is simply the sample mean. We will
+also calculate the standard error (SE) to represent the expected
+variability of our sample mean from the true population mean of time
+spent playing video games. This SE will also be used to construct our
+95\% confidence interval. The SE formula must use the \textbf{population
+correction factor} because we are sampling \textbf{without replacement}
+from a relatively small population of 314.
+\[SE = {σ \over \sqrt{n}} \times \sqrt{N-n \over N - 1}\]
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{point\_estimate\_average }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(survey\_p1}\SpecialCharTok{$}\NormalTok{time, }\AttributeTok{na.rm=}\ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{N }\OtherTok{\textless{}{-}} \DecValTok{314}
+\NormalTok{n }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(survey\_p1}\SpecialCharTok{$}\NormalTok{time)}
+
+\NormalTok{sample\_sd }\OtherTok{\textless{}{-}} \FunctionTok{sd}\NormalTok{(survey\_p1}\SpecialCharTok{$}\NormalTok{time, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{pop\_correction\_factor }\OtherTok{=} \FunctionTok{sqrt}\NormalTok{((N }\SpecialCharTok{{-}}\NormalTok{ n) }\SpecialCharTok{/}\NormalTok{ (N }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{))}
+\NormalTok{standard\_error }\OtherTok{\textless{}{-}}\NormalTok{ (sample\_sd }\SpecialCharTok{/} \FunctionTok{sqrt}\NormalTok{(n)) }\SpecialCharTok{*}\NormalTok{ pop\_correction\_factor}
+
+\FunctionTok{print}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"point\_estimate\_average:"}\NormalTok{, point\_estimate\_average))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "point_estimate_average: 1.24285714285714"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"Standard Error:"}\NormalTok{, standard\_error))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Standard Error: 0.334203627625554"
+\end{verbatim}
+
+Construct the 95\% Confidence Interval.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{alpha }\OtherTok{\textless{}{-}} \FloatTok{0.05}
+\NormalTok{z\_value }\OtherTok{\textless{}{-}} \FunctionTok{qnorm}\NormalTok{(}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ alpha }\SpecialCharTok{/} \DecValTok{2}\NormalTok{)}
+
+\NormalTok{lower\_interval\_estimate\_average }\OtherTok{\textless{}{-}}\NormalTok{ point\_estimate\_average }\SpecialCharTok{{-}}\NormalTok{ z\_value }\SpecialCharTok{*}\NormalTok{ standard\_error}
+\NormalTok{upper\_interval\_estimate\_average }\OtherTok{\textless{}{-}}\NormalTok{ point\_estimate\_average }\SpecialCharTok{+}\NormalTok{ z\_value }\SpecialCharTok{*}\NormalTok{ standard\_error}
+
+\FunctionTok{print}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"lower\_interval\_estimate\_average:"}\NormalTok{, lower\_interval\_estimate\_average))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "lower_interval_estimate_average: 0.587830069208421"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"upper\_interval\_estimate\_average:"}\NormalTok{, upper\_interval\_estimate\_average))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "upper_interval_estimate_average: 1.89788421650587"
+\end{verbatim}
+
+Next, we perform a bootstrap simulation to estimate the sampling
+distribution of average time spent playing games. If this estimated
+sampling distribution is approximately normal, then our confidence
+interval is appropriate, but if it's not normal, then the approach taken
+is not appropriate.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(boot)}
+
+\CommentTok{\# Calculate the sample mean for each bootstrapped sample}
+\NormalTok{bootstrap\_mean }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(data, indices) \{}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{mean}\NormalTok{(data[indices], }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
+\NormalTok{\}}
+
+\CommentTok{\# Perform bootstrapping with 1000 iterations}
+\NormalTok{bootstrap\_results }\OtherTok{\textless{}{-}} \FunctionTok{boot}\NormalTok{(survey\_p1}\SpecialCharTok{$}\NormalTok{time, bootstrap\_mean, }\AttributeTok{R =} \DecValTok{1000}\NormalTok{)}
+\NormalTok{bootstrap\_means }\OtherTok{\textless{}{-}}\NormalTok{ bootstrap\_results}\SpecialCharTok{$}\NormalTok{t}
+\end{Highlighting}
+\end{Shaded}
+
+Now, I construct another 95\% confidence interval using the percentiles
+of my bootstrapped sample means and compare it to the earlier confidence
+interval which was constructed using the point estimate and an
+assumption of a normal distribution. If they are significantly
+different, the interval estimate may not be appropriate for this
+situation.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{bootstrap\_ci }\OtherTok{\textless{}{-}} \FunctionTok{boot.ci}\NormalTok{(bootstrap\_results, }\AttributeTok{type =} \StringTok{"perc"}\NormalTok{)}
+
+\CommentTok{\# Extract lower and upper bounds of the 95\% Bootstrap CI}
+\NormalTok{lower\_bound\_bootstrap }\OtherTok{\textless{}{-}}\NormalTok{ bootstrap\_ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{4}\NormalTok{]}
+\NormalTok{upper\_bound\_bootstrap }\OtherTok{\textless{}{-}}\NormalTok{ bootstrap\_ci}\SpecialCharTok{$}\NormalTok{percent[}\DecValTok{5}\NormalTok{]}
+
+\FunctionTok{hist}\NormalTok{(bootstrap\_means, }\AttributeTok{main =} \StringTok{"Bootstrap Sample Means with 95\% CIs"}\NormalTok{, }
+     \AttributeTok{xlab =} \StringTok{"Sample Mean Time Spent"}\NormalTok{, }
+     \AttributeTok{col =} \StringTok{"lightblue"}\NormalTok{, }
+     \AttributeTok{border =} \StringTok{"black"}\NormalTok{, }
+     \AttributeTok{probability =} \ConstantTok{TRUE}\NormalTok{)}
+
+\CommentTok{\# Add vertical lines for the confidence intervals}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{v =}\NormalTok{ lower\_bound\_bootstrap, }\AttributeTok{col =} \StringTok{"red"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{, }\AttributeTok{lty =} \DecValTok{2}\NormalTok{)  }\CommentTok{\# Lower CI bound}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{v =}\NormalTok{ upper\_bound\_bootstrap, }\AttributeTok{col =} \StringTok{"red"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{, }\AttributeTok{lty =} \DecValTok{2}\NormalTok{)  }\CommentTok{\# Upper CI bound}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{v =}\NormalTok{ lower\_interval\_estimate\_average, }\AttributeTok{col =} \StringTok{"blue"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{, }\AttributeTok{lty =} \DecValTok{1}\NormalTok{)}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{v =}\NormalTok{ upper\_interval\_estimate\_average, }\AttributeTok{col =} \StringTok{"blue"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{, }\AttributeTok{lty =} \DecValTok{1}\NormalTok{)}
+
+
+\FunctionTok{legend}\NormalTok{(}\StringTok{"topright"}\NormalTok{, }\AttributeTok{legend =} \FunctionTok{c}\NormalTok{(}\StringTok{"Lower Bootstrap CI"}\NormalTok{, }\StringTok{"Upper Bootstrap CI"}\NormalTok{, }\StringTok{"Lower 95\% CI"}\NormalTok{, }\StringTok{"Upper 95\% CI"}\NormalTok{),}
+       \AttributeTok{col =} \FunctionTok{c}\NormalTok{(}\StringTok{"red"}\NormalTok{, }\StringTok{"red"}\NormalTok{, }\StringTok{"blue"}\NormalTok{, }\StringTok{"blue"}\NormalTok{), }\AttributeTok{lty =} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-17-1.pdf}}
+
+\section{Advanced Analysis}\label{advanced-analysis}
+
+Our advanced analysis focuses on the intersectionality between people
+that like video games and which types of video games they prefer. By
+doing this, we can see the most popular types of video games that these
+students prefer, along with the average amount of time they play video
+games a week, potentially showing us which games people spent the most
+time on.
+
+First, we filter the data. It's important to note that we ignore people
+who skipped this question, because the instructions state that those who
+disliked video games were instructed to do so.
+
+\begin{verbatim}
+## [1] 75 34
+\end{verbatim}
+
+Now, let's capture the most popular video game types from this data.
+
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-19-1.pdf}}
+
+Now, let's compare the amount of time people spent playing these games.
+
+\pandocbounded{\includegraphics[keepaspectratio]{hw2_files/figure-latex/unnamed-chunk-20-1.pdf}}
+
+Our two graphs, especially when put next to each other, show us another
+interesting detail. Although strategy was the most popular game genre
+chosen by people, with the action and sport genres falling slightly
+behind, when we look through the total time spent playing each game,
+action was the highest, with sport and then strategy falling behind.
+This means that there's a decent chance that the people who play
+strategy games don't typically play the game for a longer time, while
+those who played action and sports games play for longer durations. On
+another note, sim was the least popular genre of game in the survey, and
+that pattern still shows in the total time spent. People who mentioned
+they like simulation games spent very little time actually playing them,
+leading us to believe that those who play these simulation games either
+don't play them very often or play them for short periods of time
+compared to their peers who played action or sport games.
+
+Of course, this is not a conclusive study. Firstly, there's inherent
+bias because this survey was taken during an exam week, likely leading
+to students playing less than they normally would. Additionally, the way
+we filtered our data may be potentially flawed, as students were allowed
+to choose up to 3 of their favorite genres, not just one. This means
+that our graph of total time spent on each category is layered and can
+be duplicated, because if a student likes to play multiple genres of
+games, they are stacked on top of their respective genres, potentially
+leading to more visible and exaggerated graphs than what would normally
+be. However, even with that discrepancy, we still believe that these two
+graphs show us concrete differences in many of the genres and how
+students viewed the genres differently, both in terms of popularity as
+well as personal enjoyment.
+
+\end{document}

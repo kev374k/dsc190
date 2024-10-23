@@ -30,7 +30,7 @@ Through this, we notice that the all of the columns in our first dataset are num
 
 ```{r}
 survey_p2 <- survey_p2[, !(names(survey_p2) %in% c("other", "other2"))]
-str(survey_p2)
+all(sapply(survey_p2, is.numeric))
 ```
 
 ```{r}
@@ -86,7 +86,7 @@ n_played <- nrow(cleaned_df[cleaned_df$time > 0 | cleaned_df$time == 99, ])
 n_total <- nrow(cleaned_df)
 
 point_estimate_fraction <- n_played / n_total
-print(paste("Point Estimate of the fraction of students who played a video game in the week prior to the survey: ", round(point_estimate_fraction, 4)))
+print(paste("Point Estimate: ", round(point_estimate_fraction, 4)))
 ```
 
 Now, let's use a 95% confidence interval to construct an interval estimate for this proportion
