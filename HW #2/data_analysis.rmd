@@ -1,5 +1,5 @@
 ---
-title: "Impact of Maternal Smoking on Infant Birthweight"
+title: "Gaming Patterns in Higher Education"
 author: "Author 1 and Author 2"
 date: "`r Sys.Date()`"
 output: 
@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Author Contributions
 
-Author 1:
+Author 1: Did the data cleaning and preliminary analysis, as well as contributed to questions #1 and #2, along with doing the advanced data analysis.
 
 Author 2:
 
@@ -27,9 +27,38 @@ ChatGPT was used as a substitute for documentation for R. Since we were unfamili
 
 # Introduction
 
+The data provided is from a survey done at UC Berkeley for students enrolled in a statistics course in 1994. Out of an eligible 314 students, 91 students submitted eligible responses which will be the data used in this EDA. The data focuses on student's play time of video games, likes and dislikes of video games, and more. One important thing to note is that responses that were left unaswered or improperly answered were coded as 99, and students who had never played video games or expressed a strong dislike for them were instructed to skip many questions.
+
 ## Main Research Questions
 
-1.  
+1. Provide an estimate for the fraction of students who played a video game in the week prior to the survey.
+
+2. Check to see how the amount of time spent playing video games in the week prior to the survey
+compares to the reported frequency of play (daily, weekly, etc). How might the fact that there was an
+exam in the week prior to the survey affect your previous estimates and this comparison?
+
+3. Provide a point estimate and an interval estimate for the average amount of time spent playing video
+games in the week prior to the survey. Keep in mind the overall shape of the sample distribution.
+A simulation study may help determine the appropriateness of an interval estimate.
+
+4. Consider the attitude questions. In general, do you think the students enjoy playing video games?
+If you had to make a short list of the most important reasons why students like/dislike video games,
+what would you put on the list? Don’t forget that those students who say that they have never played
+video games or do not at all like video games are asked to skip over some of these questions. So, there
+may be many nonrespondents to the questions as to whether they think video games are educational,
+where they play video games, etc.
+
+5. Look for the differences between those who like to play video games and those who don’t. To do
+this, use the questions in the last part of the survey, and make comparisons between male and female
+students, those who work for pay and those who don’t, those who own a computer and those who don’t.
+Graphical display and cross-tabulations are particularly helpful in making these kinds of comparisons.
+Also, you may want to collapse the range of responses to a question down to two or three possibilities
+before making these comparisons.
+
+6. Further investigate the grade that students expect in the course. How does it match
+the target distribution used in grade assignment of 20% A’s, 30% B’s, 40% C’s and 10% D’s or lower?
+If the nonrespondents were failing students who no longer bothered to come to the discussion section,
+would this change the picture?
 
 ## Outline
 
