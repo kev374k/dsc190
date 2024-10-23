@@ -106,7 +106,7 @@ The distinction between the point estimate and the interval estimate is that the
 
 # 2
 
-First, in order to determine the amount of time someone spent playing video games, we should look at the 'time' column as well as the 'freq' column so we can compare the two values. In order to determine
+First, in order to determine the amount of time someone spent playing video games, we should look at the 'time' column as well as the 'freq' column so we can compare the two values. In order to determine 
 
 ```{r, echo = FALSE}
 actual_values = cleaned_df[cleaned_df$time != 99 & cleaned_df$freq != 99, ]
@@ -155,11 +155,11 @@ boxplot(time ~ freq,
         )
 ```
 
-Looking through these two boxplots and their data summaries, there is an obvious difference, especially for students with a daily or weekly frequency of play. For instance, our adjusted comparison shows that those who played ('freq' = 1) daily during an exam week typically had a lower amount of hours played, with a 1.5 hour difference between our exam week data and our filtered data. Similarly, our boxplot also shows a difference in the interquartile range between the two datasets for those who played daily, as during a normal week, students were more likely to play more and had a wider variety of playtimes, which can be inferred from the two box plots. A similar comparison can be made from students who played weekly ('freq' = 2). There's a \~0.4 hour increase in normal weeks versus the exam week. Another interesting observation is that the adjusted data seems to have a smaller interquartile range compared to it's original exam week data, somewhat implying that those who play weekly usually play a more set amount of hours that usually doesn't diverge. Frequencies 3 and 4 don't have a large difference, just due to the nature of their descriptions. If someone only plays games monthly or semesterly, then they are less likely to have major differences during an exam week versus a normal week. Overall, the fact that there was an exam in the week prior to the survey tells us this:
+Looking through these two boxplots and their data summaries, there is an obvious difference, especially for students with a daily or weekly frequency of play. For instance, our adjusted comparison shows that those who played ('freq' = 1) daily during an exam week typically had a lower amount of hours played, with a 1.5 hour difference between our exam week data and our filtered data. Similarly, our boxplot also shows a difference in the interquartile range between the two datasets for those who played daily, as during a normal week, students were more likely to play more and had a wider variety of playtimes, which can be inferred from the two box plots. A similar comparison can be made from students who played weekly ('freq' = 2). There's a ~0.4 hour increase in normal weeks versus the exam week. Another interesting observation is that the adjusted data seems to have a smaller interquartile range compared to it's original exam week data, somewhat implying that those who play weekly usually play a more set amount of hours that usually doesn't diverge. Frequencies 3 and 4 don't have a large difference, just due to the nature of their descriptions. If someone only plays games monthly or semesterly, then they are less likely to have major differences during an exam week versus a normal week. Overall, the fact that there was an exam in the week prior to the survey tells us this:
 
--   On average, students played less hours than they normally would on a week without an exam
--   Those who reported that they play daily or weekly typically have the largest difference between their average hours played during an exam versus a normal week
--   Those who reported that they play monthly or semesterly have small or negligible differences between their average hours played due to the nature and scarcity of their data.
+- On average, students played less hours than they normally would on a week without an exam
+- Those who reported that they play daily or weekly typically have the largest difference between their average hours played during an exam versus a normal week
+- Those who reported that they play monthly or semesterly have small or negligible differences between their average hours played due to the nature and scarcity of their data.
 
 # 3
 
@@ -232,240 +232,12 @@ legend("topright", legend = c("Lower Bootstrap CI", "Upper Bootstrap CI", "Lower
        col = c("red", "red", "blue", "blue"), lty = c(2, 2, 1, 1), lwd = 2)
 ```
 
-# 4
-
-First, to get an idea of whether students generally like playing video games or not, we can examine a bar plot of the "like" variable.
-
-```{r, echo = FALSE}
-like_counts <- table(subset(survey_p1, like != 99)$like)
-
-# Plot the bar plot
-barplot(like_counts, 
-        main = "Counts of Responses to 'Like to Play' Video Games", 
-        xlab = "Response Category", 
-        ylab = "Count of Students", 
-        col = "lightblue", 
-        border = "black", 
-        names.arg = c("Never Played", "Very Much", "Somewhat", "Not Really", "Not At All"))
-```
-
-Additionally, we can calculate the proportion of students surveyed that at least somewhat like playing video games.
-
-```{r, echo = FALSE}
-total_students <- length(survey_p1$like[survey_p1$like != 99])
-students_like <- length(survey_p1$like[survey_p1$like == 2 | survey_p1$like == 3])
-
-proportion_like <- students_like / total_students
-print(paste("Proportion of students in sample who at least somewhat like video games:", proportion_like))
-```
-
-Now, to find the most influential reasons for why students like or dislike playing video games, we use a bar plot to visualize the frequency of each reason.
-
-```{r, echo = FALSE}
-reason_frequencies <- colSums(na.omit(survey_p2)[, !names(survey_p2) %in% c("action","adv","sim","sport","strategy")])
-
-bar_colors <- c("relax" = "lightblue", 
-                "coord" = "lightblue", 
-                "challenge" = "lightblue", 
-                "master" = "lightblue", 
-                "bored" = "lightblue", 
-                "graphic" = "lightblue",
-                "time" = "red",
-                "frust" = "red",
-                "lonely" = "red",
-                "rules" = "red",
-                "cost" = "red",
-                "boring" = "red",
-                "friends" = "red",
-                "point" = "red")
-
-barplot(reason_frequencies, 
-        main = "Frequencies of Reasons for Liking/Disliking Video Games",
-        ylab = "Frequency", 
-        col = bar_colors[names(reason_frequencies)], 
-        border = "black", 
-        las = 2)
-```
-
-The most important reason for why students like video games is for relaxation. The most important reasons why students don't like video games are that they're time-consuming, costly, and pointless.
-
-```{r, echo = FALSE}
-reasons_for_likeliness <- c("relax", "time", "cost", "point")
-print("Reasons for Like/Dislike Video Games:")
-print(reasons_for_likeliness)
-```
-
-# 5
-
-To understand the differences between those who like to play video games and those who don't, we first collapse the range of responses to the last questions into 2 or 3 responses per question rather than 6 or 7. The responses to the question "Why do you play video games?" were placed into 2 categories: "Entertainment" and "Mental Engagement". The responses to the question "Why don't you like playing video games?" were placed into 3 categories: "Difficulty", "Low Priority", and "Isolation".
-
-```{r, echo = FALSE}
-clean_p2 <- cleaned_df
-
-clean_p2$Entertainment <- clean_p2$graphic | clean_p2$relax | clean_p2$bored
-clean_p2$Mental_Engagement <- clean_p2$coord | clean_p2$challenge | clean_p2$master
-clean_p2$Difficulty <- clean_p2$frust | clean_p2$rules
-clean_p2$Low_Priority <- clean_p2$time | clean_p2$cost | clean_p2$boring | clean_p2$point
-clean_p2$Isolation <- clean_p2$lonely | clean_p2$friends
-
-clean_p2 <- clean_p2[, c("sex", "work", "own", "Entertainment","Mental_Engagement","Difficulty","Low_Priority","Isolation")]
-clean_p2[clean_p2 == 99] <- NA
-clean_p2$work <- clean_p2$work > 0
-clean_p2 <- na.omit(clean_p2)
-```
-
-Next, we make cross-tabulations to show how various factors for liking or disliking video games change between different groups of people.
-
-```{r, echo = FALSE}
-sex_cross_tab_1 <- table(clean_p2$Entertainment, clean_p2$sex)
-dimnames(sex_cross_tab_1) <- list(
-  "Entertainment" = c("No", "Yes"),
-  "Sex" = c("Female", "Male")
-)
-
-sex_cross_tab_2 <- table(clean_p2$Mental_Engagement, clean_p2$sex)
-dimnames(sex_cross_tab_2) <- list(
-  "Mental Engagement" = c("No", "Yes"),
-  "Sex" = c("Female", "Male")
-)
-
-sex_cross_tab_3 <- table(clean_p2$Difficulty, clean_p2$sex)
-dimnames(sex_cross_tab_3) <- list(
-  "Difficulty" = c("No", "Yes"),
-  "Sex" = c("Female", "Male")
-)
-
-sex_cross_tab_4 <- table(clean_p2$Isolation, clean_p2$sex)
-dimnames(sex_cross_tab_4) <- list(
-  "Isolation" = c("No", "Yes"),
-  "Sex" = c("Female", "Male")
-)
-
-cat("Cross-Tabulation: Sex vs Entertainment\n\n")
-print(sex_cross_tab_1)
-
-cat("\n\nCross-Tabulation: Sex vs Mental Engagement\n\n")
-print(sex_cross_tab_2)
-
-cat("\n\nCross-Tabulation: Sex vs Difficulty\n\n")
-print(sex_cross_tab_3)
-
-cat("\n\nCross-Tabulation: Sex vs Isolation\n\n")
-print(sex_cross_tab_4)
-```
-
-```{r, echo = FALSE}
-cross_tab_1 <- table(clean_p2$Entertainment, clean_p2$work)
-dimnames(cross_tab_1) <- list(
-  "Entertainment" = c("No", "Yes"),
-  "Works" = c("No", "Yes")
-)
-
-cross_tab_2 <- table(clean_p2$Mental_Engagement, clean_p2$work)
-dimnames(cross_tab_2) <- list(
-  "Mental Engagement" = c("No", "Yes"),
-  "Works" = c("No", "Yes")
-)
-
-cross_tab_3 <- table(clean_p2$Difficulty, clean_p2$work)
-dimnames(cross_tab_3) <- list(
-  "Difficulty" = c("No", "Yes"),
-  "Works" = c("No", "Yes")
-)
-
-cross_tab_4 <- table(clean_p2$Low_Priority, clean_p2$work)
-dimnames(cross_tab_4) <- list(
-  "Low Priority" = c("No", "Yes"),
-  "Works" = c("No", "Yes")
-)
-
-cat("Cross-Tabulation: Works vs Entertainment\n\n")
-print(cross_tab_1)
-
-cat("\n\nCross-Tabulation: Works vs Mental Engagement\n\n")
-print(cross_tab_2)
-
-cat("\n\nCross-Tabulation: Works vs Difficulty\n\n")
-print(cross_tab_3)
-
-cat("\n\nCross-Tabulation: Works vs Low Priority\n\n")
-print(cross_tab_4)
-```
-
-```{r, echo = FALSE}
-own_cross_tab_1 <- table(clean_p2$Entertainment, clean_p2$own)
-dimnames(own_cross_tab_1) <- list(
-  "Entertainment" = c("No", "Yes"),
-  "Owns PC" = c("No", "Yes")
-)
-
-own_cross_tab_2 <- table(clean_p2$Mental_Engagement, clean_p2$own)
-dimnames(own_cross_tab_2) <- list(
-  "Mental Engagement" = c("No", "Yes"),
-  "Owns PC" = c("No", "Yes")
-)
-
-own_cross_tab_3 <- table(clean_p2$Difficulty, clean_p2$own)
-dimnames(own_cross_tab_3) <- list(
-  "Difficulty" = c("No", "Yes"),
-  "Owns PC" = c("No", "Yes")
-)
-
-own_cross_tab_4 <- table(clean_p2$Isolation, clean_p2$own)
-dimnames(own_cross_tab_4) <- list(
-  "Isolation" = c("No", "Yes"),
-  "Owns PC" = c("No", "Yes")
-)
-
-cat("Cross-Tabulation: Owns PC vs Entertainment\n\n")
-print(own_cross_tab_1)
-
-cat("\n\nCross-Tabulation: Owns PC vs Mental Engagement\n\n")
-print(own_cross_tab_2)
-
-cat("\n\nCross-Tabulation: Owns PC vs Difficulty\n\n")
-print(own_cross_tab_3)
-
-cat("\n\nCross-Tabulation: Owns PC vs Isolation\n\n")
-print(own_cross_tab_4)
-```
-
-The most notable cross-tabulations are those comparing "Sex vs Entertainment", "Works vs Mental Engagement", and "Owns PC vs Entertainment". We found the most notable comparisons by generating every single cross-tabulation possible and choosing the ones where the distribution of responses changed the most from one group to the next. To analyze these comparisons further, we produce grouped bar plots.
-
-```{r, echo = FALSE}
-barplot(sex_cross_tab_1, beside = TRUE, 
-        col = c("red", "lightblue"),
-        legend = rownames(sex_cross_tab_1),
-        main = "Gender vs Enjoys Entertainment",
-        xlab = "Enjoys Entertainment Aspect", 
-        ylab = "Count")
-
-```
-
-```{r, echo = FALSE}
-barplot(cross_tab_2, beside = TRUE,
-        col = c("red", "lightblue"),
-        legend = rownames(cross_tab_2),
-        main = "Works vs Enjoys Mental Challenge",
-        xlab = "Enjoys Mental Engagement Aspect",
-        ylab = "Count")
-
-```
-
-```{r, echo = FALSE}
-barplot(own_cross_tab_1, beside = TRUE,
-        col = c("red", "lightblue"),
-        legend = rownames(own_cross_tab_1),
-        main = "Owns PC vs Enjoys Entertainment",
-        xlab = "Enjoys Entertainment Aspect",
-        ylab = "Count")
-```
 
 # Advanced Analysis
 
 Our advanced analysis focuses on the intersectionality between people that like video games and which types of video games they prefer. By doing this, we can see the most popular types of video games that these students prefer, along with the average amount of time they play video games a week, potentially showing us which games people spent the most time on.
 
-First, we filter the data. It's important to note that we ignore people who skipped this question, because the instructions state that those who disliked video games were instructed to do so.
+First, we filter the data. It's important to note that we ignore people who skipped this question, because the instructions state that those who disliked video games were instructed to do so. 
 
 ```{r, echo = FALSE}
 video_games_data <- cleaned_df[!(cleaned_df$action == 0 & cleaned_df$adv == 0 & cleaned_df$sim == 0 & cleaned_df$sport == 0 & cleaned_df$strategy == 0), ]

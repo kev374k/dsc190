@@ -27,7 +27,7 @@ ChatGPT was used as a substitute for documentation for R. Since we were unfamili
 
 # Introduction
 
-The data provided is from a survey done at UC Berkeley for students enrolled in a statistics course in 1994. Out of an eligible 314 students, 91 students submitted eligible responses which will be the data used in this EDA. The data focuses on student's play time of video games, likes and dislikes of video games, and more. One important thing to note is that responses that were left unaswered or improperly answered were coded as 99, and students who had never played video games or expressed a strong dislike for them were instructed to skip many questions.
+The data provided is from a survey done at UC Berkeley for students enrolled in a statistics course in 1994. Out of an eligible 314 students, 91 students submitted eligible responses which will be the data used in this EDA. The data focuses on student's play time of video games, likes and dislikes of video games, and more. One important thing to note is that responses that were left unaswered or improperly answered were coded as 99, and students who had never played video games or expressed a strong dislike for them were instructed to skip many questions. Additionally, the survey was distributed into two parts, where the first part asks about variable data, while the second part focuses on attitude questions.
 
 ## Main Research Questions
 
@@ -70,37 +70,77 @@ The remainder of the report will go through a basic analysis of the data, includ
 
 ### Methods
 
-```{r data-processing}
-# Your R code for data processing
+In order to analyze our data, we wanted to make sure that our data was clean, and was able to have analysis performed on it. In order to do this, we looked through the data to identify if there were any inconsistencies that we wanted to catch and either fix or get rid of. One such inconsistency was included when we went to check the data types for the second part of the survey.
+
+```{r, echo = FALSE}
+survey_p1 <- read.table("videodata.txt", header = TRUE)
+survey_p2 <- read.table("videoMultiple.txt", header = TRUE)
+
+str(survey_p1)
+str(survey_p2)
 ```
 
-### Analysis
+Through this, we noticed that while the first part of the survey all contained numeric types, which was to be expected, the second part of the survey contained two non-numeric columns, 'other' and 'other2', both of which were not supposed to be included in the second part of the survey. In order to clean the data up, we removed these two columns.
 
-```{r data-summary}
-# Your R code for data summary
+```{r, echo = FALSE}
+survey_p2 <- survey_p2[, !(names(survey_p2) %in% c("other", "other2"))]
+str(survey_p2)
 ```
 
-### Conclusions
+Furthermore, in order to clean up the data and keep it consistent, we wanted to combine our data into one data frame. By doing this, we are using the assumption that each row in 'survey_p1' is the same person that was in the same row in 'survey_p2', meaning that they are the same person. Additionally, we also got rid of rows that contained NA values, just to make sure we got rid of inconsistent data, because that could mess up our survey. From this, we noticed that we have 87 rows of data left, which means that 4 of our rows had NA values.
 
-Your conclusions about data processing and summaries.
+```{r}
+combined_table <- cbind(survey_p1, survey_p2)
+cleaned_df <- na.omit(combined_table)
+dim(cleaned_df)
+```
 
-## Question 1
+We also noted down the types of variables that were present in our data, since many were binary, ordinal, nominal, and more. We also graphed out histograms of the variables in the two surveys to see if we could identify any outliers, but since responses that were left unanswered or were improperly answered were coded as 99, there were no such outliers. Therefore, we went with the assumption that there were no outliers in the dataset, since they were all coded as 99 and could be filtered out later.
+
+## Question 1: Estimate of Students who played a Video Game
 
 ### Methods
 
-```{r q1-methods}
-# Your R code for methods related to Question 1
+In order to provide a solid estimation of the amount of people who played a video game in the week prior to the survey, let's filter the amount of people who had over 0 hours last week as well as filter out those who didn't respond correctly or did not answer the question (99)
+
+```{r, echo = FALSE}
+n_played <- nrow(cleaned_df[cleaned_df$time > 0 | cleaned_df$time == 99, ])
+n_total <- nrow(cleaned_df)
+
+point_estimate_fraction <- n_played / n_total
+print(paste("Point Estimate of the fraction of students who played a video game in the week prior to the survey: ", round(point_estimate_fraction, 4)))
+```
+
+Furthermore, in order to get a more concrete range for the true measurement of this estimate, let's take a 95% confidence interval and get an interval estimate for the true population proportion who played a video game during an exam week.
+
+```{r, echo = FALSE}
+confidence_level = 0.95
+z <- qnorm((1 + confidence_level) / 2)
+
+se <- sqrt(point_estimate_fraction * (1 - point_estimate_fraction) / n_total)
+
+lower_interval_estimate_fraction <- point_estimate_fraction - z * se
+upper_interval_estimate_fraction <- point_estimate_fraction + z * se
+print(paste("95% Confidence Interval: [", round(lower_interval_estimate_fraction, 4), ", ", round(upper_interval_estimate_fraction, 4), "]", sep = ""))
 ```
 
 ### Analysis
 
-```{r q1-analysis}
-# Your R code for analysis related to Question 1
-```
+Our examination of video game engagement among UC Berkeley Statistics students during the Fall 1994 semester revealed that 36.78% of surveyed students reported playing video games in the week following their second examination. The 95% confidence interval for this proportion ranges from 26.65% to 46.91%, indicating the true population parameter lies within this range with 95% confidence.
+
+Key analytical findings include:
+
+* The point estimate of 36.78% represents a substantial portion of the student population engaging in gaming activities in an academically intense period.
+* The confidence interval width of ~20% suggests a high variability amongst students in terms of gaming behavior.
+* The timing of the survey, during an exam week, provides context for interpreting these gaming patterns.
 
 ### Conclusions
 
-Your conclusions for Question 1.
+Based on our analysis, we can draw several significant conclusions:
+
+* Video gaming was a common activity amongst Statistics students, even in a academically intense time. Our confidence interval shows us that at minimum, 25% of the student population was engaged in gaming activities during the survey period.
+* Video games were played by a significant amount of people in the Statistics course, yet our wide confidence interval suggests that there is a lot of variability amongst the people in the course, possibily suggesting that difference populations of students would have a different estimate about the percentage of students who played video games regularly.
+* The percentage found from the data indicates that gaming was a prevalent hobby even in the mid-1990s, and can perhaps provide insight into student gaming behavior into the future, as perhaps it has become even more significant as time has passed and gaming has become easier to access for everyone.
 
 ## Question 2
 
