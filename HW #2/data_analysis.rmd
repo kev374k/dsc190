@@ -217,11 +217,11 @@ The point estimate for the average amount of time spent playing video games in t
 $$SE = {σ \over \sqrt{n}} \times \sqrt{N-n \over N - 1}$$
 
 ```{r q3-methods, echo = FALSE}
-point_estimate_average <- mean(survey_p1$time, na.rm=TRUE)
+point_estimate_average <- mean(cleaned_df$time, na.rm=TRUE)
 N <- 314
-n <- length(survey_p1$time)
+n <- length(cleaned_df$time)
 
-sample_sd <- sd(survey_p1$time, na.rm = TRUE)
+sample_sd <- sd(cleaned_df$time, na.rm = TRUE)
 pop_correction_factor = sqrt((N - n) / (N - 1))
 standard_error <- (sample_sd / sqrt(n)) * pop_correction_factor
 
@@ -253,7 +253,7 @@ bootstrap_mean <- function(data, indices) {
 }
 
 # Perform bootstrapping with 1000 iterations
-bootstrap_results <- boot(survey_p1$time, bootstrap_mean, R = 1000)
+bootstrap_results <- boot(cleaned_df$time, bootstrap_mean, R = 1000)
 bootstrap_means <- bootstrap_results$t
 bootstrap_mean <- mean(bootstrap_means)
 bootstrap_sd <- sd(bootstrap_means)
@@ -305,7 +305,7 @@ In conclusion, while our initial 95% confidence interval suggests that the true 
 First, to get an idea of whether students generally like playing video games or not, we examine a bar plot of the "like" variable.
 
 ```{r q4-methods, echo = FALSE}
-like_counts <- table(subset(survey_p1, like != 99)$like)
+like_counts <- table(subset(cleaned_df, like != 99)$like)
 
 # Plot the bar plot
 like_counts_plot <- barplot(like_counts, 
@@ -322,8 +322,8 @@ text(x = like_counts_plot, y = like_counts, label = like_counts, pos = 1, cex = 
 Additionally, we calculate the proportion of students surveyed that at least somewhat like playing video games.
 
 ```{r, echo = FALSE}
-total_students <- length(survey_p1$like[survey_p1$like != 99])
-students_like <- length(survey_p1$like[survey_p1$like == 2 | survey_p1$like == 3])
+total_students <- length(cleaned_df$like[cleaned_df$like != 99])
+students_like <- length(cleaned_df$like[cleaned_df$like == 2 | cleaned_df$like == 3])
 
 proportion_like <- students_like / total_students
 print(paste("Proportion of students in sample who at least somewhat like video games:", proportion_like))
@@ -332,7 +332,7 @@ print(paste("Proportion of students in sample who at least somewhat like video g
 Now, to find the most influential reasons for why students like or dislike playing video games, we use a bar plot to visualize the frequency of each reason.
 
 ```{r, echo = FALSE}
-reason_frequencies <- colSums(na.omit(survey_p2)[, !names(survey_p2) %in% c("action","adv","sim","sport","strategy")])
+reason_frequencies <- colSums(cleaned_df[, !names(cleaned_df) %in% c("action","adv","sim","sport","strategy")])
 
 bar_colors <- c("relax" = "lightblue", 
                 "coord" = "lightblue", 
