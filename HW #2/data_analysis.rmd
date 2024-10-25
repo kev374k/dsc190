@@ -349,12 +349,13 @@ bar_colors <- c("relax" = "lightblue",
                 "friends" = "red",
                 "point" = "red")
 
-barplot(reason_frequencies, 
+reason_plot <- barplot(reason_frequencies, 
         main = "Frequencies of Reasons for Liking/Disliking Video Games",
         ylab = "Frequency", 
         col = bar_colors[names(reason_frequencies)], 
         border = "black", 
         las = 2)
+text(x = reason_plot, y = reason_frequencies, label = reason_frequencies, pos = 1, cex = 0.8, col = "black")
 ```
 
 The most important reason for why students like video games is for relaxation. The most important reasons why students don't like video games are that they're time-consuming, costly, and pointless.
@@ -367,11 +368,90 @@ print(reasons_for_likeliness)
 
 ### Analysis
 
-Examining the initial bar plot of responses to the "Like to Play" question reveals that a majority of students surveyed at UC Berkeley like to play video games at least "somewhat". Only 1 student had never played video games and only 7 don't enjoy them at all. **76.7%** of students surveyed enjoyed playing video games at least somewhat. The second bar plot displayed in this section shows the counts of reasons for liking/disliking video games as well as a color code representing whether the reason is positive or negative.
+Examining the initial bar plot of responses to the "Like to Play" question reveals that a majority of students surveyed at UC Berkeley like to play video games at least "somewhat". Only 1 student had never played video games and only 7 don't enjoy them at all. **76.7%** of students surveyed enjoyed playing video games at least somewhat. The second bar plot displayed in this section shows the counts of reasons for liking/disliking video games as well as a color code representing whether the reason is positive or negative. The most common reason for liking video games is "Relaxation" with a response count of 58. The most common reason for disliking video games is "time consuming". The next most common reasons given are "Cost", "Pointless", and "Mastery".
 
 ### Conclusions
 
-Your conclusions for Question 4.
+In conclusion, the responses to the "Like to Play" question show that UC Berkeley students like to play video games in general, with **76.7%** of students responding with either "somewhat" or "very much". The most important factors for liking or disliking video games are "Relaxation", "Time Consuming", "Cost", and "Pointless".
+
+# Question 5
+
+### Methods
+
+To understand the differences between those who like to play video games and those who don't, we first collapse the range of responses to the last questions into 2 or 3 responses per question rather than 6 or 7. The responses to the question "Why do you play video games?" were placed into 2 categories: "Entertainment" and "Mental Engagement". The responses to the question "Why don't you like playing video games?" were placed into 3 categories: "Difficulty", "Low Priority", and "Isolation".
+
+```{r, echo = FALSE}
+clean_p2 <- cleaned_df
+
+clean_p2$Entertainment <- clean_p2$graphic | clean_p2$relax | clean_p2$bored
+clean_p2$Mental_Engagement <- clean_p2$coord | clean_p2$challenge | clean_p2$master
+clean_p2$Difficulty <- clean_p2$frust | clean_p2$rules
+clean_p2$Low_Priority <- clean_p2$time | clean_p2$cost | clean_p2$boring | clean_p2$point
+clean_p2$Isolation <- clean_p2$lonely | clean_p2$friends
+
+clean_p2 <- clean_p2[, c("sex", "work", "own", "Entertainment","Mental_Engagement","Difficulty","Low_Priority","Isolation")]
+clean_p2[clean_p2 == 99] <- NA
+clean_p2$work <- clean_p2$work > 0
+clean_p2 <- na.omit(clean_p2)
+```
+
+Next, we make cross-tabulations to show how various factors for liking or disliking video games change between different groups of people. The cross-tabulations showing the most significant difference between groups are displayed below.
+
+```{r, echo = FALSE}
+sex_cross_tab <- table(clean_p2$Entertainment, clean_p2$sex)
+dimnames(sex_cross_tab) <- list(
+  "Entertainment" = c("No", "Yes"),
+  "Sex" = c("Female", "Male")
+)
+
+work_cross_tab <- table(clean_p2$Mental_Engagement, clean_p2$work)
+dimnames(work_cross_tab) <- list(
+  "Mental Engagement" = c("No", "Yes"),
+  "Works" = c("No", "Yes")
+)
+
+own_cross_tab <- table(clean_p2$Entertainment, clean_p2$own)
+dimnames(own_cross_tab) <- list(
+  "Entertainment" = c("No", "Yes"),
+  "Owns PC" = c("No", "Yes")
+)
+
+cat("Cross-Tabulation: Sex vs Entertainment\n\n")
+print(sex_cross_tab)
+
+cat("\n\n\nCross-Tabulation: Works vs Mental Engagement\n\n")
+print(work_cross_tab)
+
+cat("\n\n\nCross-Tabulation: Owns PC vs Entertainment\n\n")
+print(own_cross_tab)
+```
+
+To analyze these comparisons further, we produce grouped bar plots.
+
+```{r, echo = FALSE}
+barplot(sex_cross_tab, beside = TRUE, 
+        col = c("red", "lightblue"),
+        legend = rownames(sex_cross_tab_1),
+        main = "Gender vs Enjoys Entertainment",
+        xlab = "Enjoys Entertainment Aspect", 
+        ylab = "Count")
+barplot(work_cross_tab, beside = TRUE,
+        col = c("red", "lightblue"),
+        legend = rownames(cross_tab_2),
+        main = "Works vs Enjoys Mental Challenge",
+        xlab = "Enjoys Mental Engagement Aspect",
+        ylab = "Count")
+barplot(own_cross_tab, beside = TRUE,
+        col = c("red", "lightblue"),
+        legend = rownames(own_cross_tab_1),
+        main = "Owns PC vs Enjoys Entertainment",
+        xlab = "Enjoys Entertainment Aspect",
+        ylab = "Count")
+```
+
+### Analysis
+
+### Conclusion
 
 # Advanced Analysis
 
