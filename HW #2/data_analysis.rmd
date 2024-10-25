@@ -19,7 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Author 1: Did the data cleaning and preliminary analysis, as well as contributed to questions #1 and #2, along with doing the advanced data analysis.
 
-Author 2:
+Author 2: Contributed to additional data cleaning and analysis for questions 3, 4, and 5.
 
 ## Use of GPT
 
@@ -31,34 +31,17 @@ The data provided is from a survey done at UC Berkeley for students enrolled in 
 
 ## Main Research Questions
 
-1. Provide an estimate for the fraction of students who played a video game in the week prior to the survey.
+1.  Provide an estimate for the fraction of students who played a video game in the week prior to the survey.
 
-2. Check to see how the amount of time spent playing video games in the week prior to the survey
-compares to the reported frequency of play (daily, weekly, etc). How might the fact that there was an
-exam in the week prior to the survey affect your previous estimates and this comparison?
+2.  Check to see how the amount of time spent playing video games in the week prior to the survey compares to the reported frequency of play (daily, weekly, etc). How might the fact that there was an exam in the week prior to the survey affect your previous estimates and this comparison?
 
-3. Provide a point estimate and an interval estimate for the average amount of time spent playing video
-games in the week prior to the survey. Keep in mind the overall shape of the sample distribution.
-A simulation study may help determine the appropriateness of an interval estimate.
+3.  Provide a point estimate and an interval estimate for the average amount of time spent playing video games in the week prior to the survey. Keep in mind the overall shape of the sample distribution. A simulation study may help determine the appropriateness of an interval estimate.
 
-4. Consider the attitude questions. In general, do you think the students enjoy playing video games?
-If you had to make a short list of the most important reasons why students like/dislike video games,
-what would you put on the list? Don’t forget that those students who say that they have never played
-video games or do not at all like video games are asked to skip over some of these questions. So, there
-may be many nonrespondents to the questions as to whether they think video games are educational,
-where they play video games, etc.
+4.  Consider the attitude questions. In general, do you think the students enjoy playing video games? If you had to make a short list of the most important reasons why students like/dislike video games, what would you put on the list? Don’t forget that those students who say that they have never played video games or do not at all like video games are asked to skip over some of these questions. So, there may be many nonrespondents to the questions as to whether they think video games are educational, where they play video games, etc.
 
-5. Look for the differences between those who like to play video games and those who don’t. To do
-this, use the questions in the last part of the survey, and make comparisons between male and female
-students, those who work for pay and those who don’t, those who own a computer and those who don’t.
-Graphical display and cross-tabulations are particularly helpful in making these kinds of comparisons.
-Also, you may want to collapse the range of responses to a question down to two or three possibilities
-before making these comparisons.
+5.  Look for the differences between those who like to play video games and those who don’t. To do this, use the questions in the last part of the survey, and make comparisons between male and female students, those who work for pay and those who don’t, those who own a computer and those who don’t. Graphical display and cross-tabulations are particularly helpful in making these kinds of comparisons. Also, you may want to collapse the range of responses to a question down to two or three possibilities before making these comparisons.
 
-6. Further investigate the grade that students expect in the course. How does it match
-the target distribution used in grade assignment of 20% A’s, 30% B’s, 40% C’s and 10% D’s or lower?
-If the nonrespondents were failing students who no longer bothered to come to the discussion section,
-would this change the picture?
+6.  Further investigate the grade that students expect in the course. How does it match the target distribution used in grade assignment of 20% A’s, 30% B’s, 40% C’s and 10% D’s or lower? If the nonrespondents were failing students who no longer bothered to come to the discussion section, would this change the picture?
 
 ## Outline
 
@@ -127,17 +110,17 @@ Our examination of video game engagement among UC Berkeley Statistics students d
 
 Key analytical findings include:
 
-* The point estimate of 36.78% represents a substantial portion of the student population engaging in gaming activities in an academically intense period.
-* The confidence interval width of ~20% suggests a high variability amongst students in terms of gaming behavior.
-* The timing of the survey, during an exam week, provides context for interpreting these gaming patterns.
+-   The point estimate of 36.78% represents a substantial portion of the student population engaging in gaming activities in an academically intense period.
+-   The confidence interval width of \~20% suggests a high variability amongst students in terms of gaming behavior.
+-   The timing of the survey, during an exam week, provides context for interpreting these gaming patterns.
 
 ### Conclusions
 
 Based on our analysis, we can draw several significant conclusions:
 
-* Video gaming was a common activity amongst Statistics students, even in a academically intense time. Our confidence interval shows us that at minimum, 25% of the student population was engaged in gaming activities during the survey period.
-* Video games were played by a significant amount of people in the Statistics course, yet our wide confidence interval suggests that there is a lot of variability amongst the people in the course, possibily suggesting that difference populations of students would have a different estimate about the percentage of students who played video games regularly.
-* The percentage found from the data indicates that gaming was a prevalent hobby even in the mid-1990s, and can perhaps provide insight into student gaming behavior into the future, as perhaps it has become even more significant as time has passed and gaming has become easier to access for everyone.
+-   Video gaming was a common activity amongst Statistics students, even in a academically intense time. Our confidence interval shows us that at minimum, 25% of the student population was engaged in gaming activities during the survey period.
+-   Video games were played by a significant amount of people in the Statistics course, yet our wide confidence interval suggests that there is a lot of variability amongst the people in the course, possibily suggesting that difference populations of students would have a different estimate about the percentage of students who played video games regularly.
+-   The percentage found from the data indicates that gaming was a prevalent hobby even in the mid-1990s, and can perhaps provide insight into student gaming behavior into the future, as perhaps it has become even more significant as time has passed and gaming has become easier to access for everyone.
 
 ## Question 2
 
@@ -215,29 +198,86 @@ par(mfrow = c(1, 1))
 
 ### Analysis
 
-Looking through these two boxplots and their data summaries, there is an obvious difference, especially for students with a daily or weekly frequency of play. For instance, our adjusted comparison shows that those who played ('freq' = 1) daily during an exam week typically had a lower amount of hours played, with a 1.5 hour difference between our exam week data and our filtered data. Similarly, our boxplot also shows a difference in the interquartile range between the two datasets for those who played daily, as during a normal week, students were more likely to play more and had a wider variety of playtimes, which can be inferred from the two box plots. A similar comparison can be made from students who played weekly ('freq' = 2). There's a ~0.4 hour increase in normal weeks versus the exam week. Another interesting observation is that the adjusted data seems to have a smaller interquartile range compared to it's original exam week data, somewhat implying that those who play weekly usually play a more set amount of hours that usually doesn't diverge. Frequencies 3 and 4 don't have a large difference, just due to the nature of their descriptions, since most students in these categories would probably play very little to none already. If someone only plays games monthly or semesterly, then they are less likely to have major differences during an exam week versus a normal week.
+Looking through these two boxplots and their data summaries, there is an obvious difference, especially for students with a daily or weekly frequency of play. For instance, our adjusted comparison shows that those who played ('freq' = 1) daily during an exam week typically had a lower amount of hours played, with a 1.5 hour difference between our exam week data and our filtered data. Similarly, our boxplot also shows a difference in the interquartile range between the two datasets for those who played daily, as during a normal week, students were more likely to play more and had a wider variety of playtimes, which can be inferred from the two box plots. A similar comparison can be made from students who played weekly ('freq' = 2). There's a \~0.4 hour increase in normal weeks versus the exam week. Another interesting observation is that the adjusted data seems to have a smaller interquartile range compared to it's original exam week data, somewhat implying that those who play weekly usually play a more set amount of hours that usually doesn't diverge. Frequencies 3 and 4 don't have a large difference, just due to the nature of their descriptions, since most students in these categories would probably play very little to none already. If someone only plays games monthly or semesterly, then they are less likely to have major differences during an exam week versus a normal week.
 
 ### Conclusions
 
 Overall, the fact that there was an exam in the week prior to the survey tells us this:
 
-* On average, students played less hours than they normally would on a week without an exam.
-* Those who reported that they play daily or weekly typically have the largest difference between their average hours played during an exam versus a normal week, with around a ~1.5 hour difference for those who play daily and a ~0.45 hour difference with those who play weekly.
-* Those who reported that they play monthly or semesterly have small or negligible differences between their average hours played due to the nature and scarcity of their data, along with the assumption that we made when filtering.
+-   On average, students played less hours than they normally would on a week without an exam.
+-   Those who reported that they play daily or weekly typically have the largest difference between their average hours played during an exam versus a normal week, with around a \~1.5 hour difference for those who play daily and a \~0.45 hour difference with those who play weekly.
+-   Those who reported that they play monthly or semesterly have small or negligible differences between their average hours played due to the nature and scarcity of their data, along with the assumption that we made when filtering.
 
 ## Question 3
 
 ### Methods
 
-```{r q3-methods}
-# Your R code for methods related to Question 3
+The point estimate for the average amount of time spent playing video games in the week prior to the survey is simply the sample mean. We will also calculate the standard error (SE) to represent the expected variability of our sample mean from the true population mean of time spent playing video games. This SE will also be used to construct our 95% confidence interval. The SE formula must use the **population correction factor** because we are sampling **without replacement** from a relatively small population of 314.
+
+$$SE = {σ \over \sqrt{n}} \times \sqrt{N-n \over N - 1}$$
+
+```{r q3-methods, echo = FALSE}
+point_estimate_average <- mean(survey_p1$time, na.rm=TRUE)
+N <- 314
+n <- length(survey_p1$time)
+
+sample_sd <- sd(survey_p1$time, na.rm = TRUE)
+pop_correction_factor = sqrt((N - n) / (N - 1))
+standard_error <- (sample_sd / sqrt(n)) * pop_correction_factor
+
+print(paste("point_estimate_average:", point_estimate_average))
+print(paste("Standard Error:", standard_error))
+```
+
+Using the point estimate and standard error (in addition to an assumption of normality), we construct the 95% Confidence Interval.
+
+```{r, echo = FALSE}
+alpha <- 0.05
+z_value <- qnorm(1 - alpha / 2)
+
+lower_interval_estimate_average <- point_estimate_average - z_value * standard_error
+upper_interval_estimate_average <- point_estimate_average + z_value * standard_error
+
+print(paste("lower_interval_estimate_average:", lower_interval_estimate_average))
+print(paste("upper_interval_estimate_average:", upper_interval_estimate_average))
+```
+
+```{r q3-analysis, echo = FALSE}
+library(boot)
+
+# Calculate the sample mean for each bootstrapped sample
+bootstrap_mean <- function(data, indices) {
+  return(mean(data[indices], na.rm = TRUE))
+}
+
+# Perform bootstrapping with 1000 iterations
+bootstrap_results <- boot(survey_p1$time, bootstrap_mean, R = 1000)
+bootstrap_means <- bootstrap_results$t
+
+bootstrap_ci <- boot.ci(bootstrap_results, type = "perc")
+
+# Extract lower and upper bounds of the 95% Bootstrap CI
+lower_bound_bootstrap <- bootstrap_ci$percent[4]
+upper_bound_bootstrap <- bootstrap_ci$percent[5]
+
+hist(bootstrap_means, main = "Bootstrap Sample Means with 95% CIs", 
+     xlab = "Sample Mean Time Spent", 
+     col = "lightblue", 
+     border = "black", 
+     probability = TRUE)
+
+# Add vertical lines for the confidence intervals
+abline(v = lower_bound_bootstrap, col = "red", lwd = 2, lty = 2)  # Lower CI bound
+abline(v = upper_bound_bootstrap, col = "red", lwd = 2, lty = 2)  # Upper CI bound
+abline(v = lower_interval_estimate_average, col = "blue", lwd = 2, lty = 1)
+abline(v = upper_interval_estimate_average, col = "blue", lwd = 2, lty = 1)
+
+
+legend("topright", legend = c("Lower Bootstrap CI", "Upper Bootstrap CI", "Lower 95% CI", "Upper 95% CI"),
+       col = c("red", "red", "blue", "blue"), lty = c(2, 2, 1, 1), lwd = 2)
 ```
 
 ### Analysis
-
-```{r q3-analysis}
-# Your R code for analysis related to Question 3
-```
 
 ### Conclusions
 
