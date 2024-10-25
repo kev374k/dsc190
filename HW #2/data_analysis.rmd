@@ -17,9 +17,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Author Contributions
 
-Kevin Wong: Did the data cleaning and preliminary analysis, as well as contributed to questions #1 and #2, along with doing the advanced data analysis.
+Author 1: Did the data cleaning and preliminary analysis, as well as contributed to questions #1 and #2, along with doing the advanced data analysis.
 
-Jeffrey Meredith: Contributed to additional data cleaning specific to the questions and analysis for questions 3, 4, and 5.
+Author 2: Contributed to additional data cleaning specific to the questions and analysis for questions 3, 4, and 5.
 
 ## Use of GPT
 
@@ -33,13 +33,13 @@ The data provided is from a survey done at UC Berkeley for students enrolled in 
 
 1.  Provide an estimate for the fraction of students who played a video game in the week prior to the survey.
 
-2.  Check to see how the amount of time spent playing video games in the week prior to the survey compares to the reported frequency of play (daily, weekly, etc). How might the fact that there was an exam in the week prior to the survey affect your previous estimates and this comparison?
+2.  Check to see how the amount of time spent playing video games in the week prior to the survey compares to the reported frequency of play (daily, weekly, etc). Additionally, consider the fact that there was an exam the week prior to the survey.
 
-3.  Provide a point estimate and an interval estimate for the average amount of time spent playing video games in the week prior to the survey. Keep in mind the overall shape of the sample distribution. A simulation study may help determine the appropriateness of an interval estimate.
+3.  Provide a point estimate and an interval estimate for the average amount of time spent playing video games in the week prior to the survey while keeping in mind the overall shape of the sample distribution.
 
-4.  Consider the attitude questions. In general, do you think the students enjoy playing video games? If you had to make a short list of the most important reasons why students like/dislike video games, what would you put on the list? Don’t forget that those students who say that they have never played video games or do not at all like video games are asked to skip over some of these questions. So, there may be many nonrespondents to the questions as to whether they think video games are educational, where they play video games, etc.
+4.  Consider the attitude questions. In general, do you think the students enjoy playing video games? If you had to make a short list of the most important reasons why students like/dislike video games, what would you put on the list? 
 
-5.  Look for the differences between those who like to play video games and those who don’t. To do this, use the questions in the last part of the survey, and make comparisons between male and female students, those who work for pay and those who don’t, those who own a computer and those who don’t. Graphical display and cross-tabulations are particularly helpful in making these kinds of comparisons. Also, you may want to collapse the range of responses to a question down to two or three possibilities before making these comparisons.
+5.  Look for the differences between those who like to play video games and those who don’t. To do this, use the questions in the last part of the survey, and make comparisons between different students and their categories.
 
 6.  Further investigate the grade that students expect in the course. How does it match the target distribution used in grade assignment of 20% A’s, 30% B’s, 40% C’s and 10% D’s or lower? If the nonrespondents were failing students who no longer bothered to come to the discussion section, would this change the picture?
 
@@ -214,7 +214,9 @@ Overall, the fact that there was an exam in the week prior to the survey tells u
 
 The point estimate for the average amount of time spent playing video games in the week prior to the survey is simply the sample mean. We will also calculate the standard error (SE) to represent the expected variability of our sample mean from the true population mean of time spent playing video games. This SE will also be used to construct our 95% confidence interval. The SE formula must use the **population correction factor** because we are sampling **without replacement** from a relatively small population of 314.
 
-$$SE = {σ \over \sqrt{n}} \times \sqrt{N-n \over N - 1}$$
+$$
+SE = \frac{\sigma}{\sqrt{n}} \times \sqrt{\frac{N - n}{N - 1}}
+$$
 
 ```{r q3-methods, echo = FALSE}
 point_estimate_average <- mean(cleaned_df$time, na.rm=TRUE)
