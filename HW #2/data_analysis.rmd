@@ -17,9 +17,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Author Contributions
 
-Author 1: Did the data cleaning and preliminary analysis, as well as contributed to questions #1 and #2, along with doing the advanced data analysis.
+Kevin Wong: Did the data cleaning and preliminary analysis, as well as contributed to questions #1 and #2, along with doing the advanced data analysis.
 
-Author 2: Contributed to additional data cleaning and analysis for questions 3, 4, and 5.
+Jeffrey Meredith: Contributed to additional data cleaning specific to the questions and analysis for questions 3, 4, and 5.
 
 ## Use of GPT
 
@@ -27,7 +27,7 @@ ChatGPT was used as a substitute for documentation for R. Since we were unfamili
 
 # Introduction
 
-The data provided is from a survey done at UC Berkeley for students enrolled in a statistics course in 1994. Out of an eligible 314 students, 91 students submitted eligible responses which will be the data used in this EDA. The data focuses on student's play time of video games, likes and dislikes of video games, and more. One important thing to note is that responses that were left unaswered or improperly answered were coded as 99, and students who had never played video games or expressed a strong dislike for them were instructed to skip many questions. Additionally, the survey was distributed into two parts, where the first part asks about variable data, while the second part focuses on attitude questions.
+The data provided is from a survey done at UC Berkeley for students enrolled in a statistics course in 1994. Out of an eligible 314 students, 91 students submitted eligible responses which will be the data used in this EDA. The data focuses on student's play time of video games, likes and dislikes of video games, and more. One important thing to note is that responses that were left unanswered or improperly answered were coded as 99, and students who had never played video games or expressed a strong dislike for them were instructed to skip many questions. Additionally, the survey was distributed into two parts, where the first part asks about variable data, while the second part focuses on attitude questions.
 
 ## Main Research Questions
 
@@ -122,7 +122,7 @@ Based on our analysis, we can draw several significant conclusions:
 -   Video games were played by a significant amount of people in the Statistics course, yet our wide confidence interval suggests that there is a lot of variability amongst the people in the course, possibily suggesting that difference populations of students would have a different estimate about the percentage of students who played video games regularly.
 -   The percentage found from the data indicates that gaming was a prevalent hobby even in the mid-1990s, and can perhaps provide insight into student gaming behavior into the future, as perhaps it has become even more significant as time has passed and gaming has become easier to access for everyone.
 
-## Question 2
+## Question 2: Find Effect of Exam Week on Time Spent Playing
 
 ### Methods
 
@@ -208,7 +208,7 @@ Overall, the fact that there was an exam in the week prior to the survey tells u
 -   Those who reported that they play daily or weekly typically have the largest difference between their average hours played during an exam versus a normal week, with around a \~1.5 hour difference for those who play daily and a \~0.45 hour difference with those who play weekly.
 -   Those who reported that they play monthly or semesterly have small or negligible differences between their average hours played due to the nature and scarcity of their data, along with the assumption that we made when filtering.
 
-## Question 3
+## Question 3: Estimate Average Time Spent Playing
 
 ### Methods
 
@@ -298,7 +298,7 @@ We bootstrapped 1000 sample means to estimate the sampling distribution. This bo
 
 In conclusion, while our initial 95% confidence interval suggests that the true average time spent playing video games per week among UC Berkeley students is between 0.59 to 1.9 hours, there is evidence to suggest that this is not the most appropriate estimate to use. This is because the underlying sampling distribution of average play times might not be normal according to the shape of our bootstrap distribution. The variation in our bootstrap distribution is also noticeably greater than the standard error of our original sample, providing more evidence that the interval estimate is not appropriate.
 
-## Question 4
+## Question 4: Important Reasons for Liking/Disliking Video Games
 
 ### Methods
 
@@ -374,7 +374,7 @@ Examining the initial bar plot of responses to the "Like to Play" question revea
 
 In conclusion, the responses to the "Like to Play" question show that UC Berkeley students like to play video games in general, with **76.7%** of students responding with either "somewhat" or "very much". The most important factors for liking or disliking video games are "Relaxation", "Time Consuming", "Cost", and "Pointless".
 
-# Question 5
+## Question 5: Compare Different Types of Students and Why They Play Games
 
 ### Methods
 
@@ -407,13 +407,13 @@ dimnames(sex_cross_tab) <- list(
 work_cross_tab <- table(clean_p2$Mental_Engagement, clean_p2$work)
 dimnames(work_cross_tab) <- list(
   "Mental Engagement" = c("No", "Yes"),
-  "Works" = c("No", "Yes")
+  "Works" = c("Doesn't Work", "Works")
 )
 
 own_cross_tab <- table(clean_p2$Entertainment, clean_p2$own)
 dimnames(own_cross_tab) <- list(
   "Entertainment" = c("No", "Yes"),
-  "Owns PC" = c("No", "Yes")
+  "Owns PC" = c("Doesn't Own", "Owns")
 )
 
 cat("Cross-Tabulation: Sex vs Entertainment\n\n")
@@ -430,28 +430,35 @@ To analyze these comparisons further, we produce grouped bar plots.
 
 ```{r, echo = FALSE}
 barplot(sex_cross_tab, beside = TRUE, 
-        col = c("red", "lightblue"),
-        legend = rownames(sex_cross_tab_1),
+        col = c("red", "skyblue"),
         main = "Gender vs Enjoys Entertainment",
-        xlab = "Enjoys Entertainment Aspect", 
+        xlab = "Gender", 
         ylab = "Count")
+legend("topright", legend = rownames(sex_cross_tab), fill = c("red", "skyblue"), title = "Enjoys Entertainment", inset = c(0.3, 0), cex=0.7)
+
 barplot(work_cross_tab, beside = TRUE,
-        col = c("red", "lightblue"),
-        legend = rownames(cross_tab_2),
+        col = c("red", "skyblue"),
         main = "Works vs Enjoys Mental Challenge",
-        xlab = "Enjoys Mental Engagement Aspect",
+        xlab = "Employment",
         ylab = "Count")
+legend("topright", legend = rownames(work_cross_tab), fill = c("red", "skyblue"), title = "Enjoys Mental Challenge", inset = c(0.35, 0), cex=0.7)
+
 barplot(own_cross_tab, beside = TRUE,
-        col = c("red", "lightblue"),
-        legend = rownames(own_cross_tab_1),
+        col = c("red", "skyblue"),
         main = "Owns PC vs Enjoys Entertainment",
-        xlab = "Enjoys Entertainment Aspect",
+        ylim = c(0, 60),
+        xlab = "PC Ownership",
         ylab = "Count")
+legend("topright", legend = rownames(own_cross_tab), fill = c("red", "skyblue"), title = "Enjoys Entertainment", inset = c(0.35, 0), cex=0.7)
 ```
 
 ### Analysis
 
+Looking at our notable cross-tabulations reveals that, of those that responded to survey part 2, **70% of females** said they like video games for entertainment reasons in comparison to **80% of males**. This could suggest that male students are more likely to play video games for entertainment. Looking at the second cross-tabulation reveals that **55% of students who work** for pay enjoy video games for mental engagement/stimulation, while only **32% of students who don't work** enjoy games for such reasons. This could suggest that students who work enjoy the mental engagement aspect of video games more. Finally, the third cross-tabulation reveals that **74% of students who own a PC** enjoy the entertainment aspect of video games while **82% of students who don't own a PC** enjoy the entertainment aspect. This insight may be surprising, but further analysis is needed to make a general statement about the population of college students. The rest of the cross-tabulations revealed much smaller differences between groups, suggesting that factors like gender, employment, and PC ownership don't strongly impact sentiments toward video games being difficult, isolating, and low priority.
+
 ### Conclusion
+
+In conclusion, the strongest contrast between groups of students detected in the survey was between students who work and those who don't. A significantly larger proportion of students who work enjoyed video games for mental engagement purposes, with **55%** for those who work and only **32%** for those who don't. The next strongest contrast is between males and females, with males being more likely to enjoy the entertainment of video games. Finally, students who own PC's in the survey were more likely to enjoy video games for entertainment than those who don't.
 
 # Advanced Analysis
 
