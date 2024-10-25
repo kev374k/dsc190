@@ -204,6 +204,8 @@ bootstrap_mean <- function(data, indices) {
 # Perform bootstrapping with 1000 iterations
 bootstrap_results <- boot(survey_p1$time, bootstrap_mean, R = 1000)
 bootstrap_means <- bootstrap_results$t
+bootstrap_mean <- mean(bootstrap_means)
+bootstrap_sd <- sd(bootstrap_means)
 ```
 
 Now, I construct another 95% confidence interval using the percentiles of my bootstrapped sample means and compare it to the earlier confidence interval which was constructed using the point estimate and an assumption of a normal distribution. If they are significantly different, the interval estimate may not be appropriate for this situation.

@@ -238,9 +238,11 @@ z_value <- qnorm(1 - alpha / 2)
 lower_interval_estimate_average <- point_estimate_average - z_value * standard_error
 upper_interval_estimate_average <- point_estimate_average + z_value * standard_error
 
-print(paste("lower_interval_estimate_average:", lower_interval_estimate_average))
-print(paste("upper_interval_estimate_average:", upper_interval_estimate_average))
+print(paste("lower_interval_estimate_average:", lower_interval_estimate_average, "hours"))
+print(paste("upper_interval_estimate_average:", upper_interval_estimate_average, "hours"))
 ```
+
+To assess if our interval estimate is appropriate, we bootstrap 1000 sample means to estimate the sampling distribution. The mean and standard deviation of the bootstrap distribution are calculated.
 
 ```{r q3-analysis, echo = FALSE}
 library(boot)
@@ -253,7 +255,16 @@ bootstrap_mean <- function(data, indices) {
 # Perform bootstrapping with 1000 iterations
 bootstrap_results <- boot(survey_p1$time, bootstrap_mean, R = 1000)
 bootstrap_means <- bootstrap_results$t
+bootstrap_mean <- mean(bootstrap_means)
+bootstrap_sd <- sd(bootstrap_means)
 
+print(paste("Mean of bootstrap distribution:", bootstrap_mean, "hours"))
+print(paste("Standard Deviation of bootstrap distribution:", bootstrap_sd, "hours"))
+```
+
+Now, I construct a 95% bootstrap CI using the percentiles of my bootstrapped sample means and compare it to the earlier CI. If they are significantly different, the interval estimate may not be appropriate for this situation.
+
+```{r, echo = FALSE}
 bootstrap_ci <- boot.ci(bootstrap_results, type = "perc")
 
 # Extract lower and upper bounds of the 95% Bootstrap CI
@@ -279,23 +290,84 @@ legend("topright", legend = c("Lower Bootstrap CI", "Upper Bootstrap CI", "Lower
 
 ### Analysis
 
+Our 95% CI for the average time spent playing video games by UC Berkeley students was constructed under an assumption of approximate normality. It tells us that we are 95% confident UC Berkeley students play video games an average of 0.59 to 1.90 hours per week.
+
+We bootstrapped 1000 sample means to estimate the sampling distribution. This bootstrap distribution had a mean of **1.23** and a standard deviation of **0.39**, while our original sample had a mean of **1.24** and a standard error of **0.33**. Additionally, the bootstrap histogram reveals a right skew. The difference between the sample's standard error and the bootstrap distribution's standard deviation in addition to the right-skewed shape suggest that the underlying population may not be perfectly normal. The graph also reveals a difference between the 95% CI and the 95% Bootstrap CI. The bootstrap CI extends further to the right than the initial 95% CI.
+
 ### Conclusions
 
-Your conclusions for Question 3.
+In conclusion, while our initial 95% confidence interval suggests that the true average time spent playing video games per week among UC Berkeley students is between 0.59 to 1.9 hours, there is evidence to suggest that this is not the most appropriate estimate to use. This is because the underlying sampling distribution of average play times might not be normal according to the shape of our bootstrap distribution. The variation in our bootstrap distribution is also noticeably greater than the standard error of our original sample, providing more evidence that the interval estimate is not appropriate.
 
 ## Question 4
 
 ### Methods
 
-```{r q4-methods}
-# Your R code for methods related to Question 4
+First, to get an idea of whether students generally like playing video games or not, we examine a bar plot of the "like" variable.
+
+```{r q4-methods, echo = FALSE}
+like_counts <- table(subset(survey_p1, like != 99)$like)
+
+# Plot the bar plot
+like_counts_plot <- barplot(like_counts, 
+        main = "Counts of Responses to 'Like to Play' Video Games", 
+        xlab = "Response Category", 
+        ylab = "Count of Students", 
+        col = "lightblue", 
+        border = "black", 
+        names.arg = c("Never Played", "Very Much", "Somewhat", "Not Really", "Not At All"))
+
+text(x = like_counts_plot, y = like_counts, label = like_counts, pos = 1, cex = 0.8, col = "red")
+```
+
+Additionally, we calculate the proportion of students surveyed that at least somewhat like playing video games.
+
+```{r, echo = FALSE}
+total_students <- length(survey_p1$like[survey_p1$like != 99])
+students_like <- length(survey_p1$like[survey_p1$like == 2 | survey_p1$like == 3])
+
+proportion_like <- students_like / total_students
+print(paste("Proportion of students in sample who at least somewhat like video games:", proportion_like))
+```
+
+Now, to find the most influential reasons for why students like or dislike playing video games, we use a bar plot to visualize the frequency of each reason.
+
+```{r, echo = FALSE}
+reason_frequencies <- colSums(na.omit(survey_p2)[, !names(survey_p2) %in% c("action","adv","sim","sport","strategy")])
+
+bar_colors <- c("relax" = "lightblue", 
+                "coord" = "lightblue", 
+                "challenge" = "lightblue", 
+                "master" = "lightblue", 
+                "bored" = "lightblue", 
+                "graphic" = "lightblue",
+                "time" = "red",
+                "frust" = "red",
+                "lonely" = "red",
+                "rules" = "red",
+                "cost" = "red",
+                "boring" = "red",
+                "friends" = "red",
+                "point" = "red")
+
+barplot(reason_frequencies, 
+        main = "Frequencies of Reasons for Liking/Disliking Video Games",
+        ylab = "Frequency", 
+        col = bar_colors[names(reason_frequencies)], 
+        border = "black", 
+        las = 2)
+```
+
+The most important reason for why students like video games is for relaxation. The most important reasons why students don't like video games are that they're time-consuming, costly, and pointless.
+
+```{r, echo = FALSE}
+reasons_for_likeliness <- c("relax", "time", "cost", "point")
+print("Reasons for Like/Dislike Video Games:")
+print(reasons_for_likeliness)
 ```
 
 ### Analysis
 
-```{r q4-analysis}
-# Your R code for analysis related to Question 4
-```
+Examining the initial bar plot of responses to the "Like to Play" question reveals that a majority of students surveyed at UC Berkeley like to play video games at least "somewhat". Only 1 student had never played video games and only 7 don't enjoy them at all. **76.7%** of students surveyed enjoyed playing video games at least somewhat. The second bar plot displayed in this section shows the counts of reasons for liking/disliking video games as well as a color code representing whether the reason is positive or negative.
 
 ### Conclusions
 
