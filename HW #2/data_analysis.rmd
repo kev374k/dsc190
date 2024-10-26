@@ -37,7 +37,7 @@ The data provided is from a survey done at UC Berkeley for students enrolled in 
 
 3.  Provide a point estimate and an interval estimate for the average amount of time spent playing video games in the week prior to the survey while keeping in mind the overall shape of the sample distribution.
 
-4.  Consider the attitude questions. In general, do you think the students enjoy playing video games? If you had to make a short list of the most important reasons why students like/dislike video games, what would you put on the list? 
+4.  Consider the attitude questions. In general, do you think the students enjoy playing video games? If you had to make a short list of the most important reasons why students like/dislike video games, what would you put on the list?
 
 5.  Look for the differences between those who like to play video games and those who don’t. To do this, use the questions in the last part of the survey, and make comparisons between different students and their categories.
 
@@ -320,7 +320,7 @@ Additionally, we calculate the proportion of students surveyed that at least som
 Now, to find the most influential reasons for why students like or dislike playing video games, we use a bar plot to visualize the frequency of each reason.
 
 ```{r, fig.width = 8, fig.height = 4, echo = FALSE}
-reason_frequencies <- colSums(cleaned_df[, !names(cleaned_df) %in% c("action","adv","sim","sport","strategy")])
+reason_frequencies <- colSums(cleaned_df[, !names(cleaned_df) %in% c("action","adv","sim","sport","strategy","time","like","where","freq","busy","educ","sex","math","age","home","work","own","cdrom","email","grade", "time.1")])
 
 bar_colors <- c("relax" = "lightblue", 
                 "coord" = "lightblue", 
@@ -379,7 +379,6 @@ clean_p2[clean_p2 == 99] <- NA
 clean_p2$work <- clean_p2$work > 0
 clean_p2 <- na.omit(clean_p2)
 
-library(ggplot2)
 
 # Create cross-tabs
 sex_cross_tab <- table(clean_p2$Entertainment, clean_p2$sex)
@@ -457,6 +456,63 @@ Looking at our notable cross-tabulations reveals that, of those that responded t
 
 In conclusion, the strongest contrast between groups of students detected in the survey was between students who work and those who don't. A significantly larger proportion of students who work enjoyed video games for mental engagement purposes, with **55%** for those who work and only **32%** for those who don't. The next strongest contrast is between males and females, with males being more likely to enjoy the entertainment of video games. Finally, students who own PC's in the survey were more likely to enjoy video games for entertainment than those who don't.
 
+## Question 6: Compare Expected Grade Distribution with Target Distribution
+
+### Methods
+
+To compare the expected grade distribution to the standard target distribution of the course, we calculate the observed counts of each expected grade and use a chi-squared goodness-of-fit test to compare it to the target counts.
+
+```{r, echo = FALSE}
+grade_factors <- factor(cleaned_df$grade, levels=0:4)
+observed_counts <- table(grade_factors)
+names(observed_counts) <- c("F", "D", "C", "B", "A")
+observed_counts_combined <- c(
+  D_or_lower = observed_counts["F"] + observed_counts["D"],
+  C = observed_counts["C"],
+  B = observed_counts["B"],
+  A = observed_counts["A"]
+)
+print(observed_counts_combined)
+
+expected_proportions <- c(0.1, 0.4, 0.3, 0.2)
+
+chisq_test <- chisq.test(x = observed_counts_combined, p = expected_proportions)
+
+chisq_test
+```
+
+If we make the assumption that nonrespondents in the survey were failing students who no longer bothered to come to class, we use the original df and impute failing expected grades for rows with null values. We then run a chi-squared goodness-of-fit test on this new distribution to see if our results change.
+
+```{r, echo = FALSE}
+combined_table$grade <- ifelse(is.na(combined_table$relax), 0, combined_table$grade)
+
+grade_factors <- factor(combined_table$grade, levels = 0:4)
+observed_counts <- table(grade_factors)
+names(observed_counts) <- c("F", "D", "C", "B", "A")
+
+observed_counts_combined <- c(
+  D_or_lower = observed_counts["F"] + observed_counts["D"],
+  C = observed_counts["C"],
+  B = observed_counts["B"],
+  A = observed_counts["A"]
+)
+
+print(observed_counts_combined)
+
+expected_proportions <- c(0.1, 0.4, 0.3, 0.2)
+
+chisq_test <- chisq.test(x = observed_counts_combined, p = expected_proportions)
+chisq_test
+```
+
+### Analysis
+
+In analyzing the expected grade distribution of students against the target distribution (20% A’s, 30% B’s, 40% C’s, and 10% D’s or lower), two chi-squared tests were conducted. First, using only the observed data, the chi-squared test yielded a chi-squared value of **58.56** with a p-value of **1.196e-12**, indicating a significant deviation from the target distribution. In the second test, where failing grades were imputed for nonrespondents, the chi-squared test produced a chi-squared value of **49.92** with a p-value of **8.326e-11**. Both results suggest that the observed grade expectations among respondents (even with the imputed failing grades) do not align with the target distribution, highlighting a significant difference between student grade expectations and the typical target distribution of the course.
+
+### Conclusion
+
+Even after imputing failing grades for nonrespondent students, we can conclude that grade expectations of students in the course are significantly different from the usual target grade distribution of this course at UC Berkeley.
+
 # Advanced Analysis
 
 Our advanced analysis focuses on the intersectionality between people that like video games and which types of video games they prefer. By doing this, we can see the most popular types of video games that these students prefer, along with the average amount of time they play video games a week, potentially showing us which games people spent the most time on.
@@ -525,7 +581,7 @@ Our two graphs, especially when put next to each other, show us another interest
 
 ### Conclusions
 
-Our conclusions for this advanced analysis show us that although a video game genre like 'strategy' could perhaps be the most accessible, it's not necessarily the most played time-wise. While 'action' and 'sport' genres were not as popular as 'strategy' games in terms of total picks, the students who played these games far exceeded the play-time of students who played 'strategy' games. 
+Our conclusions for this advanced analysis show us that although a video game genre like 'strategy' could perhaps be the most accessible, it's not necessarily the most played time-wise. While 'action' and 'sport' genres were not as popular as 'strategy' games in terms of total picks, the students who played these games far exceeded the play-time of students who played 'strategy' games.
 
 # Conclusions and Discussion
 
