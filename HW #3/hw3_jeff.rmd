@@ -1,0 +1,60 @@
+```{r, echo = FALSE}
+data <- read.table("hcmv.txt", header=TRUE)
+```
+
+## Question 1: Compare Data with Random Scattering of Palindromes
+
+The dataset contains the locations of palindromic sequences in a series of 229,354 base pairs. We will do multiple simulations of random locations of palindromic sites along these 229,354 base pairs and compare it to the real data.
+
+```{r, echo = FALSE}
+set.seed(236)
+
+generate_palindrome_sites <- function() {
+  sort(sample(1:229354, 296, replace=FALSE))
+}
+
+simulated_palindrome_data <- replicate(1000, generate_palindrome_sites())
+
+calc_summary_stats <- function(locations) {
+  list(
+    mean = mean(locations),
+    median = median(locations),
+    variance = var(locations),
+    std_dev = sd(locations)
+  )
+}
+
+simulated_stats <- apply(simulated_palindrome_data, 2, calc_summary_stats)
+real_stats <- calc_summary_stats(data$location)
+
+mean_simulated_means <- mean(sapply(simulated_stats, function(x) x$mean))
+mean_simulated_medians <- mean(sapply(simulated_stats, function(x) x$median))
+mean_simulated_variances <- mean(sapply(simulated_stats, function(x) x$variance))
+mean_simulated_std_devs <- mean(sapply(simulated_stats, function(x) x$std_dev))
+
+comparison_table <- data.frame(
+  Statistic = c("Mean", "Median", "Variance", "Standard Deviation"),
+  Real_Locations = c(real_stats$mean, real_stats$median, real_stats$variance, real_stats$std_dev),
+  Simulated_Locations = c(mean_simulated_means, mean_simulated_medians, mean_simulated_variances, mean_simulated_std_devs)
+)
+
+print(comparison_table)
+```
+
+To qualitatively compare the real palindrome locations to the simulated locations, I plot a histogram of the means of each simulated palindrome sequence and analyze where the real mean is on the distribution. The same process is also done for the standard deviations.
+
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+
+simulated_means <- sapply(simulated_stats, function(x) x$mean)
+hist(simulated_means, breaks = 30, col = "lightblue", main = "Simulated Mean Locations", xlab = "Mean of Palindrome Locations", cex.main = 0.8)
+abline(v = real_stats$mean, col = "red", lwd = 2)
+legend("topright", legend = "Real Data Mean", col = "red", lwd = 2, cex=0.5)
+
+simulated_std_devs <- sapply(simulated_stats, function(x) x$std_dev)
+hist(simulated_std_devs, breaks = 30, col = "lightgreen", main = "Simulated Standard Deviations", xlab = "Standard Deviation of Palindrome Locations", cex.main = 0.8)
+abline(v = real_stats$std_dev, col = "red", lwd = 2)
+legend("topright", legend = "Real Data Std Dev", col = "red", lwd = 2, cex=0.5)
+
+par(mfrow = c(1, 1))
+```
