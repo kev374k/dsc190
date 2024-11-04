@@ -62,7 +62,7 @@ par(mfrow = c(1, 1))
 
 # Question 2) [Locations and Spacings] Use graphical methods to analyze the patterns in:
 
-In order to further analyze the distribution of the palindromes, let's see three different variations of the data and how they deviate from a uniform scatter across the DNA sequence. To do this, we will compare the observed patterns below to expected uniform random distributions to identify any significant clsuters of unusual spacing in these palindrome locations. One important thing to notice is that we used only 10 simulations of the palindromes
+In order to further analyze the distribution of the palindromes, let's see three different variations of the data and how they deviate from a uniform scatter across the DNA sequence. To do this, we will compare the observed patterns below to expected uniform random distributions to identify any significant clsuters of unusual spacing in these palindrome locations. One important thing to notice is that we used 100 simulations of the uniform distribution to make our graphs on the right.
 
 ## a) Spacing between consecutive palindromes
 
@@ -122,7 +122,7 @@ hist(pair_sums, breaks = seq(xlim[1], xlim[2], length.out = 30),
      main = "Pair Sums of Palindromes in CMV DNA", 
      xlab = "Pair Sum Total", 
      ylab = "Density", 
-     col = "#97BC62", 
+     col = "#B85042", 
      freq = FALSE, 
      xlim = xlim, 
      ylim = c(0, ymax), 
@@ -133,7 +133,7 @@ hist(simulated_pair_sums, breaks = seq(xlim[1], xlim[2], length.out = 30),
      main = "Simulated Pair Sums of Palindromes", 
      xlab = "Pair Sum Total", 
      ylab = "Density", 
-     col = "#97BC62", 
+     col = "#A7BEAE", 
      freq = FALSE, 
      xlim = xlim, 
      ylim = c(0, ymax), 
@@ -175,7 +175,7 @@ hist(triplet_sums, breaks = seq(xlim[1], xlim[2], length.out = 30),
      xlab = "Triplet Sum Total", 
      ylab = "Density", 
      freq = FALSE, 
-     col = "#408EC6", 
+     col = "#735DA5", 
      xlim = xlim, 
      ylim = c(0, ymax),
      cex.main = 0.8, 
@@ -187,7 +187,7 @@ hist(simulated_triplet_sums, breaks = seq(xlim[1], xlim[2], length.out = 30),
      xlab = "Triplet Sum Total", 
      ylab = "Density", 
      freq = FALSE, 
-     col = "#FFA07A", 
+     col = "#D3C5E5", 
      xlim = xlim, 
      ylim = c(0, ymax), 
      cex.main = 0.8, 
@@ -205,3 +205,40 @@ Looking through these three comparisons of palindromes and their simulated stati
 
 While spacing between consecutive palindromes follows a similar distribution to our simulated consecutive palindromes, the pair sums and triple sums do not, with unusual spacing between their distributions compared to their respective simulated uniform distributions. These suggest that the CMV DNA does not follow a uniform distribution, even though it might seem like it. 
 
+# Question 4) Potential for Origin of Replication
+
+In order to identify a palindrome sequence that has potential for origin of replication, we decided to create clusters in our dataset to see whether or not a significant number of palindrome sequences showed up in any interval. To identify clusters of palindromic sequences, we created intervals along the DNA sequence and counted the number of palindromes in each interval. For our distribution, we used intervals of 2500 because we wanted to be extremely specific, but also have a large enough interval size that there would be significant differences that could be seen immediately from our data.
+
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
+library(ggplot2)
+
+# Set parameters
+total_length <- 229354
+interval_size <- 2500  # Adjust interval size as needed
+
+# Create intervals
+intervals <- seq(1, total_length, by = interval_size)
+interval_counts <- table(cut(data$location, breaks = intervals))
+
+# Convert to a data frame for plotting
+interval_data <- data.frame(
+  interval = intervals[-length(intervals)],
+  counts = as.numeric(interval_counts)
+)
+
+# Create a ggplot with updated aesthetics
+ggplot(interval_data, aes(x = interval, y = counts)) +
+  geom_bar(stat = "identity", fill = "#408EC6", color = "white", linewidth = 0.2) +  # Use linewidth instead of size
+  labs(title = "Distribution of Palindromic Sequences in CMV DNA",
+       x = "Interval (Base Pairs)",
+       y = "Number of Palindromic Sequences") +
+  theme_minimal(base_size = 15) +  # Use a minimal theme with larger base font size
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 18, face = "bold"),  # Center title and make it bold
+    axis.title.x = element_text(size = 14, face = "bold"),  # Bold x-axis title
+    axis.title.y = element_text(size = 14, face = "bold"),  # Bold y-axis title
+    axis.text = element_text(size = 12)  # Increase axis text size
+  )
+```
+
+As shown above, the two main intervals that have potential for an origin of replication are from 92500 - 95000 or 195000 - 197500. In particular, the interval between 92500 and 95000 has the highest chance for an origin of replication, as it contains ~4x more sequences than an average sequence, at 13 sequences compared to the average 3.23. 
