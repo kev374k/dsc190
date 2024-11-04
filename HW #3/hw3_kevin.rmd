@@ -1,0 +1,199 @@
+```{r, echo = FALSE}
+data <- read.table("hcmv.txt", header=TRUE)
+```
+
+## Question 1: Compare Data with Random Scattering of Palindromes
+
+The dataset contains the locations of palindromic sequences in a series of 229,354 base pairs. We will do multiple simulations of random locations of palindromic sites along these 229,354 base pairs and compare it to the real data.
+
+```{r, echo = FALSE}
+set.seed(236)
+
+generate_palindrome_sites <- function() {
+  sort(sample(1:229354, 296, replace=FALSE))
+}
+
+simulated_palindrome_data <- replicate(1000, generate_palindrome_sites())
+
+calc_summary_stats <- function(locations) {
+  list(
+    mean = mean(locations),
+    median = median(locations),
+    variance = var(locations),
+    std_dev = sd(locations)
+  )
+}
+
+simulated_stats <- apply(simulated_palindrome_data, 2, calc_summary_stats)
+real_stats <- calc_summary_stats(data$location)
+
+mean_simulated_means <- mean(sapply(simulated_stats, function(x) x$mean))
+mean_simulated_medians <- mean(sapply(simulated_stats, function(x) x$median))
+mean_simulated_variances <- mean(sapply(simulated_stats, function(x) x$variance))
+mean_simulated_std_devs <- mean(sapply(simulated_stats, function(x) x$std_dev))
+
+comparison_table <- data.frame(
+  Statistic = c("Mean", "Median", "Variance", "Standard Deviation"),
+  Real_Locations = c(real_stats$mean, real_stats$median, real_stats$variance, real_stats$std_dev),
+  Simulated_Locations = c(mean_simulated_means, mean_simulated_medians, mean_simulated_variances, mean_simulated_std_devs)
+)
+
+print(comparison_table)
+```
+
+To qualitatively compare the real palindrome locations to the simulated locations, I plot a histogram of the means of each simulated palindrome sequence and analyze where the real mean is on the distribution. The same process is also done for the standard deviations.
+
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+
+simulated_means <- sapply(simulated_stats, function(x) x$mean)
+hist(simulated_means, breaks = 30, col = "#CEE6F2", main = "Simulated Mean Locations", xlab = "Mean of Palindrome Locations", cex.main = 0.8, cex.lab = 0.8)
+abline(v = real_stats$mean, col = "red", lwd = 2)
+legend("topright", legend = "Real Data Mean", col = "red", lwd = 2, cex=0.5)
+
+simulated_std_devs <- sapply(simulated_stats, function(x) x$std_dev)
+hist(simulated_std_devs, breaks = 30, col = "#A1BE95", main = "Simulated Standard Deviations", xlab = "Standard Deviation of Palindrome Locations", cex.main = 0.8, cex.lab = 0.8)
+abline(v = real_stats$std_dev, col = "red", lwd = 2)
+legend("topright", legend = "Real Data Std Dev", col = "red", lwd = 2, cex=0.5)
+
+par(mfrow = c(1, 1))
+```
+
+
+# Question 2) [Locations and Spacings] Use graphical methods to analyze the patterns in:
+
+In order to further analyze the distribution of the palindromes, let's see three different variations of the data and how they deviate from a uniform scatter across the DNA sequence. To do this, we will compare the observed patterns below to expected uniform random distributions to identify any significant clsuters of unusual spacing in these palindrome locations.
+
+## a) Spacing between consecutive palindromes
+
+```{r, echo = FALSE}
+options(scipen = 900) 
+par(mfrow = c(1, 2))  
+
+differences <- diff(data$location)
+spacing_data <- apply(replicate(10, generate_palindrome_sites())
+, 2, function(x) diff(x))
+
+xlim <- range(c(differences, spacing_data), na.rm = TRUE)
+ymax <- max(c(
+  hist(differences, breaks = 30, plot = FALSE)$density,
+  hist(spacing_data, breaks = 30, plot = FALSE)$density
+), na.rm = TRUE)
+
+hist(differences, breaks = seq(xlim[1], xlim[2], length.out = 30), 
+     main = "Spacing Between Palindromes in CMV DNA", 
+     xlab = "Spacing (in base pairs)", 
+     ylab = "Density", 
+     col = "#89ABE3", 
+     freq = FALSE, 
+     xlim = xlim, 
+     ylim = c(0, ymax), 
+     cex.main = 0.6, 
+     cex.axis = 0.8)
+
+hist(spacing_data, breaks = seq(xlim[1], xlim[2], length.out = 30),
+     main = "Spacing Between Palindromes in Uniform Distribution", 
+     xlab = "Spacing (in base pairs)", 
+     ylab = "Density", 
+     col = "#FFA07A", 
+     freq = FALSE, 
+     xlim = xlim, 
+     ylim = c(0, ymax), 
+     cex.main = 0.6, 
+     cex.axis = 0.8)
+
+par(mfrow = c(1, 1)) 
+```
+
+## b: Sums of Palindrome Pairs
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))  
+
+pair_sums <- (data[-length(data$location)] + data$location[-1])$location
+
+simulated_pair_sums <- apply(replicate(10, generate_palindrome_sites()), 2, function(x) x[-length(x)] + x[-1])  # Adjust based on the simulation structure
+
+xlim <- range(c(pair_sums, simulated_pair_sums), na.rm = TRUE)
+ymax <- max(c(
+  hist(pair_sums, breaks = 30, plot = FALSE)$density,
+  apply(simulated_pair_sums, 2, function(x) hist(x, breaks = 30, plot = FALSE)$density)  # Get max density from simulated pair sums
+), na.rm = TRUE)
+
+hist(pair_sums, breaks = seq(xlim[1], xlim[2], length.out = 30), 
+     main = "Pair Sums of Palindromes in DNA", 
+     xlab = "Pair Sum Total", 
+     ylab = "Density", 
+     col = "#97BC62", 
+     freq = FALSE, 
+     xlim = xlim, 
+     ylim = c(0, ymax), 
+     cex.main = 0.8, 
+     cex.axis = 0.6)
+
+hist(simulated_pair_sums, breaks = seq(xlim[1], xlim[2], length.out = 30), 
+     main = "Pair Sums of Palindromes in DNA", 
+     xlab = "Pair Sum Total", 
+     ylab = "Density", 
+     col = "#97BC62", 
+     freq = FALSE, 
+     xlim = xlim, 
+     ylim = c(0, ymax), 
+     cex.main = 0.8, 
+     cex.axis = 0.6)
+
+par(mfrow = c(1, 1)) 
+```
+
+## c) Sums of Palindrome Triplets
+
+```{r, echo = FALSE}
+options(scipen = 900) 
+par(mfrow = c(1, 2))  
+
+# Calculate the triplet sums
+palindrome_length <- length(data$location)
+triplet_sums <- data$location[1:(palindrome_length - 2)] +
+                data$location[2:(palindrome_length - 1)] +
+                data$location[3:palindrome_length]
+
+# Simulated triplet sums
+simulated_triplet_sums <- apply(replicate(10, generate_palindrome_sites()), 2, 
+                                 function(x) {
+                                     return(x[1:(length(x) - 2)] + 
+                                            x[2:(length(x) - 1)] + 
+                                            x[3:length(x)])
+                                 })
+
+# Define limits for x-axis and y-axis
+xlim <- range(c(triplet_sums, na.omit(simulated_triplet_sums)), na.rm = TRUE)
+ymax <- max(hist(triplet_sums, breaks = 30, plot = FALSE)$density)
+
+
+# Plot the histogram for triplet sums
+hist(triplet_sums, breaks = seq(xlim[1], xlim[2], length.out = 30), 
+     main = "Triplet Sums of Palindromes in DNA", 
+     xlab = "Triplet Sum Total", 
+     ylab = "Density", 
+     freq = FALSE, 
+     col = "#408EC6", 
+     xlim = xlim, 
+     ylim = c(0, ymax),
+     cex.main = 0.6, 
+     cex.axis = 0.8)
+
+# Plot the histogram for simulated triplet sums
+hist(simulated_triplet_sums, breaks = seq(xlim[1], xlim[2], length.out = 30), 
+     main = "Simulated Triplet Sums of Palindromes", 
+     xlab = "Triplet Sum Total", 
+     ylab = "Density", 
+     freq = FALSE, 
+     col = "#FFA07A", 
+     xlim = xlim, 
+     ylim = c(0, ymax), 
+     cex.main = 0.6, 
+     cex.axis = 0.8)
+
+# Reset layout
+par(mfrow = c(1, 1)) 
+```
+
