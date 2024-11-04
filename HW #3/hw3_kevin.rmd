@@ -62,16 +62,16 @@ par(mfrow = c(1, 1))
 
 # Question 2) [Locations and Spacings] Use graphical methods to analyze the patterns in:
 
-In order to further analyze the distribution of the palindromes, let's see three different variations of the data and how they deviate from a uniform scatter across the DNA sequence. To do this, we will compare the observed patterns below to expected uniform random distributions to identify any significant clsuters of unusual spacing in these palindrome locations.
+In order to further analyze the distribution of the palindromes, let's see three different variations of the data and how they deviate from a uniform scatter across the DNA sequence. To do this, we will compare the observed patterns below to expected uniform random distributions to identify any significant clsuters of unusual spacing in these palindrome locations. One important thing to notice is that we used only 10 simulations of the palindromes
 
 ## a) Spacing between consecutive palindromes
 
-```{r, echo = FALSE}
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
 options(scipen = 900) 
 par(mfrow = c(1, 2))  
 
 differences <- diff(data$location)
-spacing_data <- apply(replicate(10, generate_palindrome_sites())
+spacing_data <- apply(replicate(100, generate_palindrome_sites())
 , 2, function(x) diff(x))
 
 xlim <- range(c(differences, spacing_data), na.rm = TRUE)
@@ -88,39 +88,38 @@ hist(differences, breaks = seq(xlim[1], xlim[2], length.out = 30),
      freq = FALSE, 
      xlim = xlim, 
      ylim = c(0, ymax), 
-     cex.main = 0.6, 
-     cex.axis = 0.8)
+     cex.main = 0.7, 
+     cex.axis = 0.6)
 
 hist(spacing_data, breaks = seq(xlim[1], xlim[2], length.out = 30),
-     main = "Spacing Between Palindromes in Uniform Distribution", 
+     main = "Simulated Spacing Between Palindromes", 
      xlab = "Spacing (in base pairs)", 
      ylab = "Density", 
      col = "#FFA07A", 
      freq = FALSE, 
      xlim = xlim, 
      ylim = c(0, ymax), 
-     cex.main = 0.6, 
-     cex.axis = 0.8)
+     cex.main = 0.7, 
+     cex.axis = 0.6)
 
 par(mfrow = c(1, 1)) 
 ```
 
 ## b: Sums of Palindrome Pairs
-```{r, echo = FALSE}
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
 par(mfrow = c(1, 2))  
 
 pair_sums <- (data[-length(data$location)] + data$location[-1])$location
 
-simulated_pair_sums <- apply(replicate(10, generate_palindrome_sites()), 2, function(x) x[-length(x)] + x[-1])  # Adjust based on the simulation structure
+simulated_pair_sums <- apply(replicate(100, generate_palindrome_sites()), 2, function(x) x[-length(x)] + x[-1])  # Adjust based on the simulation structure
 
 xlim <- range(c(pair_sums, simulated_pair_sums), na.rm = TRUE)
-ymax <- max(c(
-  hist(pair_sums, breaks = 30, plot = FALSE)$density,
-  apply(simulated_pair_sums, 2, function(x) hist(x, breaks = 30, plot = FALSE)$density)  # Get max density from simulated pair sums
-), na.rm = TRUE)
+ymax <- max(
+  hist(pair_sums, breaks = 30, plot = FALSE)$density
+)
 
 hist(pair_sums, breaks = seq(xlim[1], xlim[2], length.out = 30), 
-     main = "Pair Sums of Palindromes in DNA", 
+     main = "Pair Sums of Palindromes in CMV DNA", 
      xlab = "Pair Sum Total", 
      ylab = "Density", 
      col = "#97BC62", 
@@ -131,7 +130,7 @@ hist(pair_sums, breaks = seq(xlim[1], xlim[2], length.out = 30),
      cex.axis = 0.6)
 
 hist(simulated_pair_sums, breaks = seq(xlim[1], xlim[2], length.out = 30), 
-     main = "Pair Sums of Palindromes in DNA", 
+     main = "Simulated Pair Sums of Palindromes", 
      xlab = "Pair Sum Total", 
      ylab = "Density", 
      col = "#97BC62", 
@@ -142,11 +141,12 @@ hist(simulated_pair_sums, breaks = seq(xlim[1], xlim[2], length.out = 30),
      cex.axis = 0.6)
 
 par(mfrow = c(1, 1)) 
+
 ```
 
 ## c) Sums of Palindrome Triplets
 
-```{r, echo = FALSE}
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
 options(scipen = 900) 
 par(mfrow = c(1, 2))  
 
@@ -157,7 +157,7 @@ triplet_sums <- data$location[1:(palindrome_length - 2)] +
                 data$location[3:palindrome_length]
 
 # Simulated triplet sums
-simulated_triplet_sums <- apply(replicate(10, generate_palindrome_sites()), 2, 
+simulated_triplet_sums <- apply(replicate(100, generate_palindrome_sites()), 2, 
                                  function(x) {
                                      return(x[1:(length(x) - 2)] + 
                                             x[2:(length(x) - 1)] + 
@@ -178,8 +178,8 @@ hist(triplet_sums, breaks = seq(xlim[1], xlim[2], length.out = 30),
      col = "#408EC6", 
      xlim = xlim, 
      ylim = c(0, ymax),
-     cex.main = 0.6, 
-     cex.axis = 0.8)
+     cex.main = 0.8, 
+     cex.axis = 0.5)
 
 # Plot the histogram for simulated triplet sums
 hist(simulated_triplet_sums, breaks = seq(xlim[1], xlim[2], length.out = 30), 
@@ -190,10 +190,18 @@ hist(simulated_triplet_sums, breaks = seq(xlim[1], xlim[2], length.out = 30),
      col = "#FFA07A", 
      xlim = xlim, 
      ylim = c(0, ymax), 
-     cex.main = 0.6, 
-     cex.axis = 0.8)
+     cex.main = 0.8, 
+     cex.axis = 0.5)
 
 # Reset layout
 par(mfrow = c(1, 1)) 
 ```
+
+Looking through these three comparisons of palindromes and their simulated statistics, a few things can be noticed. We'll go through these one section at a time:
+
+1) For spacing between consecutive palindromes, it is shown that the palindromes in the CMV DNA emulate a right-skewd distribution in terms of the spacing differences. There are peaks at the start of the spacing differences of the CMV data, which perhaps show that there's a slightly higher chance that palindromes could be closer together, but the difference is not very high (<0.004 difference). There is also a small dip in spacings between 800 - 1000 palindrome locations long. However, most of the data is clustered in between the 0 - 2000 spacing mark, meaning that most palindrome locations are somewhat near each other. There is also a potential outlier in between 5000 - 6000 palindrome locations long, which shows there's potential for longer spacing between palindrome locations. These are rarely seen in our simulated spacings between palindromes, with only a few markings past the 4000 spacing mark.
+2) The pair sums for palindronmes in the CMV DNA do not follow a uniform distribution. There are peaks of pair sum totals, with one being near the ~200000 pair sum mark and the other being near the ~400000 pair sum mark. There are also dips at ~50000 and ~450000 On the other hand, the simulated pair sum of palindromes follows a uniform distribution, with most of the pair sums having around a ~0.00002 density in comparison to the CMV DNA, which has ranges from 0.00001 to 0.000045. For the CMV DNA Pair Sums, there are clusters from 100000 - 150000 as well as the 250000 - 325000 pair sum ranges. 
+3) Finally, for the palindrome triples, there is a similar pattern to the pair sums. They don't follow a uniform distribution, with many peaks as well as a dip. Two peaks include a peak near the ~300000 mark as well as near the ~600000 marks, while a dip is near ~100000. There are no significantly large clusters, though one could call in between 400000 - 500000 a small cluster. Compared to the simulated triplet sums, which is flat and follows a uniform distribution, the CMV DNA looks like it follows a different pattern, as there are peaks at seemingly random places. 
+
+While spacing between consecutive palindromes follows a similar distribution to our simulated consecutive palindromes, the pair sums and triple sums do not, with unusual spacing between their distributions compared to their respective simulated uniform distributions. These suggest that the CMV DNA does not follow a uniform distribution, even though it might seem like it. 
 
