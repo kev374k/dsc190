@@ -1,0 +1,349 @@
+---
+title: "Finding the Origin of Replication in DNA"
+author: "Author 1 and Author 2"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Header
+
+## Author Contributions
+
+Author 1: Contributed to questions 2 and 4, along with doing the formatting for the graphs, tables, and the pdf.
+Author 2: Contributed to questions 1, 3, and 5, along with doing the advanced analysis.
+
+## Use of GPT
+
+ChatGPT was used as a substitute for documentation for R. Since we were unfamiliar with R, we asked ChatGPT how to use R in certain methods in order to find and filter out conditions in the dataset. We additionally used GPT to analyze reasoning and to confirm what we thought was correct about the dataset, as well as to identify extra questions that could be answered for our advanced analysis.
+
+# Introduction
+
+The data used in this analysis is from a DNA sequence of CMV which was published in 1990. The data specifically is of one column, which consists for 296 palindromic sequences, each of which were at least 10 pairs long. Our objective in this analysis is to analyze the structure of the data, and assess how the distribution of the DNA palindromes deviates from a uniform scatter across the DNA sequence, if it even does. Essentially, we are testing if the clusters of palindromes in the DNA sequence are due to chance, or if there's a set pattern within the DNA.
+
+## Main Research Questions
+
+1. Simulate 296 palindrome sites chosen at random along a DNA sequence of 229534 bases using a pseudo random number generator. Do this several times by making sets of simulated palindrome locations, performing a quantitative and qualitative comparison between the random scatters and real data.
+
+2. Use graphical methods to analyze the patterns in the following. Additionally, compare observed patterns to expected uniform random distirbutions to identify significant clusters or unusual spacing in palindrome locations.
+
+    a. Spacing between consecutive palindromes
+    b. Sums of palindrome pairs
+    c. Sums of palindrome triplets
+
+3. Use graphical methods and more formal statistical tests to examine the counts of palindromes in various regions of DNA. Split the DNA into nonoverlaping regions of equal length to compare the number of palindromes in an interval to the number that you would expect from uniform random scatter. 
+
+4. Does any interval with the greatest number of palindromes indicate a potential origin of replication? Validate your results.
+
+5. How would you advise a biologist who is about to start experimentally searching for the origin of replication?
+
+## Question 1: Compare Palindrome Locations to Simulated Uniform Distributions
+### Methods
+
+```{r, echo = FALSE}
+data <- read.table("hcmv.txt", header=TRUE)
+```
+
+Our dataset contains the locations of palindromic sequences in a series of 229,354 base pairs. In order to compare our data to uniform simulations, we will simulative over 1000 uniform distributions of palindromic sites along these 229,354 base pairs and compare it to the real data, specifically looking through key stats like mean, median, variance, and standard deviation, which are shown below.
+
+```{r, echo = FALSE}
+set.seed(236)
+
+generate_palindrome_sites <- function() {
+  sort(sample(1:229354, 296, replace=FALSE))
+}
+
+simulated_palindrome_data <- replicate(1000, generate_palindrome_sites())
+
+calc_summary_stats <- function(locations) {
+  list(
+    mean = mean(locations),
+    median = median(locations),
+    variance = var(locations),
+    std_dev = sd(locations)
+  )
+}
+
+simulated_stats <- apply(simulated_palindrome_data, 2, calc_summary_stats)
+real_stats <- calc_summary_stats(data$location)
+
+mean_simulated_means <- mean(sapply(simulated_stats, function(x) x$mean))
+mean_simulated_medians <- mean(sapply(simulated_stats, function(x) x$median))
+mean_simulated_variances <- mean(sapply(simulated_stats, function(x) x$variance))
+mean_simulated_std_devs <- mean(sapply(simulated_stats, function(x) x$std_dev))
+
+comparison_table <- data.frame(
+  Statistic = c("Mean", "Median", "Variance", "Standard Deviation"),
+  Real_Locations = c(real_stats$mean, real_stats$median, real_stats$variance, real_stats$std_dev),
+  Simulated_Locations = c(mean_simulated_means, mean_simulated_medians, mean_simulated_variances, mean_simulated_std_devs)
+)
+
+print(comparison_table)
+```
+
+To qualitatively compare the real palindrome locations to the simulated locations, I plot a histogram of the means of each simulated palindrome sequence and analyze where the real mean is on the distribution. The same process is also done for the standard deviations.
+
+```{r, echo = FALSE, fig.width = 8, fig.height = 4.5}
+par(mfrow = c(1, 2))
+
+simulated_means <- sapply(simulated_stats, function(x) x$mean)
+hist(simulated_means, breaks = 30, col = "#CEE6F2", main = "Simulated Mean Locations", xlab = "Mean of Palindrome Locations", cex.main = 0.8, cex.lab = 0.8)
+abline(v = real_stats$mean, col = "red", lwd = 2)
+legend("topright", legend = "Real Data Mean", col = "red", lwd = 2, cex=0.5)
+
+simulated_std_devs <- sapply(simulated_stats, function(x) x$std_dev)
+hist(simulated_std_devs, breaks = 30, col = "#A1BE95", main = "Simulated Standard Deviations", xlab = "Standard Deviation of Palindrome Locations", cex.main = 0.8, cex.lab = 0.8)
+abline(v = real_stats$std_dev, col = "red", lwd = 2)
+legend("topright", legend = "Real Data Std Dev", col = "red", lwd = 2, cex=0.5)
+
+par(mfrow = c(1, 1))
+```
+
+### Analysis
+
+As seen above, our uniform simulations show that there is a small deviation in terms of the means and standard deviations of the simulated data versus our real mean data. While our simulations had an overall mean location of ~117000, the real mean location was at ~114000. Similarly, our simulated standard deviation was ~64000 while the real standard deviation was ~66000. 
+
+### Conclusions
+
+While these numbers are still very close to the simulated uniform distributions, and their differences could be attributed to chance, there is also a stronger likelihood now that the data doesn't necessarily come from a uniform distribution. Specifically, since the real mean location of the palindromes was slightly higher than our mean simulation, this could suggest that there are perhaps clusters or that the data could be left skewed, having more palindromes in later locations. Another possibility is that since the real standard deviation of the data is lower than our simulations, there are evident clusters within the data that are unlike a uniform distribution.
+
+## Question 2: Graphically Analyze Patterns in the Palindrome Data
+
+### Methods
+
+In order to further analyze the distribution of the palindromes, let's see three different variations of the data and how they deviate from a uniform scatter across the DNA sequence. To do this, we will compare the observed patterns below to expected uniform random distributions to identify any significant clsuters of unusual spacing in these palindrome locations. One important thing to notice is that we used 100 simulations of the uniform distribution to make our graphs on the right.
+
+a) Spacing between consecutive palindromes
+
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
+options(scipen = 900) 
+par(mfrow = c(1, 2))  
+
+differences <- diff(data$location)
+spacing_data <- apply(replicate(100, generate_palindrome_sites())
+, 2, function(x) diff(x))
+
+xlim <- range(c(differences, spacing_data), na.rm = TRUE)
+ymax <- max(c(
+  hist(differences, breaks = 30, plot = FALSE)$density,
+  hist(spacing_data, breaks = 30, plot = FALSE)$density
+), na.rm = TRUE)
+
+hist(differences, breaks = seq(xlim[1], xlim[2], length.out = 30), 
+     main = "Spacing Between Palindromes in CMV DNA", 
+     xlab = "Spacing (in base pairs)", 
+     ylab = "Density", 
+     col = "#89ABE3", 
+     freq = FALSE, 
+     xlim = xlim, 
+     ylim = c(0, ymax), 
+     cex.main = 0.7, 
+     cex.axis = 0.6)
+
+hist(spacing_data, breaks = seq(xlim[1], xlim[2], length.out = 30),
+     main = "Simulated Spacing Between Palindromes", 
+     xlab = "Spacing (in base pairs)", 
+     ylab = "Density", 
+     col = "#FFA07A", 
+     freq = FALSE, 
+     xlim = xlim, 
+     ylim = c(0, ymax), 
+     cex.main = 0.7, 
+     cex.axis = 0.6)
+
+par(mfrow = c(1, 1)) 
+```
+
+b: Sums of Palindrome Pairs
+
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
+par(mfrow = c(1, 2))  
+
+pair_sums <- (data[-length(data$location)] + data$location[-1])$location
+
+simulated_pair_sums <- apply(replicate(100, generate_palindrome_sites()), 2, function(x) x[-length(x)] + x[-1])  # Adjust based on the simulation structure
+
+xlim <- range(c(pair_sums, simulated_pair_sums), na.rm = TRUE)
+ymax <- max(
+  hist(pair_sums, breaks = 30, plot = FALSE)$density
+)
+
+hist(pair_sums, breaks = seq(xlim[1], xlim[2], length.out = 30), 
+     main = "Pair Sums of Palindromes in CMV DNA", 
+     xlab = "Pair Sum Total", 
+     ylab = "Density", 
+     col = "#B85042", 
+     freq = FALSE, 
+     xlim = xlim, 
+     ylim = c(0, ymax), 
+     cex.main = 0.8, 
+     cex.axis = 0.6)
+
+hist(simulated_pair_sums, breaks = seq(xlim[1], xlim[2], length.out = 30), 
+     main = "Simulated Pair Sums of Palindromes", 
+     xlab = "Pair Sum Total", 
+     ylab = "Density", 
+     col = "#A7BEAE", 
+     freq = FALSE, 
+     xlim = xlim, 
+     ylim = c(0, ymax), 
+     cex.main = 0.8, 
+     cex.axis = 0.6)
+
+par(mfrow = c(1, 1)) 
+
+```
+
+c) Sums of Palindrome Triplets
+
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
+options(scipen = 900) 
+par(mfrow = c(1, 2))  
+
+# Calculate the triplet sums
+palindrome_length <- length(data$location)
+triplet_sums <- data$location[1:(palindrome_length - 2)] +
+                data$location[2:(palindrome_length - 1)] +
+                data$location[3:palindrome_length]
+
+# Simulated triplet sums
+simulated_triplet_sums <- apply(replicate(100, generate_palindrome_sites()), 2, 
+                                 function(x) {
+                                     return(x[1:(length(x) - 2)] + 
+                                            x[2:(length(x) - 1)] + 
+                                            x[3:length(x)])
+                                 })
+
+# Define limits for x-axis and y-axis
+xlim <- range(c(triplet_sums, na.omit(simulated_triplet_sums)), na.rm = TRUE)
+ymax <- max(hist(triplet_sums, breaks = 30, plot = FALSE)$density)
+
+
+# Plot the histogram for triplet sums
+hist(triplet_sums, breaks = seq(xlim[1], xlim[2], length.out = 30), 
+     main = "Triplet Sums of Palindromes in DNA", 
+     xlab = "Triplet Sum Total", 
+     ylab = "Density", 
+     freq = FALSE, 
+     col = "#735DA5", 
+     xlim = xlim, 
+     ylim = c(0, ymax),
+     cex.main = 0.8, 
+     cex.axis = 0.5)
+
+# Plot the histogram for simulated triplet sums
+hist(simulated_triplet_sums, breaks = seq(xlim[1], xlim[2], length.out = 30), 
+     main = "Simulated Triplet Sums of Palindromes", 
+     xlab = "Triplet Sum Total", 
+     ylab = "Density", 
+     freq = FALSE, 
+     col = "#D3C5E5", 
+     xlim = xlim, 
+     ylim = c(0, ymax), 
+     cex.main = 0.8, 
+     cex.axis = 0.5)
+
+# Reset layout
+par(mfrow = c(1, 1)) 
+```
+
+
+### Analysis
+
+Looking through these three comparisons of palindromes and their simulated statistics, a few things can be noticed. We'll go through these one section at a time:
+
+1) For spacing between consecutive palindromes, it is shown that the palindromes in the CMV DNA emulate a right-skewd distribution in terms of the spacing differences. There are peaks at the start of the spacing differences of the CMV data, which perhaps show that there's a slightly higher chance that palindromes could be closer together, but the difference is not very high (<0.004 difference). There is also a small dip in spacings between 800 - 1000 palindrome locations long. However, most of the data is clustered in between the 0 - 2000 spacing mark, meaning that most palindrome locations are somewhat near each other. There is also a potential outlier in between 5000 - 6000 palindrome locations long, which shows there's potential for longer spacing between palindrome locations. These are rarely seen in our simulated spacings between palindromes, with only a few markings past the 4000 spacing mark.
+2) The pair sums for palindronmes in the CMV DNA do not follow a uniform distribution. There are peaks of pair sum totals, with one being near the ~200000 pair sum mark and the other being near the ~400000 pair sum mark. There are also dips at ~50000 and ~450000 On the other hand, the simulated pair sum of palindromes follows a uniform distribution, with most of the pair sums having around a ~0.00002 density in comparison to the CMV DNA, which has ranges from 0.00001 to 0.000045. For the CMV DNA Pair Sums, there are clusters from 100000 - 150000 as well as the 250000 - 325000 pair sum ranges. 
+3) Finally, for the palindrome triples, there is a similar pattern to the pair sums. They don't follow a uniform distribution, with many peaks as well as a dip. Two peaks include a peak near the ~300000 mark as well as near the ~600000 marks, while a dip is near ~100000. There are no significantly large clusters, though one could call in between 400000 - 500000 a small cluster. Compared to the simulated triplet sums, which is flat and follows a uniform distribution, the CMV DNA looks like it follows a different pattern, as there are peaks at seemingly random places. 
+
+### Conclusions
+
+While spacing between consecutive palindromes follows a similar distribution to our simulated consecutive palindromes, the pair sums and triple sums do not, with unusual spacing between their distributions compared to their respective simulated uniform distributions. Due to these, along with evident clusters and unusual spacings between many parts of the data, it seems likely that the CMV DNA does not follow a uniform distribution, even though it might seem like it.
+
+## Question 3: Examine the Counts of Palindromes in Various Regions of the DNA
+
+### Methods
+
+
+### Analysis
+
+
+### Conclusions
+
+
+## Question 4: Find a Potential Origin of Replication
+
+### Methods
+
+In order to identify a palindrome sequence that has potential for origin of replication, we decided to create clusters in our dataset to see whether or not a significant number of palindrome sequences showed up in any interval. To identify clusters of palindromic sequences, we created intervals along the DNA sequence and counted the number of palindromes in each interval. For our distribution, we used intervals of 2500 because we wanted to be extremely specific, but also have a large enough interval size that there would be significant differences that could be seen immediately from our data.
+
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
+library(ggplot2)
+
+# Set parameters
+total_length <- 229354
+interval_size <- 2500  # Adjust interval size as needed
+
+# Create intervals
+intervals <- seq(1, total_length, by = interval_size)
+interval_counts <- table(cut(data$location, breaks = intervals))
+
+# Convert to a data frame for plotting
+interval_data <- data.frame(
+  interval = intervals[-length(intervals)],
+  counts = as.numeric(interval_counts)
+)
+
+# Create a ggplot with updated aesthetics
+ggplot(interval_data, aes(x = interval, y = counts)) +
+  geom_bar(stat = "identity", fill = "#408EC6", color = "white", linewidth = 0.2) +  # Use linewidth instead of size
+  labs(title = "Distribution of Palindromic Sequences in CMV DNA",
+       x = "Interval (Base Pairs)",
+       y = "Number of Palindromic Sequences") +
+  theme_minimal(base_size = 15) +  # Use a minimal theme with larger base font size
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 18, face = "bold"),  # Center title and make it bold
+    axis.title.x = element_text(size = 14, face = "bold"),  # Bold x-axis title
+    axis.title.y = element_text(size = 14, face = "bold"),  # Bold y-axis title
+    axis.text = element_text(size = 12)  # Increase axis text size
+  )
+```
+
+### Analysis
+
+As shown above, the two main intervals that have potential for an origin of replication are from 92500 - 95000 or 195000 - 197500. In particular, the interval between 92500 and 95000 has the highest chance for an origin of replication, as it contains ~4x more sequences than an average sequence, at 13 sequences compared to the average 3.23. 
+
+### Conclusions
+
+It seems likely that the interval between 92500 - 95000 is the area where the origin of replication occurs. This is due to the extreme number of palindromes in this interval when compared to all other 2500 location-length intervals, potentially giving us an insight where the origin of replication is. Due to having so many more palindromes (~4x more than a normal interval), this is likely to be the origin of replication.
+
+## Question 5: Advise for a Biologist
+
+just answer the question lmfao
+
+# Advanced Analysis
+
+
+### Methods
+
+
+### Analysis
+
+
+### Conclusions
+
+
+# Conclusions and Discussion
+
+## Summary of Findings
+
+
+## Discussion
+
