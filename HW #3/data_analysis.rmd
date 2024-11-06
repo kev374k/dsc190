@@ -18,6 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Author Contributions
 
 Author 1: Contributed to questions 2 and 4, along with doing the formatting for the graphs, tables, and the pdf.
+
 Author 2: Contributed to questions 1, 3, and 5, along with doing the advanced analysis.
 
 ## Use of GPT
@@ -316,13 +317,35 @@ ggplot(interval_data, aes(x = interval, y = counts)) +
   )
 ```
 
+Additionally, let's conduct a Poisson test to test the level of significance, validating our results that the intervals of 92500 - 95000 or 195000 - 197500 are potential origins of replication. 
+
+```{r, echo = FALSE}
+total_intervals <- length(intervals)  
+total_palindromes <- sum(interval_data$counts)  
+
+lambda <- total_palindromes / total_intervals
+
+observed_count_92500_95000 <- 13  
+
+p_value_92500_95000 <- ppois(observed_count_92500_95000 - 1, lambda, lower.tail = FALSE)
+
+observed_count_195000_197500 <- interval_data$counts[interval_data$interval == 195001]  
+
+p_value_195000_197500 <- ppois(observed_count_195000_197500 - 1, lambda, lower.tail = FALSE)
+
+cat("P-value for interval 92500–95000:", p_value_92500_95000, "\n")
+cat("P-value for interval 195000–197500:", p_value_195000_197500, "\n")
+```
+
 ### Analysis
 
 As shown above, the two main intervals that have potential for an origin of replication are from 92500 - 95000 or 195000 - 197500. In particular, the interval between 92500 and 95000 has the highest chance for an origin of replication, as it contains ~4x more sequences than an average sequence, at 13 sequences compared to the average 3.23. 
 
+Additionally, we used a hypothesis test to validate these two intevals at a value of p = 0.05. Our null hypothesis is that all of the intervals follow a Poisson distribution, while our alternative hypothesis is that it doesn't follow a Poisson distribution and these intervals are statistically significant. We can see that these two intervals are statistically significant, with p-values of 3.0713e-05 and 1.744e-03, both lower than 0.05.
+
 ### Conclusions
 
-It seems likely that the interval between 92500 - 95000 is the area where the origin of replication occurs. This is due to the extreme number of palindromes in this interval when compared to all other 2500 location-length intervals, potentially giving us an insight where the origin of replication is. Due to having so many more palindromes (~4x more than a normal interval), this is likely to be the origin of replication.
+It seems likely that the interval between 92500 - 95000 is the area where the origin of replication occurs. This is due to the extreme number of palindromes in this interval when compared to all other 2500 location-length intervals, potentially giving us an insight where the origin of replication is. Due to having so many more palindromes (~4x more than a normal interval), this is likely to be the origin of replication. Additionally, by testing with a Poisson distribution, we figured that this interval was significantly significant.
 
 ## Question 5: Advise for a Biologist
 
