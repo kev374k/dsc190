@@ -271,6 +271,7 @@ While spacing between consecutive palindromes follows a similar distribution to 
 ## Question 3: Examine the Counts of Palindromes in Various Regions of the DNA
 
 ### Methods
+
 ```{r, echo = FALSE}
 interval_size <- floor(229354 / 57)
 interval_counts <- hist(data$location, breaks = seq(0, 229354, by = interval_size), plot = FALSE)$counts
@@ -288,6 +289,17 @@ count_frequency_df$Palindrome_Count <- as.integer(as.character(count_frequency_d
 count_frequency_df$Intervals_Expected <- dpois(count_frequency_df$Palindrome_Count, lambda_rate) * 57
 count_frequency_df$Intervals_Expected <- count_frequency_df$Intervals_Expected * (57 / sum(count_frequency_df$Intervals_Expected))
 
+count_below_10 <- count_frequency_df[count_frequency_df$Palindrome_Count < 10, ]
+count_10_or_more <- count_frequency_df[count_frequency_df$Palindrome_Count >= 10, ]
+
+count_10_or_more_agg <- data.frame(
+  Palindrome_Count = "10+",
+  Intervals_Observed = sum(count_10_or_more$Intervals_Observed),
+  Intervals_Expected = sum(count_10_or_more$Intervals_Expected)
+)
+
+count_frequency_df <- rbind(count_below_10, count_10_or_more_agg)
+count_frequency_df$Palindrome_Count <- as.character(count_frequency_df$Palindrome_Count)
 
 par(mfrow = c(1, 2))
 barplot(
@@ -372,21 +384,21 @@ par(mfrow = c(1, 1))
 ```
 
 ```{r, echo = FALSE}
-smaller_interval_size <- floor(229354 / 580)
+smaller_interval_size <- floor(229354 / 573)
 smaller_interval_counts <- hist(data$location, breaks = seq(0, 229354, by = smaller_interval_size), plot = FALSE)$counts
 
 smaller_interval_counts_df <- data.frame(
-  Interval = 1:580,
+  Interval = 1:573,
   Count = smaller_interval_counts
 )
 
-lambda_rate <- 296 / 580
+lambda_rate <- 296 / 573
   
 smaller_count_frequency_df <- as.data.frame(table(smaller_interval_counts_df$Count))
 colnames(smaller_count_frequency_df) <- c("Palindrome_Count", "Intervals_Observed")
 smaller_count_frequency_df$Palindrome_Count <- as.integer(as.character(smaller_count_frequency_df$Palindrome_Count))
-smaller_count_frequency_df$Intervals_Expected <- dpois(smaller_count_frequency_df$Palindrome_Count, lambda_rate) * 580
-smaller_count_frequency_df$Intervals_Expected <- smaller_count_frequency_df$Intervals_Expected * (580 / sum(smaller_count_frequency_df$Intervals_Expected))
+smaller_count_frequency_df$Intervals_Expected <- dpois(smaller_count_frequency_df$Palindrome_Count, lambda_rate) * 573
+smaller_count_frequency_df$Intervals_Expected <- smaller_count_frequency_df$Intervals_Expected * (573 / sum(smaller_count_frequency_df$Intervals_Expected))
 
 
 par(mfrow = c(1, 2), oma = c(0, 0, 2, 0))
@@ -410,9 +422,19 @@ barplot(
   cex.main = 0.7
 )
 
-mtext("Interval Size = 395", outer = TRUE, cex = 1.5)
+mtext("Interval Size = 400", outer = TRUE, cex = 1.5)
 
 par(mfrow = c(1, 1))
+```
+
+```{r, echo = FALSE}
+smaller_chi_square_test <- chisq.test(
+  x = smaller_count_frequency_df$Intervals_Observed,
+  p = smaller_count_frequency_df$Intervals_Expected / sum(smaller_count_frequency_df$Intervals_Expected),
+  rescale.p = TRUE
+)
+
+smaller_chi_square_test
 ```
 
 ### Analysis
@@ -522,5 +544,4 @@ abline(model, col = 'red', lwd=2)
 
 ## Summary of Findings
 
-Throughout our analysis on the dataset, it looks like the dataset does not confirm to a uniform random distribution of palindrome locations across ~229000 DNA locations. This can be proven by our tests of simulating the palindrome sites, along with also analyzing patterns of spacing and sums in the palindrome data. Our tests of significance, using a Chi-Square Test and a Poisson distribution along with hypothesis tests also demonstrated that it is unlikely that this data is from a uniform distribution, meaning it is unique. Additionally, our analysis of the palindrome locations and their counts in various regions of the data exposed that some intervals of locations were significantly more likely to contain palindromes, potentially showcasing that an origin of replication was somewhere in the data, likely in the location between the 92500 - 95000 mark.
-
+Throughout our analysis on the dataset, it looks like the dataset does not confirm to a uniform random distribution of palindrome locations across \~229000 DNA locations. This can be proven by our tests of simulating the palindrome sites, along with also analyzing patterns of spacing and sums in the palindrome data. Our tests of significance, using a Chi-Square Test and a Poisson distribution along with hypothesis tests also demonstrated that it is unlikely that this data is from a uniform distribution, meaning it is unique. Additionally, our analysis of the palindrome locations and their counts in various regions of the data exposed that some intervals of locations were significantly more likely to contain palindromes, potentially showcasing that an origin of replication was somewhere in the data, likely in the location between the 92500 - 95000 mark.
