@@ -110,11 +110,13 @@ par(mfrow = c(1, 1))
 
 ### Analysis
 
-As seen above, our uniform simulations show that there is a small deviation in terms of the means and standard deviations of the simulated data versus our real mean data. While our simulations had an overall mean location of \~117000, the real mean location was at \~114000. Similarly, our simulated standard deviation was \~64000 while the real standard deviation was \~66000.
+As seen above, our uniform spacing simulations show that there is a relatively small deviation between our observed mean and simulated means. While our simulations had an overall mean location of \~115000, the observed mean location was at \~117000. However, the observed standard deviation was slightly more unusual in the context of the simulated uniform spacings. The simulations tended to have a standard deviation around \~66,300 while our observed standard deviation was \~64,700. A smaller standard deviation signifies that the palindromes are less spread out at points and might be more clustered than most uniform distributions of palindromes.
+
+A hypothesis test was conducted to test whether the observed mean was significantly different from the simulated means of uniform palindrome spreads. The p-value of **0.561** shows that the mean value is not different enough from the simulated means. A similar hypothesis test was conducted to see if the observed standard deviation was significantly different from the simulated standard deviations. The p-value for standard deviations was **0.375**, which also is not significant enough to reject the null hypothesis that the observed standard deviation in the real DNA is different from uniformly simulated DNA.
 
 ### Conclusions
 
-While these numbers are still very close to the simulated uniform distributions, and their differences could be attributed to chance, there is also a stronger likelihood now that the data doesn't necessarily come from a uniform distribution. Specifically, since the real mean location of the palindromes was slightly higher than our mean simulation, this could suggest that there are perhaps clusters or that the data could be left skewed, having more palindromes in later locations. Another possibility is that since the real standard deviation of the data is lower than our simulations, there are evident clusters within the data that are unlike a uniform distribution.
+After visually inspecting the simulate data as well as conducting hypothesis tests, we are not confident that statistics in our DNA data like mean and standard deviation are significantly different from the simulated uniform data. However, the smaller standard deviation of our palindrome locations motivates further analysis because it implies that there may be clusters that have significance in the context of virus replication.
 
 ## Question 2: Graphically Analyze Patterns in the Palindrome Data
 
@@ -272,6 +274,8 @@ While spacing between consecutive palindromes follows a similar distribution to 
 
 ### Methods
 
+First, intervals of size 4023 are used to partition the DNA sequence. We then count the number of intervals that contain each palindrome count and compare it to the expected distribution of intervals. The expected distribution is obtained by using the Poisson distribution to calculate the probability of getting each palindrome count and then scaling it so that the sum of counts matches that of the observed distribution.
+
 ```{r, echo = FALSE}
 interval_size <- floor(229354 / 57)
 interval_counts <- hist(data$location, breaks = seq(0, 229354, by = interval_size), plot = FALSE)$counts
@@ -301,7 +305,7 @@ count_10_or_more_agg <- data.frame(
 count_frequency_df <- rbind(count_below_10, count_10_or_more_agg)
 count_frequency_df$Palindrome_Count <- as.character(count_frequency_df$Palindrome_Count)
 
-par(mfrow = c(1, 2))
+par(mfrow = c(1, 2), oma = c(0, 0, 2, 0))
 barplot(
   count_frequency_df$Intervals_Observed,
   names.arg = count_frequency_df$Palindrome_Count,
@@ -322,8 +326,12 @@ barplot(
   cex.main = 0.7
 )
 
+mtext("Interval Size = 4,023", outer = TRUE, cex = 1.5)
+
 par(mfrow = c(1, 1))
 ```
+
+After completing a graphical comparison, a chi-squared goodness-of-fit test is conducted to see if the observed distribution is different from the expected.
 
 ```{r, echo = FALSE}
 chi_square_test <- chisq.test(
@@ -335,9 +343,11 @@ chi_square_test <- chisq.test(
 chi_square_test
 ```
 
-Since the p-value is less than our significance level of 0.05, there is significant evidence to reject the null hypothesis, meaning the palindrome sites are not uniformly distributed along the DNA sequence according to the Poisson distribution. This implies there may be some pattern or clustering of the palindromes along the DNA.
+The above warning appears because there are some categories that only contain a small number of intervals, which could affect the quality of the chi-squared test's results. Further tests are conducted with different interval sizes to see if the results change.
 
-Next, we investigate the effect of different interval sizes on the analysis and detection of uniformity.
+Since the p-value is less than our significance level of 0.05, there is significant evidence to reject the null hypothesis, meaning the distribution of palindrome counts among intervals is significantly different from one generated from the Poisson process.
+
+Next, we create different interval sizes to investigate the effects on detection of uniformity.
 
 ```{r, echo = FALSE}
 larger_interval_size <- floor(229354 / 10)
@@ -427,6 +437,8 @@ mtext("Interval Size = 400", outer = TRUE, cex = 1.5)
 par(mfrow = c(1, 1))
 ```
 
+Another chi-squared goodness-of-fit test is conducted, but this time, much smaller interval sizes are used to see if results change when we manipulate interval size.
+
 ```{r, echo = FALSE}
 smaller_chi_square_test <- chisq.test(
   x = smaller_count_frequency_df$Intervals_Observed,
@@ -439,7 +451,15 @@ smaller_chi_square_test
 
 ### Analysis
 
+Using interval sizes of 4023 bases reveals that the true distribution of palindrome counts differs from the expected (Poisson) distribution in many ways. Firstly, the true distribution has a much greater count of intervals with only 1 palindrome than expected. Secondly, the true distribution has far greater frequencies of intervals with 7 palindromes or more. The chi-squared goodness-of-fit test corroborates these observations because the p-value of **0.0025** means that there is a significant difference between our distribution and what would be expected from a Poisson data generating process. It's worth acknowledging that, because our expected distribution has some very small counts, the chi-squared test may not be the most accurate.
+
+Increasing the interval size to 22,935 bases made the distribution less insightful because we have far fewer intervals, meaning less data. It doesn't make sense to conduct a chi-squared goodness-of-fit test with this data because the counts of intervals are so small.
+
+Decreasing the interval size to 400 means we have far larger interval frequencies, but these frequencies have less meaning in context because the vast majority of intervals now contain 0 palindromes. Thus, given the context of palindromes in a DNA sequence, the chi-squared goodness-of-fit test's results are not as useful with this interval size.
+
 ### Conclusions
+
+The distribution of palindrome counts in intervals of size 4023 is significantly different from what would be expected of a uniform random scatter. This means the scatter of palindromes in the DNA is significant and not just random. There are more intervals with high counts of palindromes (7+) than expected. This insight, combined with the earlier insight that there are possibly significant clusters of palindromes, motivate further analysis of specific high-density clusters of palindromes.
 
 ## Question 4: Find a Potential Origin of Replication
 
@@ -517,7 +537,11 @@ There is numerous evidence presented in our analyses to suggest that the DNA seq
 
 # Advanced Analysis
 
+## Find Correlation Between Location and Spacing Between Palindromes
+
 ### Methods
+
+In order to qualitatively search for a correlation between location in DNA sequence and spacing between consecutive palindromes, we first create a scatter plot with location on the x-axis and palindrome distance on the y-axis. Visual inspection led us to believe that a quadratic shape may be necessary for an effective regression, so we engineered a feature by squaring the location value. Finally, a quadratic function was fit and plotted.
 
 ```{r, echo = FALSE}
 spacing <- diff(data$location)
@@ -525,20 +549,27 @@ spacing <- diff(data$location)
 location_midpoints <- (data$location[-1] + data$location[-length(data$location)]) / 2
 
 spacing_df <- data.frame(Location = location_midpoints, Spacing = spacing)
+spacing_df$Location_Squared <- spacing_df$Location^2
 
-model <- lm(Spacing ~ Location, data = spacing_df)
-
-summary(model)
+quadratic_model <- lm(Spacing ~ Location + Location_Squared, data = spacing_df)
+summary(quadratic_model)
 
 plot(spacing_df$Location, spacing_df$Spacing, type = "p", col = "blue",
      xlab = "Location on DNA Sequence", ylab = "Spacing Between Consecutive Palindromes",
      main = "Spacing Between Consecutive Palindromes Across DNA Sequence")
-abline(model, col = 'red', lwd=2)
+
+location_seq <- seq(min(spacing_df$Location), max(spacing_df$Location), length.out = 100)
+predicted_spacing <- predict(quadratic_model, newdata = data.frame(Location = location_seq, Location_Squared = location_seq^2))
+lines(location_seq, predicted_spacing, col = "red", lwd = 2)
 ```
 
 ### Analysis
 
+The regression gave us the following coefficients: **1.14e-8** for Location_Squared and **-3.10e-3** for Location. The coefficient on Location_Squared is so negligible that the regression does not take on much of a quadratic form. The coefficient on Location is also very small. Additionally, both coefficients have p-values greater than 0.3, meaning they both don't have very strong significance in terms of predicting palindrome spacing from location. Finally, the $$R^2$$ value of **0.004** is very close to 0, showing that there is very low correlation between our features and palindrome spacing.
+
 ### Conclusions
+
+There is almost no correlation between location in the DNA sequence and palindrome spacing that could be detected by either linear or quadratic regression. This means that, throughout the DNA sequence, space between consecutive palindromes does not follow an increasing or decreasing trend. Neither does it follow a cyclic trend like the shape of a quadratic. However, this result should not be interpreted as meaning palindromes are randomly spaced throughout the sequence. The earlier analyses showed that there are indeed palindrome clusters of significance.
 
 # Conclusions and Discussion
 

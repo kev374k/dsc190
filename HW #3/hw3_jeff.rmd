@@ -41,6 +41,34 @@ comparison_table <- data.frame(
 print(comparison_table)
 ```
 
+```{r}
+observed_mean <- real_stats$mean
+
+# Extract the simulated means from the simulated statistics
+simulated_means <- sapply(simulated_stats, function(x) x$mean)
+
+# Calculate the p-value as the proportion of simulated means as extreme as the observed mean
+# Two-sided test: count both greater and less than extremes
+p_value <- mean(abs(simulated_means - mean(simulated_means)) >= abs(observed_mean - mean(simulated_means)))
+
+# Print the p-value
+print(paste("P-value:", p_value))
+```
+
+```{r}
+observed_std_dev <- real_stats$std_dev
+
+# Extract the simulated standard deviations from the simulated statistics
+simulated_std_devs <- sapply(simulated_stats, function(x) x$std_dev)
+
+# Calculate the p-value as the proportion of simulated standard deviations as extreme as the observed standard deviation
+# Two-sided test: count both greater and less than extremes
+p_value_std_dev <- mean(abs(simulated_std_devs - mean(simulated_std_devs)) >= abs(observed_std_dev - mean(simulated_std_devs)))
+
+# Print the p-value for standard deviation
+print(paste("P-value for Standard Deviation:", p_value_std_dev))
+```
+
 To qualitatively compare the real palindrome locations to the simulated locations, I plot a histogram of the means of each simulated palindrome sequence and analyze where the real mean is on the distribution. The same process is also done for the standard deviations.
 
 ```{r, echo = FALSE}
