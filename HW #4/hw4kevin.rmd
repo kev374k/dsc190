@@ -1,0 +1,37 @@
+```{r, echo = FALSE}
+data <- read.table("gauge.txt", header=TRUE)
+head(data, 5)
+```
+
+# Question 1: Fit a Regression Line
+
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
+par(mfrow = c(1, 2))
+
+model <- lm(data$gain ~ data$density)
+plot(data$density, data$gain, 
+    main = "Snow Gain vs Density", 
+    xlab = "Snow Density", 
+    ylab = "Gamma Ray Intensity", 
+    pch = 19, 
+    col = "#89ABE3")
+
+abline(model, col = "#EA738D", lwd = 2)
+predicted_gain <- predict(model)
+segments(data$density, data$gain, data$density, predicted_gain, col = "purple", lwd = 1, lty = 2)
+
+residuals <- resid(model)
+fitted_values <- fitted(model)
+
+plot(fitted_values, residuals, 
+     main = "Residual Plot", 
+     xlab = "Fitted Values", 
+     ylab = "Residuals", 
+     pch = 19, 
+     col = "#89ABE3")
+
+# Add a horizontal line at zero to indicate no residuals
+abline(h = 0, col = "#EA738D", lwd = 2, lty = 2)
+```
+
+We implemented a regression line along with a residual graph for the snow gain and density measured to determine what type of relationship could be found when analyzing graphically. The regression graph does not look like it follows a line of best fit, potentially showing that the relationship between these two variables is not linear. Additionally, when plotting the residual plot, the same conclusion can be reached. Since the residual plot does not look randomly distributed along the zero line, as a linear relationship would typically be, it shows that our line of best fit doesn't capture the relationship between our variables correctly. Since the line follows an almost parabolic curve, this indicates that there's a decent chance that the initial relationship between the two variables could be quadratic. 
