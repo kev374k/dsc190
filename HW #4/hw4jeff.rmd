@@ -1,0 +1,60 @@
+```{r, echo = FALSE}
+data <- read.table("gauge.txt", header=TRUE)
+head(data, 5)
+```
+
+# Question 2: Transform Data and Fit
+
+Based on the theoretical exponential relationship between density and gain, we applied a natural logarithm transformation to gain and looked for a linear relationship.
+
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+
+data$log_gain <- log(data$gain)
+
+log_model <- lm(log_gain ~ density, data=data)
+
+plot(data$density, data$log_gain,
+    main = "ln(Gain) vs Density", 
+    xlab = "Snow Density", 
+    ylab = "Natural Log of Gain", 
+    pch = 19, 
+    col = "#89ABE3")
+
+abline(log_model, col = "#EA738D", lwd = 2)
+predicted_log_gain <- predict(log_model)
+segments(data$density, data$log_gain, data$density, predicted_log_gain, col = "purple", lwd = 1, lty = 2)
+
+residuals <- resid(log_model)
+fitted_values <- fitted(log_model)
+
+plot(fitted_values, residuals, 
+     main = "Residual Plot", 
+     xlab = "Fitted Values", 
+     ylab = "Residuals", 
+     pch = 19, 
+     col = "#89ABE3")
+
+# Add a horizontal line at zero to indicate no residuals
+abline(h = 0, col = "#EA738D", lwd = 2, lty = 2)
+```
+
+```{r, echo = FALSE}
+cat("Logarithm Regression Results")
+summary(log_model)
+```
+
+We compare the above regression results to the regression results before applying the transformation.
+
+```{r, echo = FALSE}
+cat("Regression Results Before Transformation")
+summary(model)
+```
+
+According to physics, the relationship between density and gain is exponential, not linear. Transforming the data with a natural logarithm reveals a linear relationship because the theoretical relationship is $$g = Ae^{Bd}$$, which transforms into $$ln(g) = ln(A) + Bd$$, establishing a theoretical linear relationship between density and the logarithm of gain.
+
+According to the results of the regression, the logarithm transformation greatly improves the strength of correlation detected. After performing the logarithm, the $$R^2$$ increased from **0.816** to **0.996**. This means 99.6% of the variance in the logarithm of gain can be explained by variance in the snow density. Looking at the actual values of residuals, they are in the range of **-0.15 and 0.2**, compared to the pre-transformation values of **-80 and 130**. This also shows a massive improvement in the regression after applying the logarithm transformation.
+
+The shape of the residual plot still has a very slight parabolic shape but it is much less clear than the shape of the pre-transformation residual plot. Additionally, the dramatic decrease in residual values resulting from the transformation is evidence for its validity.
+
+# Question 3: Effect of Random Error
