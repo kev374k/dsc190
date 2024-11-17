@@ -57,4 +57,65 @@ According to the results of the regression, the logarithm transformation greatly
 
 The shape of the residual plot still has a very slight parabolic shape but it is much less clear than the shape of the pre-transformation residual plot. Additionally, the dramatic decrease in residual values resulting from the transformation is evidence for its validity.
 
-# Question 3: Effect of Random Error
+# Question 3: Effect of Reporting Errors
+
+In order to study the effects of rounding errors, we draw simulated errors from a normal distribution and test different standard deviations for the error distribution to see how it affects the MSE of regression on the simulated erroneous data. Below, the histograms can be seen for when density reporting error has a standard deviation of **0.015** and **0.008**.
+
+```{r, echo = FALSE}
+set.seed(49)
+
+n_sims <- 500
+n <- nrow(data)
+
+observed_mse <- mean(resid(log_model)^2)
+small_error_sim_mse <- numeric(n_sims)
+
+for (i in 1:n_sims) {
+  sim_density <- data$density + rnorm(n, mean=0, sd=0.008)
+  sim_data <- data.frame(log_gain=predicted_log_gain, density=sim_density)
+  sim_model <- lm(log_gain ~ density, data=sim_data)
+  small_error_sim_mse[i] = mean(resid(sim_model)^2)
+}
+
+hist(small_error_sim_mse, breaks = 30, col = "skyblue", border = "white",
+     main = "Histogram of Simulated Regression MSEs\nError Distribution: N(0, 0.008)",
+     xlab = "MSE", xlim = range(c(small_error_sim_mse, observed_mse)))
+abline(v = observed_mse, col = "red", lwd = 2, lty = 2)
+legend("topright", legend = c("Actual Regression's MSE"), col = c("red"), lwd = 2, lty = 2)
+
+sim_mse <- numeric(n_sims)
+
+for (i in 1:n_sims) {
+  sim_density <- data$density + rnorm(n, mean=0, sd=0.015)
+  sim_data <- data.frame(log_gain=predicted_log_gain, density=sim_density)
+  sim_model <- lm(log_gain ~ density, data=sim_data)
+  sim_mse[i] = mean(resid(sim_model)^2)
+}
+
+hist(sim_mse, breaks = 30, col = "skyblue", border = "white",
+     main = "Histogram of Simulated Regression MSEs\nError Distribution: N(0, 0.015)",
+     xlab = "MSE", xlim = range(c(sim_mse, observed_mse)))
+abline(v = observed_mse, col = "red", lwd = 2, lty = 2)
+legend("topright", legend = c("Actual Regression's MSE"), col = c("red"), lwd = 2, lty = 2)
+
+large_error_sim_mse <- numeric(n_sims)
+
+for (i in 1:n_sims) {
+  sim_density <- data$density + rnorm(n, mean=0, sd=0.023)
+  sim_data <- data.frame(log_gain=predicted_log_gain, density=sim_density)
+  sim_model <- lm(log_gain ~ density, data=sim_data)
+  large_error_sim_mse[i] = mean(resid(sim_model)^2)
+}
+
+hist(large_error_sim_mse, breaks = 30, col = "skyblue", border = "white",
+     main = "Histogram of Simulated Regression MSEs\nError Distribution: N(0, 0.023)",
+     xlab = "MSE", xlim = range(c(large_error_sim_mse, observed_mse)))
+abline(v = observed_mse, col = "red", lwd = 2, lty = 2)
+legend("topright", legend = c("Actual Regression's MSE"), col = c("red"), lwd = 2, lty = 2)
+```
+
+![](images/clipboard-9133593.png)
+
+Under the assumption that density reporting errors come from a normal distribution centered around 0 with a standard deviation of **0.015**, the visualization makes it clear that it would not be unusual to observe the MSE of our regression on the actual data. Under the assumption that the errors come from a normal distribution with a standard deviation of **0.008** or **0.023**, it would **not** be likely to observe the MSE of our regression on the actual data.
+
+The standard deviation of the density error distribution is essentially the average error between the reported density and the true density. We can see from the three visualizations above that as the average reporting error increases, the resulting MSEs increase meaning the regression fit is weaker. This makes sense because more noise/error in measurements would lead to a worse regression result.
