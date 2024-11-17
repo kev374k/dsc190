@@ -150,7 +150,7 @@ ggplot() +
        title = "Gain vs Density with 95% Uncertainty Bands") +
   theme_minimal()
 
-data <- data.frame(
+table <- data.frame(
   Density = c(0.001, 0.08, 0.148, 0.223, 0.318, 0.412, 0.508, 0.686),
   Predicted_Value = c(
     round(get_uncertainty_band(0.001)[2], 2),
@@ -178,8 +178,7 @@ data <- data.frame(
   )
 )
 
-
-kable(data, col.names = c("Density", "Predicted Value", "95% Uncertainty Bands", "Actual Range"),
+kable(table, col.names = c("Density", "Predicted Value", "95% Uncertainty Bands", "Actual Range"),
       caption = "Prediction Intervals (Original Scale)")
 ```
 
@@ -187,3 +186,58 @@ In order to do a forward prediction with the logarithmic model we created earlie
 
 Looking through the graph that we created, it can be seen that the 95% confidence interval uncertainty bands that we created worked well, encompassing almost all of the observed values. However, it can be see that some gain values are more easily predicted than others. For instance, if we look at the given densities of 0.508 g/cm³ and 0.001 g/cm³, it's seen that the predicted value and uncertainty band of the gain at 0.508 is very much in line with the actual range of the observed values, as the predicted value of 38.76 gain is well within the actual range of 36.3 to 40.3 gain in the observed data. This gives us a sense that at higher values of density within the data like 0.508 g/cm³, our model is more accurate. On the other hand, at density 0.001 g/cm³, while our uncertainty band does capture the actual range of the observed data, with the actual range of gain of 421 to 436 gain within our uncertainty band of 349 - 459 gain, our predicted value does not. Our predicted value of 400.48 is not in the actual range of 421 - 436 gain present in the observed data, implying that while our model does a decent job of generalization and prediction of the model, it struggles with the very small value of 0.001 g/cm³ at the beginning of the observed densities, which can also be noticed with the decreasingly small size of the density bands as the density increases. Some important parts to notice: the model predicts best at densities 0.148, 0.508, and at 0.686, where the predicted value falls within the actual range of the data. On the other hand, densities of 0.001, 0.080, 0.223, 0.318 and 0.412 have uncertainty bands that capture the actual range but fail to predict a value that falls within the actual range. Overall, an observation to notice is that as the density increases within our predicted model, the uncertainty band decreases in size, potentially exhibiting that gain converges to smaller and more tightly observed values easily as density increases.
 
+# Question 5: Reverse Prediction
+
+```{r, echo = FALSE}
+beta_0 <- coef(log_model)[1]
+beta_1 <- coef(log_model)[2]
+
+# Reverse prediction: Invert the model to find density
+reverse_predict_density <- function(gain_value) {
+    ln_gain <- log(gain_value)
+    density_value <- (ln_gain - beta_0) / beta_1
+    return(density_value)
+}
+
+# Reverse predict densities for all gain values in your dataset
+reverse_pred_densities_all <- sapply(data$gain, reverse_predict_density)
+
+# Data frame with predicted and actual densities
+reverse_pred_all_df <- data.frame(
+  Gain = data$gain,
+  Predicted_Density = reverse_pred_densities_all,
+  True_Density = data$density
+)
+
+# Create the ggplot visualization
+ggplot(reverse_pred_all_df, aes(x = Gain)) +
+  # Plot points for predicted densities
+  geom_point(aes(y = Predicted_Density), color = "blue", size = 2, alpha = 0.7) +
+  # Plot points for true densities
+  geom_point(aes(y = True_Density), color = "red", size = 2, shape = 17, alpha = 0.7) +
+  # Add lines for predicted densities
+  geom_line(aes(y = Predicted_Density), color = "blue", linetype = "dashed") +
+  # Add lines for true densities
+  geom_line(aes(y = True_Density), color = "red", linetype = "solid") +
+  # Add labels and title
+  labs(x = "Gain", y = "Density", 
+       title = "Reverse Prediction of Density for All Gains",
+       subtitle = "Blue: Predicted Density, Red: True Density") +
+  theme_minimal()
+
+table <- data.frame(
+    Gain = c(38.6, 426.7),
+    Predicted_Density = c(
+        reverse_predict_density(38.6),
+        reverse_predict_density(426.7)
+    ),
+    `Difference in Predicted vs True Density` = c(
+        abs(reverse_predict_density(38.6) - 0.508),
+        abs(reverse_predict_density(426.7) - 0.001)
+    )
+)
+
+kable(table, col.names = c("Gain", "Predicted Density", "Difference in Predicted and True Densities"), caption = "Predicted Density From Average Gain")
+```
+
+In order to create a prediction for the averaged measured gains, we had to reverse the prediction from our models using the coefficients from our fitted logarthmic model. After doing this, in order to extrapolate our logarithmic model through all of the data, we created a graphical representation to illustrate the affect of gains and what a predicted density would entail. Doing this, we noticed some values that were easier to predict than others. For instance, at a gain level of ~40 and ~200, the predicted and true densities are nearly identical. On the other hand, there are gains where the predicted and true densities are different, as seen in the graph above. For instance, at gains ~130 and ~425, the densities are noticably different from each other. In fact, in the table above, it can be seen that the difference between the predicted and true densities in a gain like 38.6 is very minimal, with a 0.0009 difference, meaning our model predicts these gains very well. On the other hand, at a gain of 426.7, the difference in predicted and true density is 0.0137, which is significant, since the density scale only goes up to 0.686. Additionally, looking at our model, it can be observed that typically, the model generalizes better for predictions where the gain is smaller, because when the gain is large, the model can predict negative density values, as it did for the gain of 426.7. This implies that the smaller gains are easier to predict the density of, while the larger gains have densities that are harder to predict. 
