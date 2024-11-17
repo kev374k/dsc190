@@ -1,6 +1,5 @@
 ```{r, echo = FALSE}
 data <- read.table("gauge.txt", header=TRUE)
-head(data, 5)
 ```
 
 # Question 1: Fit a Regression Line
