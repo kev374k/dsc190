@@ -11,7 +11,7 @@ par(mfrow = c(1, 2))
 model <- lm(data$gain ~ data$density)
 plot(data$density, data$gain, 
     main = "Snow Gain vs Density", 
-    xlab = "Snow Density", 
+    xlab = "Snow Density (g/cm³)", 
     ylab = "Gamma Ray Intensity", 
     pch = 19, 
     col = "#89ABE3")
@@ -35,3 +35,155 @@ abline(h = 0, col = "#EA738D", lwd = 2, lty = 2)
 ```
 
 We implemented a regression line along with a residual graph for the snow gain and density measured to determine what type of relationship could be found when analyzing graphically. The regression graph does not look like it follows a line of best fit, potentially showing that the relationship between these two variables is not linear. Additionally, when plotting the residual plot, the same conclusion can be reached. Since the residual plot does not look randomly distributed along the zero line, as a linear relationship would typically be, it shows that our line of best fit doesn't capture the relationship between our variables correctly. Since the line follows an almost parabolic curve, this indicates that there's a good chance that the initial relationship between the two variables could be quadratic, meaning the data needs a transformation or a different model to test something that can accurately capture their relationship.
+
+Additionally, our $R^2$ of the model turns out to be 0.816, which means that only 81.6% of the variance of the gain can be explained by the variance in the snow density, meaning there is a likely chance that this model is not one that is extremely predictive of the data.
+
+# Question 2: Transform Data and Fit
+
+Based on the theoretical exponential relationship between density and gain, we applied a natural logarithm transformation to gain and looked for a linear relationship.
+
+```{r, echo = FALSE}
+par(mfrow = c(1, 2))
+
+data$log_gain <- log(data$gain)
+
+log_model <- lm(log_gain ~ density, data=data)
+
+plot(data$density, data$log_gain,
+    main = "ln(Gain) vs Density", 
+    xlab = "Snow Density (g/cm³)", 
+    ylab = "Natural Log of Gain", 
+    pch = 19, 
+    col = "#89ABE3")
+
+abline(log_model, col = "#EA738D", lwd = 2)
+predicted_log_gain <- predict(log_model)
+segments(data$density, data$log_gain, data$density, predicted_log_gain, col = "purple", lwd = 1, lty = 2)
+
+residuals <- resid(log_model)
+fitted_values <- fitted(log_model)
+
+plot(fitted_values, residuals, 
+     main = "Residual Plot", 
+     xlab = "Fitted Values", 
+     ylab = "Residuals", 
+     pch = 19, 
+     col = "#89ABE3")
+
+# Add a horizontal line at zero to indicate no residuals
+abline(h = 0, col = "#EA738D", lwd = 2, lty = 2)
+```
+
+```{r, echo = FALSE}
+cat("Logarithm Regression Results")
+summary(log_model)
+```
+
+We compare the above regression results to the regression results before applying the transformation.
+
+```{r, echo = FALSE}
+cat("Regression Results Before Transformation")
+summary(model)
+```
+
+According to physics, the relationship between density and gain is exponential, not linear. Transforming the data with a natural logarithm reveals a linear relationship because the theoretical relationship is $$g = Ae^{Bd}$$, which transforms into $$ln(g) = ln(A) + Bd$$, establishing a theoretical linear relationship between density and the logarithm of gain.
+
+According to the results of the regression, the logarithm transformation greatly improves the strength of correlation detected. After performing the logarithm, the $$R^2$$ increased from **0.816** to **0.996**. This means 99.6% of the variance in the logarithm of gain can be explained by variance in the snow density. Looking at the actual values of residuals, they are in the range of **-0.15 and 0.2**, compared to the pre-transformation values of **-80 and 130**. This also shows a massive improvement in the regression after applying the logarithm transformation.
+
+The shape of the residual plot still has a very slight parabolic shape but it is much less clear than the shape of the pre-transformation residual plot. Additionally, the dramatic decrease in residual values resulting from the transformation is evidence for its validity.
+
+# Question 3: Effect of Random Error
+
+# Question 4: Forward Prediction
+
+```{r, echo = FALSE}
+library(ggplot2)
+library(knitr)
+
+density_grid <- seq(min(data$density), max(data$density), length.out = 100)
+
+pred <- predict(log_model, 
+               newdata = data.frame(density = density_grid), 
+               se.fit = TRUE)
+
+# Calculate prediction interval on log scale using 95% CI
+sigma <- summary(log_model)$sigma
+t_value <- qt(0.975, df = length(data$gain) - 2)
+pred_se <- sqrt(pred$se.fit^2 + sigma^2)
+
+# Create prediction intervals on log scale
+log_lower <- pred$fit - t_value * pred_se
+log_upper <- pred$fit + t_value * pred_se
+
+# Back-transform to original scale (use e^x since ln was used earlier)
+pred_df <- data.frame(
+  density = density_grid,
+  fit = exp(pred$fit),
+  lower = exp(log_lower),
+  upper = exp(log_upper)
+)
+
+# creates the 95% CI for the uncertainty bands for each point
+get_uncertainty_band <- function(density_value) {
+  pred_specific <- predict(log_model, 
+                          newdata = data.frame(density = density_value), 
+                          se.fit = TRUE)
+  pred_se_specific <- sqrt(pred_specific$se.fit^2 + sigma^2)
+  log_interval <- c(
+    pred_specific$fit - t_value * pred_se_specific,
+    pred_specific$fit,
+    pred_specific$fit + t_value * pred_se_specific
+  )
+  interval <- exp(log_interval)
+  return(interval)
+}
+
+# Create visualization
+ggplot() +
+  geom_point(data = data, aes(x = density, y = gain), alpha = 0.5) +
+  geom_line(data = pred_df, aes(x = density, y = fit), color = "blue") +
+  geom_ribbon(data = pred_df, 
+              aes(x = density, ymin = lower, ymax = upper),
+              alpha = 0.2, fill = "blue") +
+  labs(x = "Density (g/cm³)", 
+       y = "Gain (Original Scale)",
+       title = "Gain vs Density with 95% Uncertainty Bands") +
+  theme_minimal()
+
+data <- data.frame(
+  Density = c(0.001, 0.08, 0.148, 0.223, 0.318, 0.412, 0.508, 0.686),
+  Predicted_Value = c(
+    round(get_uncertainty_band(0.001)[2], 2),
+    round(get_uncertainty_band(0.08)[2], 2),
+    round(get_uncertainty_band(0.148)[2], 2),
+    round(get_uncertainty_band(0.223)[2], 2),
+    round(get_uncertainty_band(0.318)[2], 2),
+    round(get_uncertainty_band(0.412)[2], 2),
+    round(get_uncertainty_band(0.508)[2], 2),
+    round(get_uncertainty_band(0.686)[2], 2)
+  ),
+  `95%_Prediction_Interval` = c(
+    paste(round(get_uncertainty_band(0.001)[1], 2), "to", round(get_uncertainty_band(0.001)[3], 2)),
+    paste(round(get_uncertainty_band(0.08)[1], 2), "to", round(get_uncertainty_band(0.08)[3], 2)),
+    paste(round(get_uncertainty_band(0.148)[1], 2), "to", round(get_uncertainty_band(0.148)[3], 2)),
+    paste(round(get_uncertainty_band(0.223)[1], 2), "to", round(get_uncertainty_band(0.223)[3], 2)),
+    paste(round(get_uncertainty_band(0.318)[1], 2), "to", round(get_uncertainty_band(0.318)[3], 2)),
+    paste(round(get_uncertainty_band(0.412)[1], 2), "to", round(get_uncertainty_band(0.412)[3], 2)),
+    paste(round(get_uncertainty_band(0.508)[1], 2), "to", round(get_uncertainty_band(0.508)[3], 2)),
+    paste(round(get_uncertainty_band(0.686)[1], 2), "to", round(get_uncertainty_band(0.686)[3], 2))
+  ),
+  Actual_Range = sapply(
+    c(0.001, 0.08, 0.148, 0.223, 0.318, 0.412, 0.508, 0.686),
+    function(d) paste(range(data$gain[data$density == d])[1], "to", range(data$gain[data$density == d])[2])
+  )
+)
+
+
+kable(data, col.names = c("Density", "Predicted Value", "95% Uncertainty Bands", "Actual Range"),
+      caption = "Prediction Intervals (Original Scale)")
+```
+
+In order to do a forward prediction with the logarithmic model we created earlier, we have to untransform it's predictions after predicting gain from density. In order to do that, we exponentiated with the natural base in order to get predicted values in our original untransformed scale. Second, we produced point estimates and uncertainty bands (with a 95% confidence interval) for predicting the gain, where the the returned output of our function returns the interval as well as the point estimate of the predicted function.
+
+Looking through the graph that we created, it can be seen that the 95% confidence interval uncertainty bands that we created worked well, encompassing almost all of the observed values. However, it can be see that some gain values are more easily predicted than others. For instance, if we look at the given densities of 0.508 g/cm³ and 0.001 g/cm³, it's seen that the predicted value and uncertainty band of the gain at 0.508 is very much in line with the actual range of the observed values, as the predicted value of 38.76 gain is well within the actual range of 36.3 to 40.3 gain in the observed data. This gives us a sense that at higher values of density within the data like 0.508 g/cm³, our model is more accurate. On the other hand, at density 0.001 g/cm³, while our uncertainty band does capture the actual range of the observed data, with the actual range of gain of 421 to 436 gain within our uncertainty band of 349 - 459 gain, our predicted value does not. Our predicted value of 400.48 is not in the actual range of 421 - 436 gain present in the observed data, implying that while our model does a decent job of generalization and prediction of the model, it struggles with the very small value of 0.001 g/cm³ at the beginning of the observed densities, which can also be noticed with the decreasingly small size of the density bands as the density increases. Some important parts to notice: the model predicts best at densities 0.148, 0.508, and at 0.686, where the predicted value falls within the actual range of the data. On the other hand, densities of 0.001, 0.080, 0.223, 0.318 and 0.412 have uncertainty bands that capture the actual range but fail to predict a value that falls within the actual range. Overall, an observation to notice is that as the density increases within our predicted model, the uncertainty band decreases in size, potentially exhibiting that gain converges to smaller and more tightly observed values easily as density increases.
+
