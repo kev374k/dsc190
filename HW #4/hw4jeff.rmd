@@ -59,7 +59,7 @@ The shape of the residual plot still has a very slight parabolic shape but it is
 
 # Question 3: Effect of Reporting Errors
 
-In order to study the effects of rounding errors, we draw simulated errors from a normal distribution and test different standard deviations for the error distribution to see how it affects the MSE of regression on the simulated erroneous data. Below, the histograms can be seen for when density reporting error has a standard deviation of **0.015** and **0.008**.
+In order to study the effects of rounding errors, we draw simulated errors from a normal distribution and test different standard deviations for the error distribution to see how it affects the MSE of regression on the simulated erroneous data. Below, the histograms can be seen for when the distribution of density reporting error has a standard deviation of **0.008**, **0.015**, and **0.023**.
 
 ```{r, echo = FALSE}
 set.seed(49)
@@ -78,7 +78,7 @@ for (i in 1:n_sims) {
 }
 
 hist(small_error_sim_mse, breaks = 30, col = "skyblue", border = "white",
-     main = "Histogram of Simulated Regression MSEs\nError Distribution: N(0, 0.008)",
+     main = "Histogram of Simulated Regression MSEs\nAverage Reporting Error = 0.008",
      xlab = "MSE", xlim = range(c(small_error_sim_mse, observed_mse)))
 abline(v = observed_mse, col = "red", lwd = 2, lty = 2)
 legend("topright", legend = c("Actual Regression's MSE"), col = c("red"), lwd = 2, lty = 2)
@@ -93,7 +93,7 @@ for (i in 1:n_sims) {
 }
 
 hist(sim_mse, breaks = 30, col = "skyblue", border = "white",
-     main = "Histogram of Simulated Regression MSEs\nError Distribution: N(0, 0.015)",
+     main = "Histogram of Simulated Regression MSEs\nAverage Reporting Error = 0.015",
      xlab = "MSE", xlim = range(c(sim_mse, observed_mse)))
 abline(v = observed_mse, col = "red", lwd = 2, lty = 2)
 legend("topright", legend = c("Actual Regression's MSE"), col = c("red"), lwd = 2, lty = 2)
@@ -108,7 +108,7 @@ for (i in 1:n_sims) {
 }
 
 hist(large_error_sim_mse, breaks = 30, col = "skyblue", border = "white",
-     main = "Histogram of Simulated Regression MSEs\nError Distribution: N(0, 0.023)",
+     main = "Histogram of Simulated Regression MSEs\nAverage Reporting Error = 0.023",
      xlab = "MSE", xlim = range(c(large_error_sim_mse, observed_mse)))
 abline(v = observed_mse, col = "red", lwd = 2, lty = 2)
 legend("topright", legend = c("Actual Regression's MSE"), col = c("red"), lwd = 2, lty = 2)
@@ -116,6 +116,10 @@ legend("topright", legend = c("Actual Regression's MSE"), col = c("red"), lwd = 
 
 ![](images/clipboard-9133593.png)
 
-Under the assumption that density reporting errors come from a normal distribution centered around 0 with a standard deviation of **0.015**, the visualization makes it clear that it would not be unusual to observe the MSE of our regression on the actual data. Under the assumption that the errors come from a normal distribution with a standard deviation of **0.008** or **0.023**, it would **not** be likely to observe the MSE of our regression on the actual data.
+The above visualizations show how the MSE of regression responds to different levels of density reporting error. In context, an average reporting error of **0.015** means that the standard deviation of the distribution of error between measured and true density is **0.015**. The mean of this distribution would be 0 because on average, the measurements should approximate the true density.
 
-The standard deviation of the density error distribution is essentially the average error between the reported density and the true density. We can see from the three visualizations above that as the average reporting error increases, the resulting MSEs increase meaning the regression fit is weaker. This makes sense because more noise/error in measurements would lead to a worse regression result.
+Under the assumption that density reporting errors come from a normal distribution centered around 0 with a standard deviation of **0.015**, the visualization makes it clear that our observed MSE from the actual regression is not unusual. However, under the assumption that the errors come from a normal distribution with a standard deviation of **0.008** or **0.023**, it would **not** be likely to observe the MSE of our regression on the actual data. This could imply that the true amount of reporting error is closer to **0.015** than 0.008 or 0.023. However, it is worth noting that no conclusive statements can be made about the actual reporting error because other factors could be causing the variation in predicted and actual gains.
+
+We can see from the three visualizations above that as the average reporting error increases, the resulting MSEs increase meaning the regression fit is weaker. This makes sense because more noise/error in measurements would lead to a worse regression result.
+
+# Question 6: 
