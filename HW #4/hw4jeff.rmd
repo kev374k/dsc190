@@ -122,4 +122,27 @@ Under the assumption that density reporting errors come from a normal distributi
 
 We can see from the three visualizations above that as the average reporting error increases, the resulting MSEs increase meaning the regression fit is weaker. This makes sense because more noise/error in measurements would lead to a worse regression result.
 
-# Question 6: 
+# Question 6: Cross-Validate Density Estimation
+
+```{r, echo = FALSE}
+cross_val_data <- data[data$density != 0.508, ]
+
+cv_model <- lm(log_gain ~ density, data = cross_val_data)
+cv_beta_0 <- coef(cv_model)[1]
+cv_beta_1 <- coef(cv_model)[2]
+cv_predict_density <- function(gain_value) {
+    ln_gain <- log(gain_value)
+    density_value <- (ln_gain - cv_beta_0) / cv_beta_1
+    return(density_value)
+}
+
+pred_densities <- sapply(cross_val_data$gain, cv_predict_density)
+density_estimates <- data.frame(
+  pred_density <- pred_densities,
+  true_density <- cross_val_data$density,
+  gain <- cross_val_data$gain,
+)
+
+pred_error <- sd(density_estimates$true_density - density_estimates$pred_density)
+
+```
