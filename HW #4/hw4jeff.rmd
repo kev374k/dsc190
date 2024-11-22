@@ -143,7 +143,7 @@ sigma <- sqrt(sum(cv_residuals^2)/(n-2))
 cv_t_crit <- qt(1 - 0.05/2, n-2)
 
 
-plot(cross_val_data$density ~ cross_val_data$gain, ylab="Density", xlab="Gain")
+plot(cross_val_data$density ~ cross_val_data$gain, ylab="Density", xlab="Gain", main="Reverse Prediction of Density from Gain with Cross-Validated Model")
 
 gain_seq <- seq(0, 500, length.out=500)
 density_seq <- cv_predict_density(gain_seq)
@@ -154,4 +154,26 @@ upr_ci_seq <- cv_predict_density(gain_seq) + cv_t_crit * se_fit_seq
 lines(gain_seq, density_seq, type="l", col = "blue", lwd=2)
 lines(gain_seq, lwr_ci_seq, type="l", col = "green", lwd=2)
 lines(gain_seq, upr_ci_seq, type="l", col = "green", lwd=2)
+legend("topright", 
+       legend = c("Regression Line", "Prediction Interval Bounds"), 
+       col = c("blue", "green"), 
+       lty = c(1, 2), 
+       lwd = c(2, 2))
+```
+
+```{r, echo = FALSE}
+
+get_cv_se <- function(gain_val) {
+  return(sigma * sqrt(1 + 1/n + (log(gain_val) - mean(cross_val_data$log_gain))^2 / sum((cross_val_data$log_gain - mean(cross_val_data$log_gain))^2)))
+}
+
+cv_test_estimate <- cv_predict_density(38.6)
+cv_test_lower <- cv_test_estimate - cv_t_crit * get_cv_se(38.6)
+cv_test_upper <- cv_test_estimate + cv_t_crit * get_cv_se(38.6)
+
+cat("Point and Interval Estimates for Density (Average Gain = 38.6):\n")
+cat(sprintf("Point Estimate: %.4f\n", cv_test_estimate))
+cat(sprintf("Lower Bound: %.4f\n", cv_test_lower))
+cat(sprintf("Upper Bound: %.4f\n", cv_test_upper))
+
 ```
