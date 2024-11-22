@@ -136,13 +136,22 @@ cv_predict_density <- function(gain_value) {
     return(density_value)
 }
 
-pred_densities <- sapply(cross_val_data$gain, cv_predict_density)
-density_estimates <- data.frame(
-  pred_density <- pred_densities,
-  true_density <- cross_val_data$density,
-  gain <- cross_val_data$gain,
-)
+pred_densities <- cv_predict_density(cross_val_data$gain)
+n <- nrow(cross_val_data)
+cv_residuals <- cross_val_data$density - pred_densities
+sigma <- sqrt(sum(cv_residuals^2)/(n-2))
+cv_t_crit <- qt(1 - 0.05/2, n-2)
 
-pred_error <- sd(density_estimates$true_density - density_estimates$pred_density)
 
+plot(cross_val_data$density ~ cross_val_data$gain, ylab="Density", xlab="Gain")
+
+gain_seq <- seq(0, 500, length.out=500)
+density_seq <- cv_predict_density(gain_seq)
+se_fit_seq <- sigma * sqrt(1 + 1/n + (log(gain_seq) - mean(cross_val_data$log_gain))^2 / sum((cross_val_data$log_gain - mean(cross_val_data$log_gain))^2))
+lwr_ci_seq <- cv_predict_density(gain_seq) - cv_t_crit * se_fit_seq
+upr_ci_seq <- cv_predict_density(gain_seq) + cv_t_crit * se_fit_seq
+
+lines(gain_seq, density_seq, type="l", col = "blue", lwd=2)
+lines(gain_seq, lwr_ci_seq, type="l", col = "green", lwd=2)
+lines(gain_seq, upr_ci_seq, type="l", col = "green", lwd=2)
 ```
