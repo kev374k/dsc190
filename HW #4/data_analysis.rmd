@@ -1,5 +1,5 @@
 ---
-title: "Finding the Origin of Replication in DNA"
+title: "Finding the Relationship between Density and Gain"
 author: "Author 1 and Author 2"
 date: "`r Sys.Date()`"
 output: 
@@ -270,65 +270,100 @@ Looking through the graph that we created, it can be seen that the 95% confidenc
 
 ## Question 5: Reverse Prediction
 
-```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
+```{r, echo = FALSE}
 beta_0 <- coef(log_model)[1]
 beta_1 <- coef(log_model)[2]
+n <- nrow(data)
+
+get_se <- function(gain_val) {
+  return(sigma * sqrt(1 + 1/n + (log(gain_val) - mean(data$log_gain))^2 / sum((data$log_gain - mean(data$log_gain))^2)))
+}
 
 # Reverse prediction: Invert the model to find density
-reverse_predict_density <- function(gain_value) {
-    ln_gain <- log(gain_value)
-    density_value <- (ln_gain - beta_0) / beta_1
-    return(density_value)
+reverse_predict_density <- function(gain_value, log_model) {
+  beta_0 <- coef(log_model)[1]
+  beta_1 <- coef(log_model)[2]
+  
+  # Calculate point estimate for density
+  ln_gain <- log(gain_value)
+  density_estimate <- (ln_gain - beta_0) / beta_1
+  
+  # Get standard error for the log prediction
+  se <- get_se(gain_value)
+  
+  # Calculate t-value for desired confidence level
+  t_value <- qt(1 - 0.05/2, df = length(data$log_gain) - 2)
+  
+  # Calculate confidence intervals on log scale
+  margin <- t_value * se
+  
+  # Transform confidence intervals back to density scale
+  lower_density <- (ln_gain - (beta_0 + margin)) / beta_1
+  upper_density <- (ln_gain - (beta_0 - margin)) / beta_1
+  
+  return(data.frame(
+    gain = gain_value,
+    predicted_density = density_estimate,
+    lower_ci = lower_density,
+    upper_ci = upper_density
+  ))
 }
 
 # Reverse predict densities for all gain values in your dataset
-reverse_pred_densities_all <- sapply(data$gain, reverse_predict_density)
+gain_values <- data$gain
+results <- do.call(rbind, lapply(gain_values, function(g) {
+  reverse_predict_density(g, log_model)
+  }))
 
-# Data frame with predicted and actual densities
-reverse_pred_all_df <- data.frame(
-  Gain = data$gain,
-  Predicted_Density = reverse_pred_densities_all,
-  True_Density = data$density
-)
+# get specifics for table
+breaks = c(38.6, 426.7)
+specific_results <- do.call(rbind, lapply(breaks, function(g) {
+  # Get predicted values
+  pred_result <- reverse_predict_density(g, log_model)
+  
+  actual_density <- data$density[which.min(abs(data$gain - g))]
+  
+  # Add actual density column to the results
+  pred_result$actual_density <- actual_density
+  
+  return(pred_result)
+}))
 
-# Create the ggplot visualization
-ggplot(reverse_pred_all_df, aes(x = Gain)) +
-  # Plot points for predicted densities
-  geom_point(aes(y = Predicted_Density), color = "blue", size = 2, alpha = 0.7) +
-  # Plot points for true densities
-  geom_point(aes(y = True_Density), color = "red", size = 2, shape = 17, alpha = 0.7) +
-  # Add lines for predicted densities
-  geom_line(aes(y = Predicted_Density), color = "blue", linetype = "dashed") +
-  # Add lines for true densities
-  geom_line(aes(y = True_Density), color = "red", linetype = "solid") +
-  # Add labels and title
-  labs(x = "Gain", y = "Density", 
-       title = "Reverse Prediction of Density for All Gains",
-       subtitle = "Blue: Predicted Density, Red: True Density") +
+ggplot() +
+  geom_ribbon(data = results, 
+              aes(x = gain, ymin = lower_ci, ymax = upper_ci),
+              fill = "#FB6542", alpha = 0.3) +
+  geom_point(data = results,
+             aes(x = gain, y = predicted_density),
+  # Add prediction intervals
+             color = "#375E97", size = 3) +
+  geom_point(data = data.frame(gain = c(38.6, 426.7),
+                              density = c(0.508, 0.001)),
+             aes(x = gain, y = density),
+             color = "#6AB187", size = 3) +
+  scale_x_continuous(breaks = c(38.6, 426.7)) +
+  labs(x = "Gain", y = "Density",
+       title = "Reverse Predictions with Confidence Intervals",
+       subtitle = "Blue: Predicted Values, Green: True Values") +
   theme_minimal()
 
-table <- data.frame(
-    Gain = c(38.6, 426.7),
-    Predicted_Density = c(
-        reverse_predict_density(38.6),
-        reverse_predict_density(426.7)
-    ),
-    `Difference in Predicted vs True Density` = c(
-        abs(reverse_predict_density(38.6) - 0.508),
-        abs(reverse_predict_density(426.7) - 0.001)
-    )
-)
+specific_results$difference <- abs(specific_results$predicted_density - specific_results$actual_density)
+rownames(specific_results) <- NULL
 
-kable(table, col.names = c("Gain", "Predicted Density", "Difference in Predicted and True Densities"), caption = "Predicted Density From Average Gain")
+kable(specific_results, digits = 4,
+      col.names = c("Gain", "Predicted Density", "Lower CI", "Upper CI", 
+                    "Actual Density", "Prediction Error"),
+      caption = "Predictions vs Actual Densities")
+
 ```
 
 ## Analysis
 
-In order to create a prediction for the averaged measured gains, we had to reverse the prediction from our models using the coefficients from our fitted logarthmic model. After doing this, in order to extrapolate our logarithmic model through all of the data, we created a graphical representation to illustrate the affect of gains and what a predicted density would entail. Doing this, we noticed some values that were easier to predict than others. For instance, at a gain level of ~40 and ~200, the predicted and true densities are nearly identical. On the other hand, there are gains where the predicted and true densities are different, as seen in the graph above. For instance, at gains ~130 and ~425, the densities are noticably different from each other. In fact, in the table above, it can be seen that the difference between the predicted and true densities in a gain like 38.6 is very minimal, with a 0.0009 difference, meaning our model predicts these gains very well. On the other hand, at a gain of 426.7, the difference in predicted and true density is 0.0137, which is significant, since the density scale only goes up to 0.686. Additionally, looking at our model, it can be observed that typically, the model generalizes better for predictions where the gain is smaller, because when the gain is large, the model can predict negative density values, as it did for the gain of 426.7. This implies that the smaller gains are easier to predict the density of, while the larger gains have densities that are harder to predict. 
+In order to create a prediction for the averaged measured gains, we had to reverse the prediction from our models using the coefficients from our fitted logarthmic model. After doing this, in order to extrapolate our logarithmic model through all of the data, we created a graphical representation to illustrate the affect of gains and what a predicted density would entail. Doing this, we noticed some values that were easier to predict than others. For instance, at a gain level of ~40 and ~200, the predicted and true densities are nearly identical. On the other hand, there are gains where the predicted and true densities are different, as seen in the graph above. For instance, at gains ~130 and ~425, the densities are noticably different from each other. In fact, in the table above, it can be seen that the difference between the predicted and true densities in a gain like 38.6 is very minimal, with a 0.0009 difference, meaning our model predicts these gains very well. On the other hand, at a gain of 426.7, the difference in predicted and true density is 0.0138, which is significant, since the density scale only goes up to 0.686. Additionally, looking at our model, it can be observed that typically, the model generalizes better for predictions where the gain is smaller, because when the gain is large, the model can predict negative density values, as it did for the gain of 426.7. This implies that the smaller gains are easier to predict the density of, while the larger gains have densities that are harder to predict. 
 
 ## Conclusion
 
-Using the reverse prediction method detailed above, we conclude that it is easier to predict densities where the gain is on it's lower range, while it's more difficult to predict densities where gain is higher, because the relationship present in our model creates a potential for negative predicitons of density, which is not possible.\
+Using the reverse prediction method detailed above, we conclude that it is easier to predict densities where the gain is on it's lower range, while it's more difficult to predict densities where gain is higher, because the relationship present in our model creates a potential for negative predicitons of density, which is not possible.
 
 ## Question 6: Cross Validation
 
