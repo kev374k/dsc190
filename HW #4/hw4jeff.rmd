@@ -114,8 +114,6 @@ abline(v = observed_mse, col = "red", lwd = 2, lty = 2)
 legend("topright", legend = c("Actual Regression's MSE"), col = c("red"), lwd = 2, lty = 2)
 ```
 
-![](images/clipboard-9133593.png)
-
 The above visualizations show how the MSE of regression responds to different levels of density reporting error. In context, an average reporting error of **0.015** means that the standard deviation of the distribution of error between measured and true density is **0.015**. The mean of this distribution would be 0 because on average, the measurements should approximate the true density.
 
 Under the assumption that density reporting errors come from a normal distribution centered around 0 with a standard deviation of **0.015**, the visualization makes it clear that our observed MSE from the actual regression is not unusual. However, under the assumption that the errors come from a normal distribution with a standard deviation of **0.008** or **0.023**, it would **not** be likely to observe the MSE of our regression on the actual data. This could imply that the true amount of reporting error is closer to **0.015** than 0.008 or 0.023. However, it is worth noting that no conclusive statements can be made about the actual reporting error because other factors could be causing the variation in predicted and actual gains.
@@ -143,7 +141,7 @@ sigma <- sqrt(sum(cv_residuals^2)/(n-2))
 cv_t_crit <- qt(1 - 0.05/2, n-2)
 
 
-plot(cross_val_data$density ~ cross_val_data$gain, ylab="Density", xlab="Gain", main="Reverse Prediction of Density from Gain with Cross-Validated Model")
+plot(cross_val_data$density ~ cross_val_data$gain, ylab="Density", xlab="Gain", main="Reverse Prediction of Density from Gain with Cross-Validated Model\nMissing Density From Training: 0.508")
 
 gain_seq <- seq(0, 500, length.out=500)
 density_seq <- cv_predict_density(gain_seq)
@@ -171,9 +169,42 @@ cv_test_estimate <- cv_predict_density(38.6)
 cv_test_lower <- cv_test_estimate - cv_t_crit * get_cv_se(38.6)
 cv_test_upper <- cv_test_estimate + cv_t_crit * get_cv_se(38.6)
 
-cat("Point and Interval Estimates for Density (Average Gain = 38.6):\n")
+cat("Cross-Validated Point and Interval Estimates for Density (Average Gain = 38.6):\n")
 cat(sprintf("Point Estimate: %.4f\n", cv_test_estimate))
 cat(sprintf("Lower Bound: %.4f\n", cv_test_lower))
 cat(sprintf("Upper Bound: %.4f\n", cv_test_upper))
 
+```
+
+```{r, echo = FALSE}
+cv_2_data <- data[data$density != 0.001, ]
+
+cv_2_model <- lm(log_gain ~ density, data = cv_2_data)
+cv_2_beta_0 <- coef(cv_model)[1]
+cv_2_beta_1 <- coef(cv_model)[2]
+cv_2_predict_density <- function(gain_value) {
+    ln_gain <- log(gain_value)
+    density_value <- (ln_gain - cv_2_beta_0) / cv_2_beta_1
+    return(density_value)
+}
+
+cv_2_pred_densities <- cv_2_predict_density(cv_2_data$gain)
+n_2 <- nrow(cv_2_data)
+cv_2_residuals <- cv_2_data$density - cv_2_pred_densities
+sigma_2 <- sqrt(sum(cv_residuals^2)/(n-2))
+
+get_cv_2_se <- function(gain_val) {
+  return(sigma_2 * sqrt(1 + 1/n_2 + (log(gain_val) - mean(cv_2_data$log_gain))^2 / sum((cv_2_data$log_gain - mean(cv_2_data$log_gain))^2)))
+}
+
+average_gain_reading_2 <- mean(data[data$density == 0.001, ]$gain)
+
+cv_2_test_estimate <- cv_2_predict_density(average_gain_reading_2)
+cv_2_test_lower <- cv_2_test_estimate - cv_t_crit * get_cv_2_se(average_gain_reading_2)
+cv_2_test_upper <- cv_2_test_estimate + cv_t_crit * get_cv_2_se(average_gain_reading_2)
+
+cat("Cross-Validated Point and Interval Estimates for Density (Average Gain = 426.7):\n")
+cat(sprintf("Point Estimate: %.4f\n", cv_2_test_estimate))
+cat(sprintf("Lower Bound: %.4f\n", cv_2_test_lower))
+cat(sprintf("Upper Bound: %.4f\n", cv_2_test_upper))
 ```
