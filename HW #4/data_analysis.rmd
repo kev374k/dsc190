@@ -27,20 +27,19 @@ ChatGPT was used as a substitute for documentation for R. Since we were unfamili
 
 # Introduction
 
-The data used in this analysis comes from a gamma-transmission snow gauge calibration process in the Sierra Nevada mountains of Northern California. The dataset consists of two columns - density measurements of polyethylene blocks (in grams per cubic centimeter) and their corresponding gamma ray intensity readings (gain). For each of the 9 different densities tested, 10 repeated measurements were taken, resulting in 90 total observations. Our objective in this analysis is to establish the relationship between gamma ray intensity and material density, and determine if this relationship follows the expected exponential decay pattern. Essentially, we are testing if the calibration data can provide a reliable inverse function to convert field measurements of gamma intensity into accurate snow density estimates, which is crucial for monitoring water supply in the region.
-## Main Research Questions
+The data used in this analysis comes from a gamma-transmission snow gauge calibration process in the Sierra Nevada mountains of Northern California. The dataset consists of two columns - density measurements of polyethylene blocks (in grams per cubic centimeter) and their corresponding gamma ray intensity readings (gain). For each of the 9 different densities tested, 10 repeated measurements were taken, resulting in 90 total observations. Our objective in this analysis is to establish the relationship between gamma ray intensity and material density, and determine if this relationship follows the expected exponential decay pattern. Essentially, we are testing if the calibration data can provide a reliable inverse function to convert field measurements of gamma intensity into accurate snow density estimates, which is crucial for monitoring water supply in the region. \## Main Research Questions
 
-1. How well does a regression line fit to the data. Examine the residual plot and explain why a transformation is necessary.
+1.  How well does a regression line fit to the data. Examine the residual plot and explain why a transformation is necessary.
 
-2. Determine an appropriate transformation and fit the model to the transformed data, plotting the new fit and examining residuals.
+2.  Determine an appropriate transformation and fit the model to the transformed data, plotting the new fit and examining residuals.
 
-3. Suppose the densities of the polyethylene blocks are not reported exactly. How might this affect the fit, using a simulation to answer the question.
+3.  Suppose the densities of the polyethylene blocks are not reported exactly. How might this affect the fit, using a simulation to answer the question.
 
-4. Produce point estimates and uncertainty bands for predicting the gain as a function of the measured density. Can some gains be predicted more accurately than others?
+4.  Produce point estimates and uncertainty bands for predicting the gain as a function of the measured density. Can some gains be predicted more accurately than others?
 
-5. Invert the forward prediction line and uncertainty bands to produce point estimates and prediction intervals for the density that correspond to the gain measurements 38.6 and 426.7.
+5.  Invert the forward prediction line and uncertainty bands to produce point estimates and prediction intervals for the density that correspond to the gain measurements 38.6 and 426.7.
 
-6. The reverse prediction for density values 0.508 and 0.001 may be influenced by the fact that the measurement corresponding to the densities 0.508 and 0.001 were included in the fitting. To avoid this, omit the set of measurements corresponding to the block of density 0.508, apply your estimation/calibration procedure (forward fit and reverse prediction) to the remaining data, an  provide an interval estimate for the density of a block with an average reading of 38.6. Where does the actual density fall in the interval? Try the same test, for the set of measurements at the 0.001 density.
+6.  The reverse prediction for density values 0.508 and 0.001 may be influenced by the fact that the measurement corresponding to the densities 0.508 and 0.001 were included in the fitting. To avoid this, omit the set of measurements corresponding to the block of density 0.508, apply your estimation/calibration procedure (forward fit and reverse prediction) to the remaining data, an provide an interval estimate for the density of a block with an average reading of 38.6. Where does the actual density fall in the interval? Try the same test, for the set of measurements at the 0.001 density.
 
 ## Question 1: Fit a Regression Line
 
@@ -90,13 +89,13 @@ We implemented a regression line along with a residual graph for the snow gain a
 
 ### Conclusions
 
-With our $R^2$ of the model turns out to be 0.816, which means that only 81.6% of the variance of the gain can be explained by the variance in the snow density, meaning there is a likely chance that this model is not one that is extremely predictive of the data, which means it is likely that a transformation is necessary for the data to fit better. 
+With our $R^2$ of the model turns out to be 0.816, which means that only 81.6% of the variance of the gain can be explained by the variance in the snow density, meaning there is a likely chance that this model is not one that is extremely predictive of the data, which means it is likely that a transformation is necessary for the data to fit better.
 
 ## Question 2: Transform Data and Fit
 
 ### Methods
 
-Based on the theoretical exponential relationship between density and gain, we applied a natural logarithm transformation to gain and looked for a linear relationship.
+Based on the theoretical exponential relationship between density and gain, we applied a natural logarithm transformation to gain and looked for a linear relationship. We use a linear regression model to predict the logarithm of gain from density.
 
 ```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
 par(mfrow = c(1, 2))
@@ -138,7 +137,7 @@ r2 <- round(summary(log_model)$r.squared, 3)
 sprintf("The R² value for the log_model is %0.3f", r2)
 ```
 
-We compare the above regression results to the regression results before applying the transformation.
+We compare the above regression results to the regression results before applying the transformation. The $$R^2$$ metric is useful for comparing the performance of the two models. If our transformation is successful, the transformed model will have a higher $$R^2$$, meaning that more of the variance in the response variable (log_gain) can be explained by our independent variable.
 
 ```{r, echo = FALSE}
 cat("Regression Results Before Transformation")
@@ -147,28 +146,90 @@ r2 <- round(summary(model)$r.squared, 3)
 sprintf("The R² value for our regreesion model is %0.3f", r2)
 ```
 
+### Analysis
+
 According to physics, the relationship between density and gain is exponential, not linear. Transforming the data with a natural logarithm reveals a linear relationship because the theoretical relationship is $$g = Ae^{Bd}$$, which transforms into $$ln(g) = ln(A) + Bd$$, establishing a theoretical linear relationship between density and the logarithm of gain.
 
-According to the results of the regression, the logarithm transformation greatly improves the strength of correlation detected. After performing the logarithm, the $$R^2$$ increased from **0.816** to **0.996**. This means 99.6% of the variance in the logarithm of gain can be explained by variance in the snow density. Looking at the actual values of residuals, they are in the range of **-0.15 and 0.2**, compared to the pre-transformation values of **-80 and 130**. This also shows a massive improvement in the regression after applying the logarithm transformation.
+According to the results of the regression, the logarithm transformation greatly improves the strength of correlation detected. After performing the logarithm, the R^2^ increased from **0.816** to **0.996**. This means 99.6% of the variance in the logarithm of gain can be explained by variance in the snow density. Looking at the actual values of residuals, they are in the range of **-0.15 and 0.2**, compared to the pre-transformation values of **-80 and 130**. This also shows a massive improvement in the regression after applying the logarithm transformation.
 
 The shape of the residual plot still has a very slight parabolic shape but it is much less clear than the shape of the pre-transformation residual plot. Additionally, the dramatic decrease in residual values resulting from the transformation is evidence for its validity.
 
-### Analysis
-
-
 ### Conclusions
 
+Applying a logarithmic transformation to the gain before fitting the linear model significantly improves the fit of the model. The R^2^'s increase from 0.816 to 0.996 shows that the model, after the transformation, is able to explain a greater proportion in the variance of the responding variable, log(gain).
 
 ## Question 3: Effect of Random Error
 
 ### Methods
 
+In order to study the effects of rounding errors, we draw simulated errors from a normal distribution and test different standard deviations for the error distribution to see how it affects the MSE of regression on the simulated erroneous data. Below, the histograms can be seen for when the distribution of density reporting error has a standard deviation of **0.008**, **0.015**, and **0.023**.
+
+```{r, echo = FALSE}
+set.seed(49)
+
+n_sims <- 500
+n <- nrow(data)
+
+observed_mse <- mean(resid(log_model)^2)
+small_error_sim_mse <- numeric(n_sims)
+
+for (i in 1:n_sims) {
+  sim_density <- data$density + rnorm(n, mean=0, sd=0.008)
+  sim_data <- data.frame(log_gain=predicted_log_gain, density=sim_density)
+  sim_model <- lm(log_gain ~ density, data=sim_data)
+  small_error_sim_mse[i] = mean(resid(sim_model)^2)
+}
+
+hist(small_error_sim_mse, breaks = 30, col = "skyblue", border = "white",
+     main = "Histogram of Simulated Regression MSEs\nAverage Reporting Error = 0.008",
+     xlab = "MSE", xlim = range(c(small_error_sim_mse, observed_mse)))
+abline(v = observed_mse, col = "red", lwd = 2, lty = 2)
+legend("topright", legend = c("Actual Regression's MSE"), col = c("red"), lwd = 2, lty = 2)
+
+sim_mse <- numeric(n_sims)
+
+for (i in 1:n_sims) {
+  sim_density <- data$density + rnorm(n, mean=0, sd=0.015)
+  sim_data <- data.frame(log_gain=predicted_log_gain, density=sim_density)
+  sim_model <- lm(log_gain ~ density, data=sim_data)
+  sim_mse[i] = mean(resid(sim_model)^2)
+}
+
+hist(sim_mse, breaks = 30, col = "skyblue", border = "white",
+     main = "Histogram of Simulated Regression MSEs\nAverage Reporting Error = 0.015",
+     xlab = "MSE", xlim = range(c(sim_mse, observed_mse)))
+abline(v = observed_mse, col = "red", lwd = 2, lty = 2)
+legend("topright", legend = c("Actual Regression's MSE"), col = c("red"), lwd = 2, lty = 2)
+
+large_error_sim_mse <- numeric(n_sims)
+
+for (i in 1:n_sims) {
+  sim_density <- data$density + rnorm(n, mean=0, sd=0.023)
+  sim_data <- data.frame(log_gain=predicted_log_gain, density=sim_density)
+  sim_model <- lm(log_gain ~ density, data=sim_data)
+  large_error_sim_mse[i] = mean(resid(sim_model)^2)
+}
+
+hist(large_error_sim_mse, breaks = 30, col = "skyblue", border = "white",
+     main = "Histogram of Simulated Regression MSEs\nAverage Reporting Error = 0.023",
+     xlab = "MSE", xlim = range(c(large_error_sim_mse, observed_mse)))
+abline(v = observed_mse, col = "red", lwd = 2, lty = 2)
+legend("topright", legend = c("Actual Regression's MSE"), col = c("red"), lwd = 2, lty = 2)
+```
 
 ### Analysis
 
+The above visualizations show how the MSE of regression responds to different levels of density reporting error. In context, an average reporting error of **0.015** means that the standard deviation of the distribution of error between measured and true density is **0.015**. The mean of this distribution would be 0 because on average, the measurements should approximate the true density.
+
+As we increase the amount of reporting error from **0.008** to **0.023**, it is clear that the mean squared error (MSE) of the resulting regression increases, meaning the model gets less accurate with increasing reporting error, unsurprisingly. The median MSE for regressions done on simulated reporting error of **0.023** is around **0.011**, which is much higher than the median MSEs of the simulated regressions under smaller reporting errors.
+
+Under the assumption that density reporting errors come from a normal distribution centered around 0 with a standard deviation of **0.015**, the visualization makes it clear that our observed MSE from the actual regression is not unusual. However, under the assumption that the errors come from a normal distribution with a standard deviation of **0.008** or **0.023**, it would **not** be likely to observe the MSE of our regression on the actual data. This could imply that the true amount of reporting error is closer to **0.015** than 0.008 or 0.023. However, it is worth noting that no conclusive statements can be made about the actual reporting error because other factors could be causing the variation in predicted and actual gains.
+
+We can see from the three visualizations above that as the average reporting error increases, the resulting MSEs increase meaning the regression fit is weaker. This makes sense because more noise/error in measurements would lead to a worse regression result.
 
 ### Conclusions
 
+After conducting the above simulations, it is clear that increasing the amount of random reporting error in densities would increase the Mean Squared Errors (MSEs) of the resulting regressions, meaning the regressions have a weaker fit and more error. The actual observed MSE of our regression most closely matched the simulated regressions under average reporting error of **0.015**.
 
 ## Question 4: Forward Prediction
 
@@ -359,32 +420,182 @@ kable(specific_results, digits = 4,
 
 ## Analysis
 
-In order to create a prediction for the averaged measured gains, we had to reverse the prediction from our models using the coefficients from our fitted logarthmic model. After doing this, in order to extrapolate our logarithmic model through all of the data, we created a graphical representation to illustrate the affect of gains and what a predicted density would entail. Doing this, we noticed some values that were easier to predict than others. For instance, at a gain level of ~40 and ~200, the predicted and true densities are nearly identical. On the other hand, there are gains where the predicted and true densities are different, as seen in the graph above. For instance, at gains ~130 and ~425, the densities are noticably different from each other. In fact, in the table above, it can be seen that the difference between the predicted and true densities in a gain like 38.6 is very minimal, with a 0.0009 difference, meaning our model predicts these gains very well. On the other hand, at a gain of 426.7, the difference in predicted and true density is 0.0138, which is significant, since the density scale only goes up to 0.686. Additionally, looking at our model, it can be observed that typically, the model generalizes better for predictions where the gain is smaller, because when the gain is large, the model can predict negative density values, as it did for the gain of 426.7. This implies that the smaller gains are easier to predict the density of, while the larger gains have densities that are harder to predict. 
+In order to create a prediction for the averaged measured gains, we had to reverse the prediction from our models using the coefficients from our fitted logarthmic model. After doing this, in order to extrapolate our logarithmic model through all of the data, we created a graphical representation to illustrate the affect of gains and what a predicted density would entail. Doing this, we noticed some values that were easier to predict than others. For instance, at a gain level of \~40 and \~200, the predicted and true densities are nearly identical. On the other hand, there are gains where the predicted and true densities are different, as seen in the graph above. For instance, at gains \~130 and \~425, the densities are noticably different from each other. In fact, in the table above, it can be seen that the difference between the predicted and true densities in a gain like 38.6 is very minimal, with a 0.0009 difference, meaning our model predicts these gains very well. On the other hand, at a gain of 426.7, the difference in predicted and true density is 0.0138, which is significant, since the density scale only goes up to 0.686. Additionally, looking at our model, it can be observed that typically, the model generalizes better for predictions where the gain is smaller, because when the gain is large, the model can predict negative density values, as it did for the gain of 426.7. This implies that the smaller gains are easier to predict the density of, while the larger gains have densities that are harder to predict.
 
 ## Conclusion
 
-Using the reverse prediction method detailed above, we conclude that it is easier to predict densities where the gain is on it's lower range, while it's more difficult to predict densities where gain is higher, because the relationship present in our model creates a potential for negative predicitons of density, which is not possible.
+Using the reverse prediction method detailed above, we conclude that it is easier to predict densities where the gain is on it's lower range, while it's more difficult to predict densities where gain is higher, because the relationship present in our model creates a potential for negative predictions of density, which is not possible.
 
 ## Question 6: Cross Validation
 
 ### Methods
 
+In order to evaluate the effectiveness with which our model generalizes to unseen data, we will use cross-validation, removing certain data points from the training set, re-training the model, and making predictions on the unseen data. Below, we remove all rows from the data corresponding to the block with density **0.508** and re-train the model. The reverse prediction along with prediction intervals can be seen below.
+
+```{r, echo = FALSE}
+cross_val_data <- data[data$density != 0.508, ]
+
+cv_model <- lm(log_gain ~ density, data = cross_val_data)
+cv_beta_0 <- coef(cv_model)[1]
+cv_beta_1 <- coef(cv_model)[2]
+cv_predict_density <- function(gain_value) {
+    ln_gain <- log(gain_value)
+    density_value <- (ln_gain - cv_beta_0) / cv_beta_1
+    return(density_value)
+}
+
+pred_densities <- cv_predict_density(cross_val_data$gain)
+n <- nrow(cross_val_data)
+cv_residuals <- cross_val_data$density - pred_densities
+sigma <- sqrt(sum(cv_residuals^2)/(n-2))
+cv_t_crit <- qt(1 - 0.05/2, n-2)
+
+
+plot(data$density ~ data$gain, ylab="Density", xlab="Gain", main="Reverse Prediction of Density from Gain with Cross-Validated Model\nMissing Density From Training: 0.508")
+
+gain_seq <- seq(0, 500, length.out=500)
+density_seq <- cv_predict_density(gain_seq)
+se_fit_seq <- sigma * sqrt(1 + 1/n + (log(gain_seq) - mean(cross_val_data$log_gain))^2 / sum((cross_val_data$log_gain - mean(cross_val_data$log_gain))^2))
+lwr_ci_seq <- cv_predict_density(gain_seq) - cv_t_crit * se_fit_seq
+upr_ci_seq <- cv_predict_density(gain_seq) + cv_t_crit * se_fit_seq
+
+lines(gain_seq, density_seq, type="l", col = "blue", lwd=2)
+lines(gain_seq, lwr_ci_seq, type="l", col = "green", lwd=2)
+lines(gain_seq, upr_ci_seq, type="l", col = "green", lwd=2)
+legend("topright", 
+       legend = c("Regression Line", "Prediction Interval Bounds"), 
+       col = c("blue", "green"), 
+       lty = c(1, 2), 
+       lwd = c(2, 2))
+```
+
+Using the cross-validated model, we make a prediction on a block producing a gain of **38.6**. If our model generalizes well, this prediction should give a density near **0.508**.
+
+```{r, echo = FALSE}
+
+get_cv_se <- function(gain_val) {
+  return(sigma * sqrt(1 + 1/n + (log(gain_val) - mean(cross_val_data$log_gain))^2 / sum((cross_val_data$log_gain - mean(cross_val_data$log_gain))^2)))
+}
+
+cv_test_estimate <- cv_predict_density(38.6)
+cv_test_lower <- cv_test_estimate - cv_t_crit * get_cv_se(38.6)
+cv_test_upper <- cv_test_estimate + cv_t_crit * get_cv_se(38.6)
+
+cat("Cross-Validated Point and Interval Estimates for Density (Average Gain = 38.6):\n")
+cat(sprintf("Point Estimate: %.4f\n", cv_test_estimate))
+cat(sprintf("Lower Bound: %.4f\n", cv_test_lower))
+cat(sprintf("Upper Bound: %.4f\n", cv_test_upper))
+```
+
+We repeat the same process, removing blocks of density **0.001** from the training set, reversing the prediction function, and predicting density from a gain of **426.7**.
+
+```{r, echo = FALSE}
+cv_2_data <- data[data$density != 0.001, ]
+
+cv_2_model <- lm(log_gain ~ density, data = cv_2_data)
+cv_2_beta_0 <- coef(cv_model)[1]
+cv_2_beta_1 <- coef(cv_model)[2]
+cv_2_predict_density <- function(gain_value) {
+    ln_gain <- log(gain_value)
+    density_value <- (ln_gain - cv_2_beta_0) / cv_2_beta_1
+    return(density_value)
+}
+
+cv_2_pred_densities <- cv_2_predict_density(cv_2_data$gain)
+n_2 <- nrow(cv_2_data)
+cv_2_residuals <- cv_2_data$density - cv_2_pred_densities
+sigma_2 <- sqrt(sum(cv_residuals^2)/(n-2))
+
+get_cv_2_se <- function(gain_val) {
+  return(sigma_2 * sqrt(1 + 1/n_2 + (log(gain_val) - mean(cv_2_data$log_gain))^2 / sum((cv_2_data$log_gain - mean(cv_2_data$log_gain))^2)))
+}
+
+average_gain_reading_2 <- mean(data[data$density == 0.001, ]$gain)
+
+cv_2_test_estimate <- cv_2_predict_density(average_gain_reading_2)
+cv_2_test_lower <- cv_2_test_estimate - cv_t_crit * get_cv_2_se(average_gain_reading_2)
+cv_2_test_upper <- cv_2_test_estimate + cv_t_crit * get_cv_2_se(average_gain_reading_2)
+
+cat("Cross-Validated Point and Interval Estimates for Density (Average Gain = 426.7):\n")
+cat(sprintf("Point Estimate: %.4f\n", cv_2_test_estimate))
+cat(sprintf("Lower Bound: %.4f\n", cv_2_test_lower))
+cat(sprintf("Upper Bound: %.4f\n", cv_2_test_upper))
+```
+
 ### Analysis
+
+An initial visual inspection of the first cross-validated model (with density 0.508 missing from training) reveals that the model still generalizes well to unseen data. This is particularly evident in the regression plot where density is **0.508** because all of the data points at that density level seem to fall within the prediction interval and are relatively close to the regression estimate.
+
+Our point estimate for the density of a block with a measured gain of **38.6** is **0.5092** with a 95% prediction interval of **(0.478, 0.54)**. The prediction interval means that there is a high (95%) likelihood that a block with an average measured gain of 38.6 has a density between 0.478 and 0.54. Since the actual density falls inside of the interval, our regression seems to generalize well. Not only is the true density inside the interval, but it is close to the middle of the interval (0.5092).
+
+After running cross-validation again with the block of density 0.001 missing from the training set and using this model for reverse prediction of density, we test the model on a block with average gain of **426.7**, and get a density point estimate of **-0.013** with a prediction interval of **(-0.045, 0.019)**. Our true density, 0.001, falls within this interval, but it is further from the middle of the interval. Instead, the true density is closer to the upper bound of the interval.
 
 ### Conclusions
 
-# Advanced Analysis
+After performing cross-validation, we conclude that the regression model, after using the logarithm-transformed feature, generalizes well to unseen data, meaning it is modeling the underlying data-generating process. For both cross-validations where we removed densities 0.508 and 0.001 from the training sets, the model still made close predictions on the unseen data, with the true density being inside the interval estimates in both cases.
+
+# Advanced Analysis: Exploring Transformation Choices
 
 ### Methods
 
+To compare our logarithm transformation to other possible transformations, we engineer polynomial features, another logarithm transformation but with a different base, and a square root feature. We train each of these 3 models and visualize the regression results.
+
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
+poly_model <- lm(gain ~ poly(density, 2), data=data)
+
+density_seq <- seq(min(data$density), max(data$density), length.out = 500)
+predicted_gain <- predict(poly_model, newdata = data.frame(density = density_seq))
+
+plot(data$density, data$gain, 
+     pch = 19, col = "red", 
+     xlab = "Density", ylab = "Gain", 
+     main = "Polynomial Regression: Gain vs Density")
+
+lines(density_seq, predicted_gain, col = "blue", lwd = 2)
+
+data$log_10_gain <- log10(data$gain)
+
+log_10_model <- lm(log_10_gain ~ density, data=data)
+
+plot(data$density, data$log_10_gain,
+    main = "log_10(Gain) vs Density", 
+    xlab = "Snow Density (g/cm³)", 
+    ylab = "Base-10 Log of Gain", 
+    pch = 19, 
+    col = "#89ABE3")
+
+abline(log_10_model, col = "#EA738D", lwd = 2)
+predicted_log_10_gain <- predict(log_10_model)
+segments(data$density, data$log_10_gain, data$density, predicted_log_10_gain, col = "purple", lwd = 1, lty = 2)
+
+data$sqrt_gain <- sqrt(data$gain)
+sqrt_model <- lm(sqrt_gain ~ density, data=data)
+plot(data$density, data$sqrt_gain,
+    main = "Square-root Gain vs Density", 
+    xlab = "Snow Density (g/cm³)", 
+    ylab = "sqrt(Gain)", 
+    pch = 19, 
+    col = "#89ABE3")
+
+abline(sqrt_model, col = "#EA738D", lwd = 2)
+predicted_sqrt_gain <- predict(sqrt_model)
+segments(data$density, data$sqrt_gain, data$density, predicted_sqrt_gain, col = "purple", lwd = 1, lty = 2)
+```
+
 ### Analysis
 
+After fitting 3 models using polynomial regression, base-10 logarithm transformation, and square-root transformation, the shapes of the regressions in comparison to the actual data reveal that logarithm is still the best and most appropriate transformation.
+
+The polynomial regression graph approximates the data well, but the quadratic starts to turn upwards at the higher density values even though the actual data doesn't do this, implying that this model will not extrapolate well to unseen density values because of an inappropriate choice of quadratic. The square-root transformation results in a regression with a clear pattern in the residuals. Data points at both the low and high ends of the density range have higher values than what is predicted by the regression. This parabolic shape in residuals shows that the square-root transformation is not appropriate. Finally, just based on visual inspection and mathematical knowledge, the base-10 logarithm transformation fits the data's shape better than the other two models. This makes sense because it is mathematically very similar to the transformation done in Question 2 (natural logarithm).
+
 ### Conclusions
+
+In conclusion, both polynomial and square-root transformations are not appropriate for modeling this data. When either of these transformations are applied before modeling, the residuals have an easily identifiable pattern, meaning they are not appropriate transformations. The logarithmic transformations, however, result in a pattern-less residual plot and are the most appropriate.
 
 # Conclusions and Discussion
 
 ## Summary of Findings
 
-Our findings suggest that there is a solid and reliable relationship between gamma measurements and the actual density of the materials presentw ithin our data, which were a gamma transmission snow gauge which was used to measure snow density. In our analysis, we find that there is a solid chance that the relationship between these two measurements can be represented as an exponential relationship, similar the the equation of exponential decay. 
+Our findings suggest that there is a solid and reliable relationship between gamma measurements and the actual density of the materials presentw ithin our data, which were a gamma transmission snow gauge which was used to measure snow density. In our analysis, we find that there is a solid chance that the relationship between these two measurements can be represented as an exponential relationship, similar the the equation of exponential decay.
 
 While our original data does not seem to fit a regression line well, we found that an exponential function does (or the equivalent since we transformed the data). Additionally, we tested the robustness of the density of the polyethylene blocks, while also using our original model to test how well the forward and reverse predictions of our gain and densities were, citing areas where the predictions were not as accurate compared to other areas. Additionally, in the analysis of those forward and reverse predictions, we theorized reasons why certain densities or gains were easier to predict, such as fundamental flaws with our equation, or patterns that we found interesting. Finally, we performed a cross-validation of this reverse prediction, providing an interval estimate for the density of our blocks.
