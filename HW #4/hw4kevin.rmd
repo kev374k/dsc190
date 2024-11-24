@@ -142,7 +142,7 @@ ggplot() +
   geom_point(data = data, aes(x = density, y = gain), alpha = 0.5) +
   geom_line(data = pred_df, aes(x = density, y = fit), color = "blue") +
   geom_ribbon(data = pred_df, 
-              aes(x = density, ymin = lower, ymax = upper),
+              aes(x = density, ymiwn = lower, ymax = upper),
               alpha = 0.2, fill = "blue") +
   labs(x = "Density (g/cm³)", 
        y = "Gain (Original Scale)",
