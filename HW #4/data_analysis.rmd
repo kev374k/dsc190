@@ -164,7 +164,7 @@ Applying a logarithmic transformation to the gain before fitting the linear mode
 
 In order to study the effects of rounding errors, we draw simulated errors from a normal distribution and test different standard deviations for the error distribution to see how it affects the MSE of regression on the simulated erroneous data. Below, the histograms can be seen for when the distribution of density reporting error has a standard deviation of **0.008**, **0.015**, and **0.023**.
 
-```{r, echo = FALSE}
+```{r, fig.width = 7, fig.height = 4, echo = FALSE}
 set.seed(49)
 
 n_sims <- 500
@@ -331,7 +331,7 @@ Looking through the graph that we created, it can be seen that the 95% confidenc
 
 ## Question 5: Reverse Prediction
 
-```{r, echo = FALSE}
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
 beta_0 <- coef(log_model)[1]
 beta_1 <- coef(log_model)[2]
 n <- nrow(data)
@@ -432,7 +432,7 @@ Using the reverse prediction method detailed above, we conclude that it is easie
 
 In order to evaluate the effectiveness with which our model generalizes to unseen data, we will use cross-validation, removing certain data points from the training set, re-training the model, and making predictions on the unseen data. Below, we remove all rows from the data corresponding to the block with density **0.508** and re-train the model. The reverse prediction along with prediction intervals can be seen below.
 
-```{r, echo = FALSE}
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
 cross_val_data <- data[data$density != 0.508, ]
 
 cv_model <- lm(log_gain ~ density, data = cross_val_data)
@@ -480,11 +480,6 @@ get_cv_se <- function(gain_val) {
 cv_test_estimate <- cv_predict_density(38.6)
 cv_test_lower <- cv_test_estimate - cv_t_crit * get_cv_se(38.6)
 cv_test_upper <- cv_test_estimate + cv_t_crit * get_cv_se(38.6)
-
-cat("Cross-Validated Point and Interval Estimates for Density (Average Gain = 38.6):\n")
-cat(sprintf("Point Estimate: %.4f\n", cv_test_estimate))
-cat(sprintf("Lower Bound: %.4f\n", cv_test_lower))
-cat(sprintf("Upper Bound: %.4f\n", cv_test_upper))
 ```
 
 We repeat the same process, removing blocks of density **0.001** from the training set, reversing the prediction function, and predicting density from a gain of **426.7**.
@@ -516,10 +511,15 @@ cv_2_test_estimate <- cv_2_predict_density(average_gain_reading_2)
 cv_2_test_lower <- cv_2_test_estimate - cv_t_crit * get_cv_2_se(average_gain_reading_2)
 cv_2_test_upper <- cv_2_test_estimate + cv_t_crit * get_cv_2_se(average_gain_reading_2)
 
-cat("Cross-Validated Point and Interval Estimates for Density (Average Gain = 426.7):\n")
-cat(sprintf("Point Estimate: %.4f\n", cv_2_test_estimate))
-cat(sprintf("Lower Bound: %.4f\n", cv_2_test_lower))
-cat(sprintf("Upper Bound: %.4f\n", cv_2_test_upper))
+results <- data.frame(
+  Average_Gain = c(38.6, 426.7),
+  Point_Estimate = c(0.5092, -0.0128),
+  Lower_Bound = c(0.4780, -0.0446),
+  Upper_Bound = c(0.5404, 0.0190)
+)
+
+# Print the data frame as a table
+print(results)
 ```
 
 ### Analysis
@@ -540,7 +540,7 @@ After performing cross-validation, we conclude that the regression model, after 
 
 To compare our logarithm transformation to other possible transformations, we engineer polynomial features, another logarithm transformation but with a different base, and a square root feature. We train each of these 3 models and visualize the regression results.
 
-```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
+```{r, fig.width = 8, fig.height = 3.5, echo = FALSE}
 poly_model <- lm(gain ~ poly(density, 2), data=data)
 
 density_seq <- seq(min(data$density), max(data$density), length.out = 500)
