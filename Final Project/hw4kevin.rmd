@@ -1,0 +1,76 @@
+---
+title: "Finding the Relationship between Density and Gain"
+author: "Author 1 and Author 2"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Header
+
+## Author Contributions
+
+Author 1: Contributed to questions 1, 4, 5, and did the formatting for the pdf
+
+Author 2: Contributed to questions 2, 3, and 6, along with doing the advanced analysis.
+
+## Use of GPT
+
+ChatGPT was used as a substitute for documentation for R. Since we were unfamiliar with R, we asked ChatGPT how to use R in certain methods in order to find and filter out conditions in the dataset. We additionally used GPT to analyze reasoning and to confirm what we thought was correct about the dataset, as well as to identify extra questions that could be answered for our advanced analysis.
+
+# Introduction
+
+The data used in this analysis is from the 2020 Kaggle "Most Popular & Widely Used Machine Learning" Survey. It details questions about Kaggle's users, as well as their most used machine learning languages, platforms, education levels, and more. Our analysis today focuses on identifying key relationships within the data and to notice if there are any interesting patterns that we can find within it. 
+
+## Main Research Questions
+
+1) Analyze the relationship between age groups and highest education levels amongst the survey respondents. How does educational attainment vary across those in different age brackets. (can use chi-square test)
+2) Investigate the correlation between years of programming experience and programming languages used, if any. Do more experienced users tend to use a wider variety of programming languages, or specific programming languages. (can use the release date of certain languages as a spearhead)
+3) Examine the global distribution of survey participants and their professional jobs, extrapolating this to the general population of the world. Are certain jobs more popular in certain countries?
+4) Examine differences in companies that utilize more machine learning in their operations. Do companies that use machine learning heavily tend to be larger or more successful? (can use number of employees and salaries as a proxy for company success)
+
+## Question 1) Age-Education Relationship
+
+```{r, echo = FALSE}
+library(ggplot2)
+
+data <- read.csv("data.csv", header = TRUE, stringsAsFactors = FALSE)
+cleaned_data <- data[data$Q4 != "", ]
+ages <- cleaned_data$Q1[2:nrow(cleaned_data)]
+education <- cleaned_data$Q4[2:nrow(cleaned_data)]
+
+# identify the order of education
+education_levels <- c(
+  "Doctoral degree",
+  "Professional degree",
+  "Master’s degree",
+  "Bachelor’s degree",
+  "Some college/university study without earning a bachelor’s degree",
+  "No formal education past high school",
+  "I prefer not to answer"
+)
+education <- factor(education, levels = education_levels, ordered = TRUE)
+
+# creates contingency table for ages & education
+age_edu_table <- as.data.frame(table(ages, education))
+colnames(age_edu_table) <- c("AgeGroup", "EducationLevel", "Count")
+
+# Create a stacked chart
+ggplot(age_edu_table, aes(x = AgeGroup, y = Count, fill = EducationLevel)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Educational Attainment Across Age Groups",
+       x = "Age Group",
+       y = "Count",
+       fill = "Education Level") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```  
