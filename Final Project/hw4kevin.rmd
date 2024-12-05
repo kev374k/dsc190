@@ -121,3 +121,94 @@ Looking through this graph, we can notice a lot of things. For instance, it can 
 ### Conclusion
 
 Further analysis of the data and the graph created above shows that the educational attainment for those who took this survey, and by connotation, are interested in Machine Learning, is very different than the actual educational attainment in the United States. This somewhat makes sense; machine learning is a typically much more education-based topic that people have to learn, so those who want to learn it and apply it in their lives typically go to college and even higher education to achieve their goals. The other things we noticed also make sense; younger people rarely have degrees above a bachelor's, because they don't have the necessary amount of time to get those degrees. Additionally, most of the ages in the graph tend to be younger, skewing right, which makes sense, because machine learning has only become an especially popular topic recently, which maybe be reflected in our data. 
+
+## Question 3) Distribution of Jobs and general Population
+
+For this question, we want to investigate how the general population of the data and their relationships with their jobs is like. For instance, for each country, what is the most typical job, and what does this say about the population using Kaggle? Additionally, we want to take into account the top 3 jobs in each country, while also maintaining aglobal job distribution of which people from differnet countries use Kaggle the most. 
+
+### Methods
+
+```{r, echo = FALSE, message = FALSE}
+library(dplyr)
+
+countries <- cleaned_data$Q3[2:nrow(cleaned_data)]
+jobs <- cleaned_data$Q5[2:nrow(cleaned_data)]
+countries <- gsub("United Kingdom of Great Britain and Northern Ireland", "United Kingdom", countries)
+
+job_country_table <- table(countries, jobs)
+
+# Convert to data frame for easier manipulation
+job_country_df <- as.data.frame(job_country_table)
+names(job_country_df) <- c("Country", "Job", "Count")
+
+# Visualize job distribution by country
+ggplot(job_country_df, aes(x = factor(Country, levels = rev(unique(Country))), y = Count, fill = Job)) +
+  geom_bar(stat = "identity", position = "fill") +
+  coord_flip() +
+  labs(title = "Job Distribution by Country",
+       x = "Country",
+       y = "Percentage",
+       fill = "Job") +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+# Calculate global job distribution
+global_job_distribution <- job_country_df %>%
+  group_by(Job) %>%
+  summarise(
+    Total_Count = sum(Count),
+    Global_Percentage = sum(Count) / sum(job_country_df$Count) * 100
+  ) %>%
+  arrange(desc(Global_Percentage))
+
+job_country_df_grouped <- job_country_df %>%
+  group_by(Country, Job) %>%
+  summarise(Count = sum(Count)) %>%
+  group_by(Country) %>%
+  filter(n() > 1) 
+
+job_country_table_grouped <- xtabs(Count ~ Country + Job, data = job_country_df_grouped)
+
+chi_square_result <- chisq.test(job_country_table_grouped, simulate.p.value = TRUE, B = 2000)
+chi_square_result
+
+top_10_countries <- job_country_df %>%
+  group_by(Country) %>%
+  summarise(Total_Count = sum(Count)) %>%
+  slice_max(order_by = Total_Count, n = 10) %>%
+  pull(Country)
+
+top_jobs_top_10_countries <- job_country_df %>%
+  filter(Country %in% top_10_countries) %>%
+  group_by(Country) %>%
+  slice_max(order_by = Count, n = 3) %>%
+  ungroup() %>%
+  mutate(Country = factor(Country, levels = top_10_countries))
+
+ggplot(top_jobs_top_10_countries, aes(x = factor(Country, levels = rev(unique(Country))), y = Count, fill = Job)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  labs(title = "Top 3 Jobs in Top 10 Countries",
+       x = "Country",
+       y = "Job Count",
+       fill = "Job") +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+ggplot(global_job_distribution, aes(x = reorder(Job, Global_Percentage), y = Global_Percentage)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Global Job Distribution",
+       x = "Job",
+       y = "Percentage") +
+  theme_minimal()
+
+```
+
+### Analysis
+
+Looking through our graphs, there are a few things to note. For instance, the most popular "job" that people have that took the survey was Student. According to our earlier graph, this is mostly due to countries like India, the United States, and China, whose top 3 jobs all contain "Student". This is a trend that is seen throughout most countries as well, as even when we center the data on each individual country, we can see that significant number of users are still students. Although the global job distribution includes student, data sceintist, software engineer, and more, student significantly dwarves all the other jobs, with users that are "Students" being ~2x more populous than the second most worked job, "Data Scientist". This means that some jobs are significantly more popular than others, as shown by our Chi-Square Test. The p-value of a ~0.0005 demonstrates that our job distribution is significantly different than a uniform distribution of all of the jobs.
+
+### Conclusion
+
+To conclude, we can notice a few significant trends within our data. India and the United States are the primary countries of the users who took this survey, and the jobs most associated with these users included "Student", "Software Engineer", "Data Scientist", and "Other". These show within the overall global distribution of jobs, whose top 4 jobs were identical. This same distribution is similar within all the individual countries, showing that a lot of the people who use Kaggle and filled out this survey about machine learning were typically students, engineers, or data scientists, which fits into Kaggle's overall use of being a place to store data and have competitions with it. 
