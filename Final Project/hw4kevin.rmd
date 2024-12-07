@@ -1,0 +1,214 @@
+---
+title: "Finding the Relationship between Density and Gain"
+author: "Author 1 and Author 2"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Header
+
+## Author Contributions
+
+Author 1: Contributed to questions 1, 4, 5, and did the formatting for the pdf
+
+Author 2: Contributed to questions 2, 3, and 6, along with doing the advanced analysis.
+
+## Use of GPT
+
+ChatGPT was used as a substitute for documentation for R. Since we were unfamiliar with R, we asked ChatGPT how to use R in certain methods in order to find and filter out conditions in the dataset. We additionally used GPT to analyze reasoning and to confirm what we thought was correct about the dataset, as well as to identify extra questions that could be answered for our advanced analysis.
+
+# Introduction
+
+The data used in this analysis is from the 2020 Kaggle "Most Popular & Widely Used Machine Learning" Survey. It details questions about Kaggle's users, as well as their most used machine learning languages, platforms, education levels, and more. Our analysis today focuses on identifying key relationships within the data and to notice if there are any interesting patterns that we can find within it. 
+
+## Main Research Questions
+
+1) Analyze the relationship between age groups and highest education levels amongst the survey respondents. How does educational attainment vary across those in different age brackets. (can use chi-square test)
+2) Investigate the correlation between years of programming experience and programming languages used, if any. Do more experienced users tend to use a wider variety of programming languages, or specific programming languages. (can use the release date of certain languages as a spearhead)
+3) Examine the global distribution of survey participants and their professional jobs, extrapolating this to the general population of the world. Are certain jobs more popular in certain countries?
+4) Examine differences in companies that utilize more machine learning in their operations. Do companies that use machine learning heavily tend to be larger or more successful? (can use number of employees and salaries as a proxy for company success)
+
+## Question 1) Age-Education Relationship
+
+One thing we want to test in regards to the age-education relationship in this graph is that we want to compare it to the education attainment for adults 25 and older in the United States. This has the following distribution: 
+
+  * 30.5% have no formal education
+  * 26.8% have some college/university experience
+  * 25.8% have a bachelor's degree
+  * 10.9% have a master's degree
+  * 3.7% have a professional degree
+  * 2.3% have a doctoral degree
+
+### Methods
+
+```{r, echo = FALSE}
+library(ggplot2)
+
+data <- read.csv("data.csv", header = TRUE, stringsAsFactors = FALSE)
+cleaned_data <- data[!(data$Q4 %in% c("", "I prefer not to answer")), ]
+ages <- cleaned_data$Q1[2:nrow(cleaned_data)]
+education <- cleaned_data$Q4[2:nrow(cleaned_data)]
+
+# create actual education data to compare towards
+education_data <- data.frame(
+  education_level = c(
+    "Doctoral degree",
+    "Professional degree",
+    "Master’s degree",
+    "Bachelor’s degree",
+    "Some college/university study without earning a bachelor’s degree",
+    "No formal education past high school"
+  ),
+  percentage = c(2.3, 3.7, 10.9, 25.8, 26.8, 30.5)
+)
+
+# identify the order of education
+education_levels <- c(
+  "Doctoral degree",
+  "Professional degree",
+  "Master’s degree",
+  "Bachelor’s degree",
+  "Some college/university study without earning a bachelor’s degree",
+  "No formal education past high school"
+)
+education <- factor(education, levels = education_levels, ordered = TRUE)
+
+# creates contingency table for ages & education
+contingency_table <- table(ages, education)
+age_edu_table <- as.data.frame(contingency_table)
+colnames(age_edu_table) <- c("AgeGroup", "EducationLevel", "Count")
+
+# Create a stacked chart
+ggplot(age_edu_table, aes(x = AgeGroup, y = Count, fill = EducationLevel)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(title = "Educational Attainment Across Age Groups",
+       x = "Age Group",
+       y = "Count",
+       fill = "Education Level") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Calculate the total observed counts for each education level
+observed_counts <- colSums(contingency_table)
+
+# Calculate the expected proportions from education_data
+expected_proportions <- education_data$percentage / 100
+
+# Calculate the expected counts based on the total sample size
+total_sample_size <- sum(observed_counts)
+expected_counts <- expected_proportions * total_sample_size
+
+# Perform Chi-square Goodness of Fit test
+chi_square_test <- chisq.test(x = observed_counts, 
+                               p = expected_proportions)
+
+# Print the results
+print(chi_square_test)
+```  
+
+### Analysis
+
+Looking through this graph, we can notice a lot of things. For instance, it can be noticed that there is an obvious trend of younger users who took this survey, with the peak of the users falling from the 18-21 range to the 25-29 range. This slowly falls off, with each age range slowly losing ground on the majority of users. Other patterns to notice unclude the influx of people with a bachelor's degree, with the visible majority being placed at the age range of 18-21, and slowly lowering down percent wise as age increases. On the other hand, degrees like masters, professional, and doctoral are very low in the 18-21 age range, which makes sense intuitively, because these degrees typically require the previous ones to acquire. This means that those in the 18-21 and 22-24 age ranges very rarely have these advanced degrees, and the age range of 25-29 is the first age range we actually see a significant amount of these education levels. Otherwise, other education levels to note include the fact that master's degrees are found often at the 22-24 age range and beyond, comprising the most of all the education levels after this age. Additionally, when comparing the given probabilities to the true distribution of education levels in the United States for ages 25 and above, we can notice that the Chi-Square Test has a p-value of 2.2e-16, which means that our data is significantly different than the actual distribution of education levels amongst adults in the United States. 
+
+### Conclusion
+
+Further analysis of the data and the graph created above shows that the educational attainment for those who took this survey, and by connotation, are interested in Machine Learning, is very different than the actual educational attainment in the United States. This somewhat makes sense; machine learning is a typically much more education-based topic that people have to learn, so those who want to learn it and apply it in their lives typically go to college and even higher education to achieve their goals. The other things we noticed also make sense; younger people rarely have degrees above a bachelor's, because they don't have the necessary amount of time to get those degrees. Additionally, most of the ages in the graph tend to be younger, skewing right, which makes sense, because machine learning has only become an especially popular topic recently, which maybe be reflected in our data. 
+
+## Question 3) Distribution of Jobs and general Population
+
+For this question, we want to investigate how the general population of the data and their relationships with their jobs is like. For instance, for each country, what is the most typical job, and what does this say about the population using Kaggle? Additionally, we want to take into account the top 3 jobs in each country, while also maintaining aglobal job distribution of which people from differnet countries use Kaggle the most. 
+
+### Methods
+
+```{r, echo = FALSE, message = FALSE}
+library(dplyr)
+
+countries <- cleaned_data$Q3[2:nrow(cleaned_data)]
+jobs <- cleaned_data$Q5[2:nrow(cleaned_data)]
+countries <- gsub("United Kingdom of Great Britain and Northern Ireland", "United Kingdom", countries)
+
+job_country_table <- table(countries, jobs)
+
+# Convert to data frame for easier manipulation
+job_country_df <- as.data.frame(job_country_table)
+names(job_country_df) <- c("Country", "Job", "Count")
+
+# Visualize job distribution by country
+ggplot(job_country_df, aes(x = factor(Country, levels = rev(unique(Country))), y = Count, fill = Job)) +
+  geom_bar(stat = "identity", position = "fill") +
+  coord_flip() +
+  labs(title = "Job Distribution by Country",
+       x = "Country",
+       y = "Percentage",
+       fill = "Job") +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+# Calculate global job distribution
+global_job_distribution <- job_country_df %>%
+  group_by(Job) %>%
+  summarise(
+    Total_Count = sum(Count),
+    Global_Percentage = sum(Count) / sum(job_country_df$Count) * 100
+  ) %>%
+  arrange(desc(Global_Percentage))
+
+job_country_df_grouped <- job_country_df %>%
+  group_by(Country, Job) %>%
+  summarise(Count = sum(Count)) %>%
+  group_by(Country) %>%
+  filter(n() > 1) 
+
+job_country_table_grouped <- xtabs(Count ~ Country + Job, data = job_country_df_grouped)
+
+chi_square_result <- chisq.test(job_country_table_grouped, simulate.p.value = TRUE, B = 2000)
+chi_square_result
+
+top_10_countries <- job_country_df %>%
+  group_by(Country) %>%
+  summarise(Total_Count = sum(Count)) %>%
+  slice_max(order_by = Total_Count, n = 10) %>%
+  pull(Country)
+
+top_jobs_top_10_countries <- job_country_df %>%
+  filter(Country %in% top_10_countries) %>%
+  group_by(Country) %>%
+  slice_max(order_by = Count, n = 3) %>%
+  ungroup() %>%
+  mutate(Country = factor(Country, levels = top_10_countries))
+
+ggplot(top_jobs_top_10_countries, aes(x = factor(Country, levels = rev(unique(Country))), y = Count, fill = Job)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  coord_flip() +
+  labs(title = "Top 3 Jobs in Top 10 Countries",
+       x = "Country",
+       y = "Job Count",
+       fill = "Job") +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+ggplot(global_job_distribution, aes(x = reorder(Job, Global_Percentage), y = Global_Percentage)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Global Job Distribution",
+       x = "Job",
+       y = "Percentage") +
+  theme_minimal()
+
+```
+
+### Analysis
+
+Looking through our graphs, there are a few things to note. For instance, the most popular "job" that people have that took the survey was Student. According to our earlier graph, this is mostly due to countries like India, the United States, and China, whose top 3 jobs all contain "Student". This is a trend that is seen throughout most countries as well, as even when we center the data on each individual country, we can see that significant number of users are still students. Although the global job distribution includes student, data sceintist, software engineer, and more, student significantly dwarves all the other jobs, with users that are "Students" being ~2x more populous than the second most worked job, "Data Scientist". This means that some jobs are significantly more popular than others, as shown by our Chi-Square Test. The p-value of a ~0.0005 demonstrates that our job distribution is significantly different than a uniform distribution of all of the jobs.
+
+### Conclusion
+
+To conclude, we can notice a few significant trends within our data. India and the United States are the primary countries of the users who took this survey, and the jobs most associated with these users included "Student", "Software Engineer", "Data Scientist", and "Other". These show within the overall global distribution of jobs, whose top 4 jobs were identical. This same distribution is similar within all the individual countries, showing that a lot of the people who use Kaggle and filled out this survey about machine learning were typically students, engineers, or data scientists, which fits into Kaggle's overall use of being a place to store data and have competitions with it. 
