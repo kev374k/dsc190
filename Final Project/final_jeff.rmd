@@ -1,45 +1,163 @@
 ```{r, echo = FALSE}
-data = read.table('data.csv', sep=',', header=TRUE)
+data <- read.table('data.csv', sep=',', header=TRUE)
 ```
 
 ## Question 2: Correlation Between Experience and Programming Languages Used
 
 ```{r, echo = FALSE}
-columns_to_check <- c("col1", "col2", "col3")
-data <- data[rowSums(is.na(data[columns_to_check])) < length(columns_to_check), ]
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+language_data <- data[!is.na(data[["Q6"]]), ]
 
-# Verify the result
-head(data)
+# Create experience groups from Q6 (assumes column Q6 exists)
+language_data$experience_group <- factor(
+  language_data$Q6,
+  levels = c("< 1 years", "1-2 years", "3-5 years", "5-10 years", "10-20 years", "20+ years")
+)
+
+# Subset relevant language columns (e.g., Q7_Part_1, Q7_Part_2, ...)
+language_columns <- grep("^Q7_", names(language_data), value = TRUE)
+exclude_languages <- c("Q7_Part_12", "Q7_OTHER")
+filtered_language_columns <- setdiff(language_columns, exclude_languages)
+# Create a binary matrix of language usage (1 = language used, 0 = not used)
+binary_matrix <- as.data.frame(ifelse(language_data[filtered_language_columns] != "", 1, 0))
+binary_matrix$experience_group <- language_data$experience_group
+
+# Aggregate counts by experience group and language
+language_counts <- aggregate(. ~ experience_group, data = binary_matrix, sum)
+language_mapping <- c(
+  Q7_Part_1 = "Python",
+  Q7_Part_2 = "R",
+  Q7_Part_3 = "SQL",
+  Q7_Part_4 = "C",
+  Q7_Part_5 = "C++",
+  Q7_Part_6 = "Java",
+  Q7_Part_7 = "JavaScript",
+  Q7_Part_8 = "Julia",
+  Q7_Part_9 = "Swift",
+  Q7_Part_10 = "Bash",
+  Q7_Part_11 = "MATLAB"
+)
+language_counts_long <- melt(language_counts, id.vars = "experience_group", 
+                             variable.name = "language", value.name = "count")
+language_counts_long$language <- language_mapping[language_counts_long$language]
+language_counts_long$language <- factor(
+  language_counts_long$language,
+  levels = c("Python", "R", "SQL", "C", "C++", "Java", "JavaScript", "Julia", 
+             "Swift", "Bash", "MATLAB")
+)
+
+# Plot grouped bar chart
+ggplot(language_counts_long, aes(x = experience_group, y = count, fill = language)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Programming Languages Used by Experience Group",
+    x = "Experience Group",
+    y = "Number of Respondents",
+    fill = "Programming Language"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+selected_languages <- c("Python", "R", "SQL")
+focused_data <- subset(language_counts_long, language %in% selected_languages)
+
+# Calculate proportions within each experience group
+focused_data <- focused_data %>%
+  group_by(experience_group) %>%
+  mutate(proportion = count / sum(count))
+
+# Plot stacked bar chart (relative proportions)
+ggplot(focused_data, aes(x = experience_group, y = proportion, fill = language)) +
+  geom_bar(stat = "identity") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    title = "Proportion of Python, R, and SQL Usage by Experience Group",
+    x = "Experience Group",
+    y = "Proportion of Respondents",
+    fill = "Programming Language"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+## Question 4: Hiring Preferences of Larger vs. Smaller Companies
+
 ```{r, echo = FALSE}
-convert_to_midpoint <- function(year_range) {
-  if (year_range == "I have never written code") {
-    return(0)
-  } else if (year_range == "< 1 years") {
-    return(0.5)
-  } else if (year_range == "1-2 years") {
-    return(1.5)
-  } else if (year_range == "3-5 years") {
-    return(4)
-  } else if (year_range == "5-10 years") {
-    return(7.5)
-  } else if (year_range == "10-20 years") {
-    return(15)
-  } else if (year_range == "20+ years") {
-    return(25)  # Approximation for "20+ years"
+# Function to calculate midpoints from age ranges
+convert_age_to_midpoint <- function(age_range) {
+  matches <- regmatches(age_range, gregexpr("[0-9]+", age_range))[[1]]
+  if (length(matches) == 2) {
+    return((as.numeric(matches[1]) + as.numeric(matches[2])) / 2)
   } else {
-    return(NA)  # Handle unexpected values
+    return(80)
   }
 }
 
-# Apply the function to the q6 column
-data$years_experience <- sapply(data$Q6, convert_to_midpoint)
+# Apply the function to Q1 column
+data$age_midpoint <- sapply(data$Q1, convert_age_to_midpoint)
 
-language_columns <- grep("^Q7_", names(data), value = TRUE)
-data$num_languages <- rowSums(!is.na(data[language_columns]))
+# Function to calculate midpoints from salary ranges
+convert_salary_to_midpoint <- function(salary_range) {
+  clean_string <- gsub("[\\$,]", "", salary_range)  # Remove $ and commas
+  matches <- regmatches(clean_string, gregexpr("[0-9]+", clean_string))[[1]]
+  if (length(matches) == 2) {
+    return((as.numeric(matches[1]) + as.numeric(matches[2])) / 2)
+  } else {
+    return(700000)
+  }
+}
+
+# Apply the function to Q24 column
+data$salary_midpoint <- sapply(data$Q24, convert_salary_to_midpoint)
+
+# Create binary company size variable
+data$company_size <- ifelse(data$Q20 %in% c("0-49 employees", "50-249 employees", "250-999 employees"), "Small", "Large")
+data$company_size <- factor(data$company_size, levels = c("Small", "Large"))
+
+# T-test for age
+age_test <- t.test(age_midpoint ~ company_size, data = data)
+# T-test for salary
+salary_test <- t.test(salary_midpoint ~ company_size, data = data)
+
+data$jittered_age <- jitter(data$age_midpoint, amount = 10)
+data$jittered_salary <- jitter(data$salary_midpoint, amount = 10000)
+
+# Plot results of T-tests
+ggplot(data, aes(x = jittered_age, fill = company_size)) +
+  geom_density(alpha = 0.5) +
+  labs(
+    title = "Distribution of Age by Company Size",
+    x = "Age (Midpoint)",
+    y = "Density",
+    fill = "Company Size"
+  ) +
+  theme_minimal() +
+  annotate(
+    "text", x = mean(data$age_midpoint, na.rm = TRUE), y = 0.02,
+    label = paste0("t = ", round(age_test$statistic, 2), "\n", 
+                   "p = ", round(age_test$p.value, 4)),
+    color = "black"
+  )
+ggplot(data, aes(x = jittered_salary, fill = company_size)) +
+  geom_density(alpha = 0.5) +
+  labs(
+    title = "Distribution of Salary by Company Size",
+    x = "Salary (Midpoint)",
+    y = "Density",
+    fill = "Company Size"
+  ) +
+  theme_minimal() +
+  annotate(
+    "text", x = mean(data$salary_midpoint, na.rm = TRUE), y = 0.00001,
+    label = paste0("t = ", round(salary_test$statistic, 2), "\n", 
+                   "p = ", round(salary_test$p.value, 4)),
+    color = "black"
+  )
+
+# Correlation analysis between age and salary
+cor.test(data$age_midpoint, data$salary_midpoint, method = "pearson")
 ```
 
-```{r}
-data$years_experience
-```
+![](images/clipboard-9133593.png)
