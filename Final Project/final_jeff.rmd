@@ -1,0 +1,45 @@
+```{r, echo = FALSE}
+data = read.table('data.csv', sep=',', header=TRUE)
+```
+
+## Question 2: Correlation Between Experience and Programming Languages Used
+
+```{r, echo = FALSE}
+columns_to_check <- c("col1", "col2", "col3")
+data <- data[rowSums(is.na(data[columns_to_check])) < length(columns_to_check), ]
+
+# Verify the result
+head(data)
+```
+
+```{r, echo = FALSE}
+convert_to_midpoint <- function(year_range) {
+  if (year_range == "I have never written code") {
+    return(0)
+  } else if (year_range == "< 1 years") {
+    return(0.5)
+  } else if (year_range == "1-2 years") {
+    return(1.5)
+  } else if (year_range == "3-5 years") {
+    return(4)
+  } else if (year_range == "5-10 years") {
+    return(7.5)
+  } else if (year_range == "10-20 years") {
+    return(15)
+  } else if (year_range == "20+ years") {
+    return(25)  # Approximation for "20+ years"
+  } else {
+    return(NA)  # Handle unexpected values
+  }
+}
+
+# Apply the function to the q6 column
+data$years_experience <- sapply(data$Q6, convert_to_midpoint)
+
+language_columns <- grep("^Q7_", names(data), value = TRUE)
+data$num_languages <- rowSums(!is.na(data[language_columns]))
+```
+
+```{r}
+data$years_experience
+```
