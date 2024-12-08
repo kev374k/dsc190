@@ -34,7 +34,7 @@ The data used in this analysis is from the 2020 Kaggle "Most Popular & Widely Us
 1)  Analyze the relationship between age groups and highest education levels amongst the survey respondents. How does educational attainment vary across those in different age brackets. (can use chi-square test)
 2)  Investigate the correlation between years of programming experience and programming languages used, if any. Do more experienced users tend to use a wider variety of programming languages, or specific programming languages. (can use the release date of certain languages as a spearhead)
 3)  Examine the global distribution of survey participants and their professional jobs, extrapolating this to the general population of the world. Are certain jobs more popular in certain countries?
-4)  Examine differences in companies that utilize more machine learning in their operations. Do companies that use machine learning heavily tend to be larger or more successful? (can use number of employees and salaries as a proxy for company success)
+4)  Do larger companies hire older, more experienced employees for data roles compared to smaller companies? Conduct hypothesis tests to find differences in both age and salary between companies, and then check for confounding.
 
 ## Question 1) Age-Education Relationship
 
