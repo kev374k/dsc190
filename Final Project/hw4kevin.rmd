@@ -124,6 +124,8 @@ Further analysis of the data and the graph created above shows that the educatio
 
 ## Question 2) Correlation Between Experience and Programming Languages Used
 
+To examine how programming language usage changes between people with different levels of experience in data-related fields, we first cleaned the data by removing rows with null values. Then, we cleaned the columns corresponding to different programming languages by changing the data types from strings to binary values where 1 represents usage of that programming language and 0 means it isn't used. Finally, we count usage of each programming language for each experience level and create a grouped bar plot. From that grouped bar plot, the most impactful languages are further examined in a stacked bar chart.
+
 ### Methods
 
 ```{r, fig.width = 8, fig.height = 4.5, echo = FALSE, message = FALSE}
@@ -206,7 +208,13 @@ ggplot(focused_data, aes(x = experience_group, y = proportion, fill = language))
 
 ### Analysis
 
+Looking at the grouped bar plot reveals that the 3 most relevant languages (Python, SQL, R) stay relatively consistent within all experience levels. This means that Python is always the most common language by far across all levels of experience, followed by SQL, and then by R. This pattern is never broken in the visualization. One surprising takeaway from the plot is that C and C++ are relatively more popular among lower levels of experience whereas they drop below languages like Java and JavaScript in the higher levels of experience.
+
+In the stacked bar chart, we more closely inspect the three most relevant programming languages and how their relative usages change as experience level grows. A clear trend can be seen in Python's usage. As people become more experienced, the proportion of respondents using Python decreases, which could be due to less adoption of Python in earlier years. SQL and R both show a trend of increasing presence among people with greater programming experience. SQL's trend of increasing with experienced users is even more obvious than that of R.
+
 ### Conclusion
+
+Python, SQL, and R have all stayed massively relevant to programmers of all experience levels in data-related fields. Python has been significantly more popular among less experienced programmers while SQL sees a significant increase of usage among more experienced programmers.
 
 ## Question 3) Distribution of Jobs and general Population
 
@@ -301,6 +309,12 @@ To conclude, we can notice a few significant trends within our data. India and t
 
 ## Question 4) Hiring Preferences of Larger vs. Smaller Companies
 
+o investigate age and salary differences between employees of large and small companies, we began by removing rows with missing salary or company size data from the dataset. In order to have numeric values for variables such as age and salary instead of strings, the midpoints of given ranges were used as data points instead of the entire range.
+
+Next, two two-sample t-tests were conducted. The first two-sample t-test compared average age of employees at large vs. small companies. The second test compared average salary of employees at large vs. small companies. Both tests were two-tailed, meaning we are looking for a difference in either direction. Density plots were generated to visualize the two distributions for each metric right next to each other. Finally, a correlation analysis was conducted to find a confounding relationship between age and salary.
+
+### Methods
+
 ```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
 
 salary_data <- data[data$Q20 != "" & data$Q24 != "", ]
@@ -381,7 +395,23 @@ ggplot(salary_data, aes(x = jittered_salary, fill = company_size)) +
 cor.test(salary_data$age_midpoint, salary_data$salary_midpoint, method = "pearson")
 ```
 
+### Analysis
+
+Before discussing the results of the two t-tests conducted, we had to check the assumptions of the two-sample t-test. For both tests, the variances of the two distributions were roughly equal. For the test comparing ages, the two distributions of age were found to be roughly normal, passing the normality assumption for that test. However, the salary distributions were found to deviate slightly from a normal distribution with a right skew. Because our sample size was deemed large (**20,000+**), we continued with both two-sample t-tests.
+
+The two-sample t-test on ages resulted in a t-statistic of -5.15 and p-value of \~0, so we reject the null hypothesis meaning there is a significant difference in mean age between small and large companies. In this case, we observed larger companies having older employees. The two-sample t-test on salaries resulted in a t-statistic of -15.4 and p-value of \~0, so we reject the null hypothesis, meaning there is a significant difference in mean salary between large and small companies. In this case, the observed mean salary of large companies was higher.
+
+The correlative analysis between age and salary resulted in a Pearson's correlation coefficient of **0.266**. This shows a relatively weak positive relationship between age and salary.
+
+### Conclusion
+
+Large companies tend to higher older employees for higher salaries, meaning these employees are likely more experienced. The correlation between age and salary was found to be positive, but relatively weak.
+
 # Advanced Analysis) Predict Career Trajectory of Job-Seekers
+
+To investigate the relationship between individual factors like experience and skill with someone's career path within data-related jobs, I conducted a multinomial logistic regression analysis. This model was chosen because we wanted interpretable results that were appropriate for multi-classification.
+
+We had to first clean the data by removing rows where one of the explanatory or response variables were missing. We then converted the programming language columns into one-hot encoded numerical values where **1** means that language is used by the individual. Education and experience were encoded as ordinal numerical values with higher levels of education and experience having higher values. Finally, the model was tested on a train-test split with results plotted on a confusion matrix.
 
 ### Methods
 
@@ -470,7 +500,15 @@ ggplot(confusion_df, aes(x = Predicted, y = Actual, fill = Count)) +
 
 ### Analysis
 
+After conducting the multinomial logistic regression, the model performed with an accuracy of **31.09%** on an unseen test set. Additionally, the confusion matrix above reveals that the model predicted "Data Scientist" **\>1000** times even though it only appears in the test set about **650** times. Meanwhile, it only predicted "Data Analyst" **203** times even though it actually appears in the test set about **300** times. In fact, the confusion matrix reveals that a vast majority of incorrect predictions are when the model predicts "Data Scientist". This weakness in the model is likely due to the fact that the most common job title in the dataset is "Data Scientist", so the model optimized by predicting the most common class.
+
+In the future, we could attempt to remedy the class imbalance issue by resampling from the under-represented classes. However, this is still flawed because without enough data in a class, the trend learned for that class likely won't be generalizeable.
+
+P-values were calculated for each variable at each response level. While these p-values can not be directly interpreted because of a lack of normality in the explanatory variable distributions, they were used to rank the most significant explanatory variables for predicting certain classes. The smallest p-value corresponded to **Experience** as a strong predictor for **Software Engineer** with a coefficient of **0.534**. The second smallest p-value corresponded to **SQL** as a strong predictor against **Research Scientist** with a coefficient of **-1.868**. This means that if an individual is skilled in SQL, their likelihood of being a Research Scientist significantly decreases.
+
 ### Conclusion
+
+Ultimately, this model is not effective at predicting what type of data-related job someone will hold based on factors like skills, experience, and education. This conclusion was reached because of the model's low accuracy on the test set as well as significant class imbalances apparent from the confusion matrix.
 
 # Conclusions and Discussion
 
