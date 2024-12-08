@@ -2,7 +2,11 @@
 data <- read.table('data.csv', sep=',', header=TRUE)
 ```
 
-## Question 2: Correlation Between Experience and Programming Languages Used
+## Question 2: Compare Programming Language Usage Between Experience Levels
+
+### Methods
+
+To examine how programming language usage changes between people with different levels of experience in data-related fields, we first cleaned the data by removing rows with null values. Then, we cleaned the columns corresponding to different programming languages by changing the data types from strings to binary values where 1 represents usage of that programming language and 0 means it isn't used. Finally, we count usage of each programming language for each experience level and create a grouped bar plot. From that grouped bar plot, the most impactful languages are further examined in a stacked bar chart.
 
 ```{r, echo = FALSE}
 library(ggplot2)
@@ -81,6 +85,16 @@ ggplot(focused_data, aes(x = experience_group, y = proportion, fill = language))
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
+### Analysis
+
+Looking at the grouped bar plot reveals that the 3 most relevant languages (Python, SQL, R) stay relatively consistent within all experience levels. This means that Python is always the most common language by far across all levels of experience, followed by SQL, and then by R. This pattern is never broken in the visualization. One surprising takeaway from the plot is that C and C++ are relatively more popular among lower levels of experience whereas they drop below languages like Java and JavaScript in the higher levels of experience.
+
+In the stacked bar chart, we more closely inspect the three most relevant programming languages and how their relative usages change as experience level grows. A clear trend can be seen in Python's usage. As people become more experienced, the proportion of respondents using Python decreases, which could be due to less adoption of Python in earlier years. SQL and R both show a trend of increasing presence among people with greater programming experience. SQL's trend of increasing with experienced users is even more obvious than that of R.
+
+### Conclusion
+
+Python, SQL, and R have all stayed massively relevant to programmers of all experience levels in data-related fields. Python has been significantly more popular among less experienced programmers while SQL sees a significant increase of usage among more experienced programmers.
 
 ## Question 4: Hiring Preferences of Larger vs. Smaller Companies
 
@@ -272,17 +286,6 @@ ggplot(confusion_df, aes(x = Predicted, y = Actual, fill = Count)) +
     axis.text.x = element_text(angle = 45, hjust = 1),
     axis.text.y = element_text(angle = 45)
   )
-```
-
-```{r, echo=FALSE}
-tidy_summary <- tidy(multi_log_model)
-tidy_summary <- tidy_summary[order(tidy_summary$p.value), ]
-
-# Keep only the rows with the 8 smallest p-values
-tidy_top_8 <- head(tidy_summary, 8)
-
-# Print the result
-print(tidy_top_8)
 ```
 
 ### Analysis
