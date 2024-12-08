@@ -85,6 +85,9 @@ ggplot(focused_data, aes(x = experience_group, y = proportion, fill = language))
 ## Question 4: Hiring Preferences of Larger vs. Smaller Companies
 
 ```{r, echo = FALSE}
+
+salary_data <- data[data$Q20 != "" & data$Q24 != "", ]
+
 # Function to calculate midpoints from age ranges
 convert_age_to_midpoint <- function(age_range) {
   matches <- regmatches(age_range, gregexpr("[0-9]+", age_range))[[1]]
@@ -96,7 +99,7 @@ convert_age_to_midpoint <- function(age_range) {
 }
 
 # Apply the function to Q1 column
-data$age_midpoint <- sapply(data$Q1, convert_age_to_midpoint)
+salary_data$age_midpoint <- sapply(salary_data$Q1, convert_age_to_midpoint)
 
 # Function to calculate midpoints from salary ranges
 convert_salary_to_midpoint <- function(salary_range) {
@@ -110,22 +113,22 @@ convert_salary_to_midpoint <- function(salary_range) {
 }
 
 # Apply the function to Q24 column
-data$salary_midpoint <- sapply(data$Q24, convert_salary_to_midpoint)
+salary_data$salary_midpoint <- sapply(salary_data$Q24, convert_salary_to_midpoint)
 
 # Create binary company size variable
-data$company_size <- ifelse(data$Q20 %in% c("0-49 employees", "50-249 employees", "250-999 employees"), "Small", "Large")
-data$company_size <- factor(data$company_size, levels = c("Small", "Large"))
+salary_data$company_size <- ifelse(salary_data$Q20 %in% c("0-49 employees", "50-249 employees", "250-999 employees"), "Small", "Large")
+salary_data$company_size <- factor(salary_data$company_size, levels = c("Small", "Large"))
 
 # T-test for age
-age_test <- t.test(age_midpoint ~ company_size, data = data)
+age_test <- t.test(age_midpoint ~ company_size, data = salary_data)
 # T-test for salary
-salary_test <- t.test(salary_midpoint ~ company_size, data = data)
+salary_test <- t.test(salary_midpoint ~ company_size, data = salary_data)
 
-data$jittered_age <- jitter(data$age_midpoint, amount = 10)
-data$jittered_salary <- jitter(data$salary_midpoint, amount = 10000)
+salary_data$jittered_age <- jitter(salary_data$age_midpoint, amount = 10)
+salary_data$jittered_salary <- jitter(salary_data$salary_midpoint, amount = 10000)
 
 # Plot results of T-tests
-ggplot(data, aes(x = jittered_age, fill = company_size)) +
+ggplot(salary_data, aes(x = jittered_age, fill = company_size)) +
   geom_density(alpha = 0.5) +
   labs(
     title = "Distribution of Age by Company Size",
@@ -135,12 +138,13 @@ ggplot(data, aes(x = jittered_age, fill = company_size)) +
   ) +
   theme_minimal() +
   annotate(
-    "text", x = mean(data$age_midpoint, na.rm = TRUE), y = 0.02,
+    "text", x = mean(salary_data$age_midpoint, na.rm = TRUE), y = 0.02,
     label = paste0("t = ", round(age_test$statistic, 2), "\n", 
                    "p = ", round(age_test$p.value, 4)),
     color = "black"
   )
-ggplot(data, aes(x = jittered_salary, fill = company_size)) +
+
+ggplot(salary_data, aes(x = jittered_salary, fill = company_size)) +
   geom_density(alpha = 0.5) +
   labs(
     title = "Distribution of Salary by Company Size",
@@ -150,14 +154,99 @@ ggplot(data, aes(x = jittered_salary, fill = company_size)) +
   ) +
   theme_minimal() +
   annotate(
-    "text", x = mean(data$salary_midpoint, na.rm = TRUE), y = 0.00001,
+    "text", x = mean(salary_data$salary_midpoint, na.rm = TRUE), y = 0.00001,
     label = paste0("t = ", round(salary_test$statistic, 2), "\n", 
                    "p = ", round(salary_test$p.value, 4)),
     color = "black"
   )
 
 # Correlation analysis between age and salary
-cor.test(data$age_midpoint, data$salary_midpoint, method = "pearson")
+cor.test(salary_data$age_midpoint, salary_data$salary_midpoint, method = "pearson")
 ```
 
 ![](images/clipboard-9133593.png)
+
+## Advanced Analysis: Predict Career Trajectory of Job-Seekers
+
+```{r, echo = FALSE}
+library(nnet)
+
+regression_data <- data[, c("Q4","Q6","Q7_Part_1","Q7_Part_2","Q7_Part_3","Q7_Part_4","Q7_Part_5","Q7_Part_6","Q5")]
+
+# Remove rows where any of Q1, Q4, Q6, or Q5 has the value ""
+regression_data <- regression_data[!(regression_data$Q4 == "I prefer not to answer" | regression_data$Q4 == "" | regression_data$Q6 == "" | regression_data$Q5 == "" | regression_data$Q5 == "Student"), ]
+colnames(regression_data) <- c("Q4"="Education", "Q6"="Experience", "Q5"="Title","Q7_Part_1"="Python","Q7_Part_2"="R","Q7_Part_3"="SQL","Q7_Part_4"="C","Q7_Part_5"="C++","Q7_Part_6"="Java")[colnames(regression_data)]
+
+language_columns <- c("Python","R","SQL","C","C++","Java")
+regression_data[language_columns] <- lapply(regression_data[language_columns], function(col) ifelse(col != "", 1, 0))
+
+education_levels <- c(
+  "No formal education past high school",
+  "Some college/university study without earning a bachelor’s degree",
+  "Bachelor’s degree",
+  "Master’s degree",
+  "Doctoral degree",
+  "Professional degree")
+experience_levels <- c(
+  "I have never written code",
+  "< 1 years",
+  "1-2 years",
+  "3-5 years",
+  "5-10 years",
+  "10-20 years",
+  "20+ years"
+)
+
+regression_data$Education <- as.numeric(factor(regression_data$Education, levels = education_levels, ordered = TRUE))
+regression_data$Experience <- as.numeric(factor(regression_data$Experience, levels = experience_levels, ordered = TRUE))
+
+regression_data$Title <- factor(regression_data$Title)
+
+set.seed(42)
+train_indices <- sample(1:nrow(regression_data), size = 0.75 * nrow(regression_data))
+train_data <- regression_data[train_indices, ]
+test_data <- regression_data[-train_indices, ]
+
+multi_log_model <- multinom(
+  Title ~ Education + Experience + .,
+  data = train_data
+)
+
+# Predict class labels
+predictions <- predict(multi_log_model, newdata = test_data)
+
+# Confusion matrix
+confusion_matrix <- table(test_data$Title, predictions)
+
+# Calculate accuracy
+accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
+cat("Accuracy:", round(accuracy * 100, 2), "%\n")
+
+```
+
+```{r, echo = FALSE}
+# Create the confusion matrix
+confusion_matrix <- table(test_data$Title, predictions)
+
+# Convert the confusion matrix to a data frame for visualization
+confusion_df <- as.data.frame(as.table(confusion_matrix))
+colnames(confusion_df) <- c("Actual", "Predicted", "Count")
+
+# Plot the confusion matrix as a heatmap
+ggplot(confusion_df, aes(x = Predicted, y = Actual, fill = Count)) +
+  geom_tile() +
+  geom_text(aes(label = Count), color = "white", size = 5) +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  scale_y_discrete(limits = rev(levels(confusion_df$Actual))) +
+  labs(
+    title = "Confusion Matrix",
+    x = "Predicted Labels",
+    y = "Actual Labels",
+    fill = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.y = element_text(angle = 45)
+  )
+```
