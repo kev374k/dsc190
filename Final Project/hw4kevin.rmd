@@ -1,5 +1,5 @@
 ---
-title: "Finding the Relationship between Density and Gain"
+title: "Analyzing Nuances within the Machine Learning Community"
 author: "Author 1 and Author 2"
 date: "`r Sys.Date()`"
 output: 
@@ -17,9 +17,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Author Contributions
 
-Author 1: Contributed to questions 1, 4, 5, and did the formatting for the pdf
+Author 1: Contributed to questions 1 and 3 and did the formatting for the pdf
 
-Author 2: Contributed to questions 2, 3, and 6, along with doing the advanced analysis.
+Author 2: Contributed to questions 2 and 4 along with doing the advanced analysis.
 
 ## Use of GPT
 
@@ -122,13 +122,99 @@ Looking through this graph, we can notice a lot of things. For instance, it can 
 
 Further analysis of the data and the graph created above shows that the educational attainment for those who took this survey, and by connotation, are interested in Machine Learning, is very different than the actual educational attainment in the United States. This somewhat makes sense; machine learning is a typically much more education-based topic that people have to learn, so those who want to learn it and apply it in their lives typically go to college and even higher education to achieve their goals. The other things we noticed also make sense; younger people rarely have degrees above a bachelor's, because they don't have the necessary amount of time to get those degrees. Additionally, most of the ages in the graph tend to be younger, skewing right, which makes sense, because machine learning has only become an especially popular topic recently, which maybe be reflected in our data.
 
+## Question 2) Correlation Between Experience and Programming Languages Used
+
+### Methods
+
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE, message = FALSE}
+library(ggplot2)
+library(reshape2)
+library(dplyr)
+language_data <- data[!is.na(data[["Q6"]]), ]
+
+# Create experience groups from Q6 (assumes column Q6 exists)
+language_data$experience_group <- factor(
+  language_data$Q6,
+  levels = c("< 1 years", "1-2 years", "3-5 years", "5-10 years", "10-20 years", "20+ years")
+)
+
+# Subset relevant language columns (e.g., Q7_Part_1, Q7_Part_2, ...)
+language_columns <- grep("^Q7_", names(language_data), value = TRUE)
+exclude_languages <- c("Q7_Part_12", "Q7_OTHER")
+filtered_language_columns <- setdiff(language_columns, exclude_languages)
+# Create a binary matrix of language usage (1 = language used, 0 = not used)
+binary_matrix <- as.data.frame(ifelse(language_data[filtered_language_columns] != "", 1, 0))
+binary_matrix$experience_group <- language_data$experience_group
+
+# Aggregate counts by experience group and language
+language_counts <- aggregate(. ~ experience_group, data = binary_matrix, sum)
+language_mapping <- c(
+  Q7_Part_1 = "Python",
+  Q7_Part_2 = "R",
+  Q7_Part_3 = "SQL",
+  Q7_Part_4 = "C",
+  Q7_Part_5 = "C++",
+  Q7_Part_6 = "Java",
+  Q7_Part_7 = "JavaScript",
+  Q7_Part_8 = "Julia",
+  Q7_Part_9 = "Swift",
+  Q7_Part_10 = "Bash",
+  Q7_Part_11 = "MATLAB"
+)
+language_counts_long <- melt(language_counts, id.vars = "experience_group", 
+                             variable.name = "language", value.name = "count")
+language_counts_long$language <- language_mapping[language_counts_long$language]
+language_counts_long$language <- factor(
+  language_counts_long$language,
+  levels = c("Python", "R", "SQL", "C", "C++", "Java", "JavaScript", "Julia", 
+             "Swift", "Bash", "MATLAB")
+)
+
+# Plot grouped bar chart
+ggplot(language_counts_long, aes(x = experience_group, y = count, fill = language)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(
+    title = "Programming Languages Used by Experience Group",
+    x = "Experience Group",
+    y = "Number of Respondents",
+    fill = "Programming Language"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+selected_languages <- c("Python", "R", "SQL")
+focused_data <- subset(language_counts_long, language %in% selected_languages)
+
+# Calculate proportions within each experience group
+focused_data <- focused_data %>%
+  group_by(experience_group) %>%
+  mutate(proportion = count / sum(count))
+
+# Plot stacked bar chart (relative proportions)
+ggplot(focused_data, aes(x = experience_group, y = proportion, fill = language)) +
+  geom_bar(stat = "identity") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    title = "Proportion of Python, R, and SQL Usage by Experience Group",
+    x = "Experience Group",
+    y = "Proportion of Respondents",
+    fill = "Programming Language"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### Analysis
+
+### Conclusion
+
 ## Question 3) Distribution of Jobs and general Population
 
 For this question, we want to investigate how the general population of the data and their relationships with their jobs is like. For instance, for each country, what is the most typical job, and what does this say about the population using Kaggle? Additionally, we want to take into account the top 3 jobs in each country, while also maintaining a global job distribution of which people from different countries use Kaggle the most.
 
 ### Methods
 
-```{r, echo = FALSE, message = FALSE}
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE, message = FALSE}
 library(dplyr)
 
 countries <- cleaned_data$Q3[2:nrow(cleaned_data)]
@@ -212,3 +298,183 @@ Looking through our graphs, there are a few things to note. For instance, the mo
 ### Conclusion
 
 To conclude, we can notice a few significant trends within our data. India and the United States are the primary countries of the users who took this survey, and the jobs most associated with these users included "Student", "Software Engineer", "Data Scientist", and "Other". These show within the overall global distribution of jobs, whose top 4 jobs were identical. This same distribution is similar within all the individual countries, showing that a lot of the people who use Kaggle and filled out this survey about machine learning were typically students, engineers, or data scientists, which fits into Kaggle's overall use of being a place to store data and have competitions with it.
+
+## Question 4) Hiring Preferences of Larger vs. Smaller Companies
+
+```{r, fig.width = 8, fig.height = 4.5, echo = FALSE}
+
+salary_data <- data[data$Q20 != "" & data$Q24 != "", ]
+
+# Function to calculate midpoints from age ranges
+convert_age_to_midpoint <- function(age_range) {
+  matches <- regmatches(age_range, gregexpr("[0-9]+", age_range))[[1]]
+  if (length(matches) == 2) {
+    return((as.numeric(matches[1]) + as.numeric(matches[2])) / 2)
+  } else {
+    return(80)
+  }
+}
+
+# Apply the function to Q1 column
+salary_data$age_midpoint <- sapply(salary_data$Q1, convert_age_to_midpoint)
+
+# Function to calculate midpoints from salary ranges
+convert_salary_to_midpoint <- function(salary_range) {
+  clean_string <- gsub("[\\$,]", "", salary_range)  # Remove $ and commas
+  matches <- regmatches(clean_string, gregexpr("[0-9]+", clean_string))[[1]]
+  if (length(matches) == 2) {
+    return((as.numeric(matches[1]) + as.numeric(matches[2])) / 2)
+  } else {
+    return(700000)
+  }
+}
+
+# Apply the function to Q24 column
+salary_data$salary_midpoint <- sapply(salary_data$Q24, convert_salary_to_midpoint)
+
+# Create binary company size variable
+salary_data$company_size <- ifelse(salary_data$Q20 %in% c("0-49 employees", "50-249 employees", "250-999 employees"), "Small", "Large")
+salary_data$company_size <- factor(salary_data$company_size, levels = c("Small", "Large"))
+
+# T-test for age
+age_test <- t.test(age_midpoint ~ company_size, data = salary_data)
+# T-test for salary
+salary_test <- t.test(salary_midpoint ~ company_size, data = salary_data)
+
+salary_data$jittered_age <- jitter(salary_data$age_midpoint, amount = 10)
+salary_data$jittered_salary <- jitter(salary_data$salary_midpoint, amount = 10000)
+
+# Plot results of T-tests
+ggplot(salary_data, aes(x = jittered_age, fill = company_size)) +
+  geom_density(alpha = 0.5) +
+  labs(
+    title = "Distribution of Age by Company Size",
+    x = "Age (Midpoint)",
+    y = "Density",
+    fill = "Company Size"
+  ) +
+  theme_minimal() +
+  annotate(
+    "text", x = mean(salary_data$age_midpoint, na.rm = TRUE), y = 0.02,
+    label = paste0("t = ", round(age_test$statistic, 2), "\n", 
+                   "p = ", round(age_test$p.value, 4)),
+    color = "black"
+  )
+
+ggplot(salary_data, aes(x = jittered_salary, fill = company_size)) +
+  geom_density(alpha = 0.5) +
+  labs(
+    title = "Distribution of Salary by Company Size",
+    x = "Salary (Midpoint)",
+    y = "Density",
+    fill = "Company Size"
+  ) +
+  theme_minimal() +
+  annotate(
+    "text", x = mean(salary_data$salary_midpoint, na.rm = TRUE), y = 0.00001,
+    label = paste0("t = ", round(salary_test$statistic, 2), "\n", 
+                   "p = ", round(salary_test$p.value, 4)),
+    color = "black"
+  )
+
+# Correlation analysis between age and salary
+cor.test(salary_data$age_midpoint, salary_data$salary_midpoint, method = "pearson")
+```
+
+# Advanced Analysis) Predict Career Trajectory of Job-Seekers
+
+### Methods
+
+```{r, echo = FALSE}
+library(nnet)
+
+regression_data <- data[, c("Q4","Q6","Q7_Part_1","Q7_Part_2","Q7_Part_3","Q7_Part_4","Q7_Part_5","Q7_Part_6","Q5")]
+
+# Remove rows where any of Q1, Q4, Q6, or Q5 has the value ""
+regression_data <- regression_data[!(regression_data$Q4 == "I prefer not to answer" | regression_data$Q4 == "" | regression_data$Q6 == "" | regression_data$Q5 == "" | regression_data$Q5 == "Student"), ]
+colnames(regression_data) <- c("Q4"="Education", "Q6"="Experience", "Q5"="Title","Q7_Part_1"="Python","Q7_Part_2"="R","Q7_Part_3"="SQL","Q7_Part_4"="C","Q7_Part_5"="C++","Q7_Part_6"="Java")[colnames(regression_data)]
+
+language_columns <- c("Python","R","SQL","C","C++","Java")
+regression_data[language_columns] <- lapply(regression_data[language_columns], function(col) ifelse(col != "", 1, 0))
+
+education_levels <- c(
+  "No formal education past high school",
+  "Some college/university study without earning a bachelor’s degree",
+  "Bachelor’s degree",
+  "Master’s degree",
+  "Doctoral degree",
+  "Professional degree")
+experience_levels <- c(
+  "I have never written code",
+  "< 1 years",
+  "1-2 years",
+  "3-5 years",
+  "5-10 years",
+  "10-20 years",
+  "20+ years"
+)
+
+regression_data$Education <- as.numeric(factor(regression_data$Education, levels = education_levels, ordered = TRUE))
+regression_data$Experience <- as.numeric(factor(regression_data$Experience, levels = experience_levels, ordered = TRUE))
+
+regression_data$Title <- factor(regression_data$Title)
+
+set.seed(42)
+train_indices <- sample(1:nrow(regression_data), size = 0.75 * nrow(regression_data))
+train_data <- regression_data[train_indices, ]
+test_data <- regression_data[-train_indices, ]
+
+multi_log_model <- multinom(
+  Title ~ Education + Experience + .,
+  data = train_data
+)
+
+# Predict class labels
+predictions <- predict(multi_log_model, newdata = test_data)
+
+# Confusion matrix
+confusion_matrix <- table(test_data$Title, predictions)
+
+# Calculate accuracy
+accuracy <- sum(diag(confusion_matrix)) / sum(confusion_matrix)
+cat("Accuracy:", round(accuracy * 100, 2), "%\n")
+
+```
+
+```{r, echo = FALSE}
+# Create the confusion matrix
+confusion_matrix <- table(test_data$Title, predictions)
+
+# Convert the confusion matrix to a data frame for visualization
+confusion_df <- as.data.frame(as.table(confusion_matrix))
+colnames(confusion_df) <- c("Actual", "Predicted", "Count")
+
+# Plot the confusion matrix as a heatmap
+ggplot(confusion_df, aes(x = Predicted, y = Actual, fill = Count)) +
+  geom_tile() +
+  geom_text(aes(label = Count), color = "white", size = 5) +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  scale_y_discrete(limits = rev(levels(confusion_df$Actual))) +
+  labs(
+    title = "Confusion Matrix",
+    x = "Predicted Labels",
+    y = "Actual Labels",
+    fill = "Count"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.y = element_text(angle = 45)
+  )
+```
+
+### Analysis 
+
+### Conclusion
+
+# Conclusions and Discussion
+
+## Summary of Findings
+
+The machine learning survey provided a lot of data about people and the ways they interact with machine learning, especially on Kaggle. One of the first things we noticed was the age-education relationship hidden within the data, which followed an interesting pattern that suggests machine learning is a higher education led field, as Master's degrees and PhDs typically became more and more popular as people aged, typically meaning that those who are involved in this field usually want higher education to be successful. Additionally, during our analysis of the experience-programming relationship, we noticed that Python, R, and SQL were the most widely used programming languages within coders, and surprisingly, maintains a very steady usage rate between all experience groups, even increasing as one gains more experience. This could potentially indicate the usefulness of Python even at the highest levels of data analysis and machine learning, which makes sense with the context we now know. In terms of the job distribution within countries, we noticed that the global job distribution tended to favor people from countries like India or the United States, which were especially skewed towards being students. This falls in line with most other countries, as the top 3 jobs in the top 10 countries typically were students, software engineers, data scientists, or analysts, which makes sense, as Kaggle is a platform that contains data primarily for these roles. Finally, during our analysis of hiring preferences for larger versus smaller companies, we noticed that while the distribution for age between large and small companies remained relatively similarly, the distribution of salary by company size was quite different. One thing that we noticed was that small companies tend to have most salaries peaking up in one area, while larger comapnies are able to afford a flatter curve with peaks at different places, indicating they have resources to pay higher skilled employees with higher wages. 
+
